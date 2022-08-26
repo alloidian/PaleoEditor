@@ -1,0 +1,12 @@
+object CustomConfigFrame: TCustomConfigFrame
+  Left = 0
+  Height = 221
+  Top = 0
+  Width = 400
+  Color = clBtnFace
+  ParentBackground = False
+  ParentColor = False
+  TabOrder = 0
+  DesignLeft = 2599
+  DesignTop = 594
+end

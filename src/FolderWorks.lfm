@@ -1,0 +1,5 @@
+inherited FolderWorkForm: TFolderWorkForm
+  Caption = 'Workspace'
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+end

@@ -1,0 +1,71 @@
+object ExecutionForm: TExecutionForm
+  Left = 2531
+  Height = 120
+  Top = 280
+  Width = 300
+  ActiveControl = ParameterEdit
+  BorderIcons = []
+  BorderStyle = bsDialog
+  Caption = 'Execution'
+  ClientHeight = 120
+  ClientWidth = 300
+  Position = poMainFormCenter
+  LCLVersion = '2.2.2.0'
+  object ExecutableNameLabel: TLabel
+    Left = 8
+    Height = 15
+    Top = 4
+    Width = 95
+    Caption = 'Command Name:'
+    FocusControl = ExecutableNameEdit
+    ParentColor = False
+  end
+  object ExecutableNameEdit: TEdit
+    Left = 8
+    Height = 23
+    Top = 20
+    Width = 280
+    ParentColor = True
+    ReadOnly = True
+    TabStop = False
+    TabOrder = 0
+  end
+  object ParameterLabel: TLabel
+    Left = 8
+    Height = 15
+    Top = 44
+    Width = 62
+    Caption = 'Parameters:'
+    FocusControl = ParameterEdit
+    ParentColor = False
+  end
+  object ParameterEdit: TEdit
+    Left = 8
+    Height = 23
+    Top = 60
+    Width = 280
+    TabOrder = 1
+  end
+  object OKButton: TButton
+    Left = 120
+    Height = 25
+    Hint = 'Execute the selected command file with the provided parameters.'
+    Top = 88
+    Width = 75
+    Caption = 'OK'
+    Default = True
+    ModalResult = 1
+    TabOrder = 2
+  end
+  object CancelButton: TButton
+    Left = 213
+    Height = 25
+    Hint = 'Disregard executing the selected command file.'
+    Top = 88
+    Width = 75
+    Cancel = True
+    Caption = 'Cancel'
+    ModalResult = 2
+    TabOrder = 3
+  end
+end

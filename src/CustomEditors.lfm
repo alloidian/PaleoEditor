@@ -1,0 +1,44 @@
+object CustomEditorFrame: TCustomEditorFrame
+  Left = 0
+  Height = 384
+  Top = 0
+  Width = 512
+  ClientHeight = 384
+  ClientWidth = 512
+  ParentFont = False
+  TabOrder = 0
+  DesignLeft = 2345
+  DesignTop = 290
+  object StatusBar: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 361
+    Width = 512
+    Panels = <    
+      item
+        Alignment = taCenter
+        Width = 64
+      end    
+      item
+        Alignment = taCenter
+        Width = 64
+      end    
+      item
+        Alignment = taCenter
+        Width = 64
+      end    
+      item
+        Alignment = taRightJustify
+        Width = 40
+      end    
+      item
+        Alignment = taRightJustify
+        Width = 40
+      end    
+      item
+        Width = 40
+      end>
+    SimplePanel = False
+    SizeGrip = False
+  end
+end

@@ -1,0 +1,101 @@
+inherited ProjectWorkForm: TProjectWorkForm
+  OnCreate = FormCreate
+  inherited Navigator: TTreeView
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoNoDoubleClickExpand]
+  end
+  inherited MainMenu: TMainMenu
+    inherited FileMenu: TMenuItem
+      object FileDeleteFolderMenu: TMenuItem[9]
+        Caption = 'FileDeleteFolderMenu'
+        Visible = False
+      end
+      inherited FileDeleteFileMenu: TMenuItem[10]
+        Action = nil
+        Caption = 'FileDeleteFileMenu'
+        Visible = False
+      end
+      inherited ExecuteSeparator: TMenuItem[11]
+      end
+      inherited FileExecuteMenu: TMenuItem[12]
+      end
+      inherited FileLaunchExplorerMenu: TMenuItem[13]
+      end
+      inherited FileLaunchConsoleMenu: TMenuItem[14]
+      end
+      inherited FileLaunchExecuteMenu: TMenuItem[15]
+      end
+      inherited PrintSeparator: TMenuItem[16]
+      end
+      inherited FileCloseUnmodifiedMenu: TMenuItem[17]
+      end
+      inherited FileRevertMenu: TMenuItem[18]
+      end
+      inherited FileExportHtmlMenu: TMenuItem[19]
+      end
+      inherited FilePrintMenu: TMenuItem[20]
+      end
+      inherited FilePrintSetupMenu: TMenuItem[21]
+      end
+    end
+  end
+  inherited Actions: TActionList
+    inherited ExpandAllAction: TAction[15]
+    end
+    inherited CollapseAllAction: TAction[16]
+    end
+    inherited FindAction: TAction[17]
+    end
+    inherited ReplaceAction: TAction[18]
+    end
+    inherited FindAllAction: TAction[19]
+    end
+    inherited LabelLookupAction: TAction[20]
+    end
+    inherited GotoAction: TAction[21]
+    end
+    inherited ExecuteCommandAction: TAction[22]
+    end
+    inherited RefreshAction: TAction[23]
+    end
+    inherited CloseStatusAction: TAction[24]
+    end
+    inherited ClearStatusAction: TAction[25]
+    end
+    inherited ViewNavigatorAction: TAction[26]
+    end
+    inherited ViewStatusAction: TAction[27]
+    end
+    inherited LaunchExplorerFolderAction: TAction[28]
+    end
+    inherited LaunchConsoleFolderAction: TAction[29]
+    end
+    inherited LaunchExecuteAction: TAction[30]
+    end
+    inherited FilePrintAction: TAction[31]
+    end
+    inherited FilePrintSetupAction: TAction[32]
+    end
+    inherited DeleteFolderAction: TAction[33]
+    end
+    inherited CloseUnmodifiedFilesAction: TAction[34]
+    end
+    inherited RevertFileAction: TAction[35]
+    end
+    inherited LaunchExplorerFileAction: TAction[36]
+    end
+    inherited LaunchConsoleFileAction: TAction[37]
+    end
+  end
+  inherited NavigatorPopupMenu: TPopupMenu
+    inherited LaunchSeparator: TMenuItem[6]
+    end
+    inherited LaunchExplorerMenu: TMenuItem[7]
+    end
+    inherited LaunchConsoleMenu: TMenuItem[8]
+    end
+    inherited LaunchExecuteMenu: TMenuItem[9]
+    end
+    inherited NavigatorDeleteMenu: TMenuItem[10]
+    end
+  end
+end

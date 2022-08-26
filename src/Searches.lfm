@@ -1,0 +1,331 @@
+object SearchFrame: TSearchFrame
+  Left = 0
+  Height = 500
+  Top = 0
+  Width = 256
+  ClientHeight = 500
+  ClientWidth = 256
+  ParentFont = False
+  TabOrder = 0
+  DesignLeft = 2529
+  DesignTop = 257
+  object ScrollBox: TScrollBox
+    Left = 0
+    Height = 500
+    Top = 0
+    Width = 256
+    HorzScrollBar.Page = 1
+    HorzScrollBar.Visible = False
+    VertScrollBar.Page = 490
+    VertScrollBar.Tracking = True
+    Align = alClient
+    BorderStyle = bsNone
+    ClientHeight = 500
+    ClientWidth = 256
+    TabOrder = 0
+    object CaseEdit: TCheckBox
+      Left = 24
+      Height = 19
+      Top = 52
+      Width = 82
+      Caption = 'Match Case'
+      TabOrder = 3
+    end
+    object WordEdit: TCheckBox
+      Left = 110
+      Height = 19
+      Top = 52
+      Width = 123
+      Caption = 'Match Whole Word'
+      TabOrder = 4
+    end
+    object SearchPrevButton: TButton
+      Left = 24
+      Height = 20
+      Top = 440
+      Width = 68
+      Action = SearchPrevAction
+      TabOrder = 15
+    end
+    object SearchNextButton: TButton
+      Left = 24
+      Height = 20
+      Top = 470
+      Width = 68
+      Action = SearchNextAction
+      TabOrder = 16
+    end
+    object ReplaceButton: TButton
+      Left = 94
+      Height = 20
+      Top = 440
+      Width = 68
+      Action = ReplaceAction
+      TabOrder = 17
+    end
+    object ReplaceAllButton: TButton
+      Left = 94
+      Height = 20
+      Top = 470
+      Width = 68
+      Action = ReplaceAllAction
+      TabOrder = 18
+    end
+    object ReplaceEdit: TRadioButton
+      Tag = 2
+      Left = 8
+      Height = 19
+      Top = 76
+      Width = 90
+      Caption = 'Replace with:'
+      OnClick = SearchClick
+      TabOrder = 5
+    end
+    object SearchAllEdit: TRadioButton
+      Tag = 3
+      Left = 8
+      Height = 19
+      Top = 120
+      Width = 100
+      Caption = 'Files matching:'
+      OnClick = SearchClick
+      TabOrder = 7
+    end
+    object SearchEdit: TRadioButton
+      Tag = 1
+      Left = 8
+      Height = 19
+      Top = 4
+      Width = 76
+      Caption = 'Search for:'
+      OnClick = SearchClick
+      TabOrder = 0
+    end
+    object GoToEdit: TRadioButton
+      Tag = 5
+      Left = 8
+      Height = 19
+      Top = 384
+      Width = 74
+      Caption = '&Go to line:'
+      OnClick = SearchClick
+      TabOrder = 13
+    end
+    object LineNumberEdit: TEdit
+      Left = 24
+      Height = 23
+      Top = 404
+      Width = 68
+      Alignment = taRightJustify
+      MaxLength = 8
+      OnKeyPress = LineNumberEditKeyPress
+      PopupMenu = PopupMenu
+      TabOrder = 14
+    end
+    object CloseButton: TButton
+      Left = 164
+      Height = 20
+      Top = 470
+      Width = 68
+      Action = CloseAction
+      Cancel = True
+      TabOrder = 19
+    end
+    object CriteriaEdit: TComboBox
+      Left = 24
+      Height = 23
+      Top = 24
+      Width = 208
+      ItemHeight = 15
+      PopupMenu = PopupMenu
+      TabOrder = 2
+    end
+    object ReplacementEdit: TComboBox
+      Left = 24
+      Height = 23
+      Top = 96
+      Width = 208
+      ItemHeight = 15
+      PopupMenu = PopupMenu
+      TabOrder = 6
+    end
+    object FilterEdit: TComboBox
+      Left = 24
+      Height = 23
+      Top = 140
+      Width = 208
+      ItemHeight = 15
+      PopupMenu = PopupMenu
+      TabOrder = 8
+    end
+    object DeclarationEdit: TCheckBox
+      Left = 24
+      Height = 19
+      Top = 168
+      Width = 80
+      Caption = 'Declaration'
+      TabOrder = 9
+    end
+    object SearchForPanel: TPanel
+      Left = 126
+      Height = 21
+      Top = 1
+      Width = 112
+      BevelOuter = bvNone
+      ClientHeight = 21
+      ClientWidth = 112
+      TabOrder = 1
+      object ForTextEdit: TRadioButton
+        Left = 13
+        Height = 19
+        Top = 3
+        Width = 42
+        Caption = 'Text'
+        TabOrder = 0
+      end
+      object ForFileEdit: TRadioButton
+        Left = 70
+        Height = 19
+        Top = 3
+        Width = 38
+        Caption = 'File'
+        TabOrder = 1
+      end
+    end
+    object SearchLabelEdit: TRadioButton
+      Tag = 4
+      Left = 8
+      Height = 19
+      Top = 192
+      Width = 80
+      Caption = 'Go to label:'
+      OnClick = SearchClick
+      TabOrder = 10
+    end
+    object LabelCriteriaEdit: TListFilterEdit
+      Left = 24
+      Height = 23
+      Top = 212
+      Width = 208
+      FilterOptions = [fsoMatchOnlyAtStart]
+      OnAfterFilter = LabelCriteriaEditAfterFilter
+      ButtonWidth = 23
+      NumGlyphs = 1
+      MaxLength = 0
+      PopupMenu = PopupMenu
+      TabOrder = 11
+      FilteredListbox = LabelListEdit
+    end
+    object LabelListEdit: TListBox
+      Left = 24
+      Height = 132
+      Top = 240
+      Width = 208
+      ExtendedSelect = False
+      ItemHeight = 0
+      TabOrder = 12
+    end
+  end
+  object Actions: TActionList
+    Left = 186
+    Top = 390
+    object EditCutAction: TEditCut
+      Category = 'Edit'
+      Caption = 'Cu&t'
+      Hint = 'Cut selected text.'
+      ShortCut = 16472
+    end
+    object EditCopyAction: TEditCopy
+      Category = 'Edit'
+      Caption = '&Copy'
+      Hint = 'Copy selected text.'
+      ShortCut = 16451
+    end
+    object EditPasteAction: TEditPaste
+      Category = 'Edit'
+      Caption = '&Paste'
+      Hint = 'Paste text.'
+      ShortCut = 16470
+    end
+    object EditSelectAllAction: TEditSelectAll
+      Category = 'Edit'
+      Caption = 'Select &All'
+      Hint = 'Select All text.'
+      ShortCut = 16449
+    end
+    object EditDeleteAction: TEditDelete
+      Category = 'Edit'
+      Caption = '&Delete'
+      Hint = 'Delete selected text.'
+      ShortCut = 46
+    end
+    object SearchPrevAction: TAction
+      Caption = '&Previous'
+      Hint = 'Search for previous match.'
+      OnExecute = SearchPrevActionExecute
+      OnUpdate = SearchPrevActionUpdate
+      ShortCut = 8306
+    end
+    object SearchNextAction: TAction
+      Caption = '&Next'
+      Hint = 'Search for next match.'
+      OnExecute = SearchNextActionExecute
+      OnUpdate = SearchNextActionUpdate
+      ShortCut = 114
+    end
+    object SearchAllAction: TAction
+      Caption = '&All'
+      Hint = 'Search all files for match.'
+      OnExecute = SearchAllActionExecute
+      OnUpdate = SearchAllActionUpdate
+    end
+    object ReplaceAction: TAction
+      Caption = '&Replace'
+      Hint = 'Replace text for next match.'
+      OnExecute = ReplaceActionExecute
+      OnUpdate = ReplaceActionUpdate
+    end
+    object ReplaceAllAction: TAction
+      Caption = 'Replace &All'
+      Hint = 'Replace text for all matches.'
+      OnExecute = ReplaceAllActionExecute
+      OnUpdate = ReplaceAllActionUpdate
+    end
+    object LabelAction: TAction
+      Caption = '&Go To'
+      Hint = 'Search for label declaration.'
+      OnExecute = LabelActionExecute
+      OnUpdate = LabelActionUpdate
+    end
+    object GoToAction: TAction
+      Caption = '&Go To'
+      Hint = 'Go to specified line number.'
+      OnExecute = GoToActionExecute
+      OnUpdate = GoToActionUpdate
+    end
+    object CloseAction: TAction
+      Caption = 'Close'
+      Hint = 'Close search control.'
+      OnExecute = CloseActionExecute
+    end
+  end
+  object PopupMenu: TPopupMenu
+    Left = 126
+    Top = 390
+    object SearchCutMenu: TMenuItem
+      Action = EditCutAction
+    end
+    object SearchCopyMenu: TMenuItem
+      Action = EditCopyAction
+    end
+    object SearchPasteMenu: TMenuItem
+      Action = EditPasteAction
+    end
+    object SearchSelectAllMenu: TMenuItem
+      Action = EditSelectAllAction
+    end
+    object SearchDeleteMenu: TMenuItem
+      Action = EditDeleteAction
+    end
+  end
+end

@@ -1,0 +1,44 @@
+program Paleo;
+
+{ Copyright ©2022 by Steve Garcia. All rights reserved.
+
+  This file is part of the Paleo Editor project.
+
+  The Paleo Editor is free software: you can redistribute it and/or modify it under the
+  terms of the GNU General Public License as published by the Free Software Foundation,
+  either version 3 of the License, or (at your option) any later version.
+
+  The Paleo Editor project is distributed in the hope that it will be useful, but WITHOUT
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+  PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with the Paleo
+  Editor project. If not, see <https://www.gnu.org/licenses/>. }
+
+{$MODE DELPHI}{$H+}
+
+uses
+  {$IFDEF UNIX}
+  cthreads,
+  {$ENDIF}
+  {$IFDEF HASAMIGA}
+  athreads,
+  {$ENDIF}
+  Interfaces, // this includes the LCL widgetset
+  Forms, printer4lazarus, lazcontrols, Main, Configs, CustomWorks, Searches,
+  CustomEditors, Utils, SyntaxEditors, Executions, HexEditors, Actions, Abouts,
+  SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
+  NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
+  DirMonitors;
+
+{$R *.res}
+
+begin
+  RequireDerivedFormResource:=True;
+  Application.Title:='Paleo Editor';
+  Application.Scaled:=True;
+  Application.Initialize;
+  Application.CreateForm(TMainForm, MainForm);
+  Application.Run;
+end.
+

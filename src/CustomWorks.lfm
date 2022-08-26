@@ -1,0 +1,670 @@
+object CustomWorkForm: TCustomWorkForm
+  Left = 2170
+  Height = 482
+  Top = 201
+  Width = 864
+  ActiveControl = Navigator
+  Caption = 'Project'
+  ClientHeight = 462
+  ClientWidth = 864
+  Constraints.MinHeight = 421
+  Constraints.MinWidth = 773
+  FormStyle = fsMDIChild
+  Menu = MainMenu
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  Position = poDefaultPosOnly
+  ShowHint = True
+  LCLVersion = '2.2.2.0'
+  object StatusPages: TPageControl
+    Left = 0
+    Height = 104
+    Top = 358
+    Width = 864
+    ActivePage = MessagePage
+    Align = alBottom
+    Constraints.MaxHeight = 300
+    Constraints.MinHeight = 104
+    PopupMenu = StatusPopupMenu
+    TabIndex = 0
+    TabOrder = 0
+    TabPosition = tpBottom
+    Visible = False
+    object MessagePage: TTabSheet
+      Caption = 'Messages'
+      ClientHeight = 76
+      ClientWidth = 856
+      object LogEdit: TMemo
+        Left = 0
+        Height = 76
+        Top = 0
+        Width = 856
+        Align = alClient
+        Font.Name = 'Courier New'
+        ParentFont = False
+        ReadOnly = True
+        ScrollBars = ssAutoBoth
+        TabOrder = 0
+        TabStop = False
+      end
+    end
+  end
+  object StatusSplitter: TSplitter
+    Cursor = crVSplit
+    Left = 0
+    Height = 8
+    Top = 350
+    Width = 864
+    Align = alBottom
+    ResizeAnchor = akBottom
+    Visible = False
+  end
+  object Navigator: TTreeView
+    Left = 0
+    Height = 350
+    Top = 0
+    Width = 160
+    Align = alLeft
+    BorderStyle = bsNone
+    Constraints.MaxWidth = 500
+    Constraints.MinWidth = 160
+    Images = Images
+    PopupMenu = NavigatorPopupMenu
+    ReadOnly = True
+    RightClickSelect = True
+    TabOrder = 2
+    OnAdvancedCustomDrawItem = NavigatorAdvancedCustomDrawItem
+    OnDblClick = NavigatorDblClick
+    OnDeletion = NavigatorDeletion
+    OnKeyPress = NavigatorKeyPress
+    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
+  end
+  object NavigatorSplitter: TSplitter
+    Left = 160
+    Height = 350
+    Top = 0
+    Width = 8
+  end
+  object WorkPanel: TPanel
+    Left = 168
+    Height = 350
+    Top = 0
+    Width = 696
+    Align = alClient
+    BevelOuter = bvNone
+    ClientHeight = 350
+    ClientWidth = 696
+    TabOrder = 4
+    object SearchPanel: TPanel
+      Left = 440
+      Height = 350
+      Top = 0
+      Width = 256
+      Align = alRight
+      BevelOuter = bvNone
+      TabOrder = 0
+    end
+    object WorkPages: TPageControl
+      Left = 0
+      Height = 350
+      Top = 0
+      Width = 440
+      Align = alClient
+      Images = Images
+      PopupMenu = EditorMenu
+      TabOrder = 1
+      OnChange = WorkPagesChange
+      OnDragDrop = WorkPagesDragDrop
+      OnDragOver = WorkPagesDragOver
+      OnMouseDown = WorkPagesMouseDown
+    end
+  end
+  object Images: TImageList
+    Left = 58
+    Top = 64
+    Bitmap = {
+      4C7A080000001000000010000000F80300000000000078DAED973B68535118C7
+      6FED203E401D1C9C4A11717272109C1C142727074584A20EA28238084EA2B854
+      05C1C5D7508AAD6D5AF34E9AD2071210A162C14105E9586BF36813D3DA47124D
+      7BFCFED773D29BDBFB3A270591E6831FCDBDCDFF3BE77CF7FCBF7BA2695AB3A6
+      69BB0C6CD7E4E20DD16900D7C724F43ED335C68F12610F3CB6D0CB441F91E239
+      5448D539BEAFA1DFF47AB37F6480D6EC5F199AB5FAE381C9937E629F84BEDF74
+      7D8018226EB970CAA67F205A88232E0CF25E03FD6EE22ED12EC127E222D75F27
+      CEF2716518E1FA0E628F42EDC35C1F56D0EE24BA8800F15A417F94B8497C26EE
+      29E8AF102788DFC46905FD0B622FC188FD8AB543FC249A24B55B78DD10EF14C6
+      3EC8F790A6E8FF61E238D7ABF8DFEA1D9FB479C7BDE7B56EF2584F73B4F1FDFD
+      D4258793FE2471C625879B5E73C9E1A4EF37F8FE23F14842BFC3C2F73109BDD7
+      B536F49B5B9F9438B7260D3A73FFD826D9CB26780F16FC923CFF330B72C49807
+      9ED8E865B8435C5604DA421D63E73760FE0DFE6F26EAD4FEEBF3FF43DE4F0471
+      C9F3BFD5BADE4A9CFF856692F82AC117622BD7DE206E4B9EFFC1396289B8AAF8
+      FC4AFC7CF54C518FDF20CF792F54D17713D7F81A54F438FF5FA863FFE20C7BA9
+      0E3DCEFFF715B5D37CFF0C29EA07B93EA3A86FB7797F7AA152E7F9DFEA1D6FB7
+      87705E38EFE1FCEFA44F7AF80DE1A6672E39BCE89D7238E9DBF8BB5E704842BF
+      4CA44D0C48E8AD186BE81BFA8DD02712F175C4E3512D168BB0818158B7D5FF9D
+      80361C0EB25C2ECFA2D13072486943A1004BA7330C81CFB8871C46ECC70DB04C
+      26C3E6E7E7747D5F5F2F0B06FD3AA1909F615E914848CF69A75D5C5860D3DFA7
+      985D64B3D9EABC8C5ACCB9B8BCCC66E8FF59CA9349A76B40F4F474EB7F310E34
+      D0623EB82E974B2C9FCFAD23979BD541F87CAFD8ECEC4C751ED0624D08AC796E
+      AE6049A1F043FFCEF8F807D64B39C43C443D30FE6A65852D2D2EEAEBB7A25C2E
+      AFAB056A4A5BE830EA914AA5D92ADD2B158B7A1D003E5B512E96AA7AD4702D47
+      4ABF5FA9548815E616914890896768CE617CFE18A79680AEEDECEC081AF7C1DF
+      1C7E7A96E99AF539D062DE87B8BFB6FF4352FBDF9803FEA3F927464686B4D1D1
+      61A7EFDA05E6D7EA76F8769B0B7A00E662F68C17B076F400D4023571CB61F6B9
+      E80708F8CBE83B2BFF0B3FE0B909DF630F087F187D67E57F78CA2ED013E00373
+      0E63EFA8F1B8C9FFE809E80DF005D662F4BF1877EADB2479BC47FF2C7C6FD513
+      D02B309ED1FF1817FD011E47C0F376FD40F447512B73C0EB767D003D02BD428C
+      2FF4F0B49DDF8DFD003D02BD02CF127B143E740BF402F404A66B53552DEA0F0F
+      2307EE997D6E7CFE565AEE9F16278FAFEDBF74B51FA8EE7F19ADA0ABEB6502FE
+      B3D37A8856BE16CBF8034EBA13D2
+    }
+  end
+  object MainMenu: TMainMenu
+    Images = Images
+    Left = 55
+    Top = 122
+    object FileMenu: TMenuItem
+      Caption = '&File'
+      GroupIndex = 1
+      object FileNewFolderMenu: TMenuItem
+        Action = NewFolderAction
+      end
+      object FileNewFileMenu: TMenuItem
+        Action = NewFileAction
+      end
+      object FileOpenMenu: TMenuItem
+        Action = OpenFileAction
+      end
+      object FileSaveMenu: TMenuItem
+        Action = SaveFileAction
+      end
+      object FileSaveAsMenu: TMenuItem
+        Action = SaveAsFileAction
+      end
+      object FileRenameMenu: TMenuItem
+        Action = RenameFileAction
+      end
+      object FileCloseMenu: TMenuItem
+        Action = CloseFileAction
+      end
+      object FileCloseAllMenu: TMenuItem
+        Action = CloseAllFileAction
+      end
+      object FileCloseAllOtherMenu: TMenuItem
+        Action = CloseAllOtherFilesAction
+      end
+      object FileCloseUnmodifiedMenu: TMenuItem
+        Action = CloseUnmodifiedFilesAction
+      end
+      object FileRevertMenu: TMenuItem
+        Action = RevertFileAction
+      end
+      object FileDeleteFileMenu: TMenuItem
+        Action = DeleteFolderAction
+      end
+      object ExecuteSeparator: TMenuItem
+        Caption = '-'
+      end
+      object FileExecuteMenu: TMenuItem
+        Action = ExecuteCommandAction
+      end
+      object FileLaunchExplorerMenu: TMenuItem
+        Action = LaunchExplorerFolderAction
+      end
+      object FileLaunchConsoleMenu: TMenuItem
+        Action = LaunchConsoleFolderAction
+      end
+      object FileLaunchExecuteMenu: TMenuItem
+        Action = LaunchExecuteAction
+      end
+      object PrintSeparator: TMenuItem
+        Caption = '-'
+      end
+      object FileExportHtmlMenu: TMenuItem
+        Action = ExportHtmlAction
+      end
+      object FilePrintMenu: TMenuItem
+        Action = FilePrintAction
+      end
+      object FilePrintSetupMenu: TMenuItem
+        Action = FilePrintSetupAction
+      end
+    end
+    object EditMenu: TMenuItem
+      Caption = '&Edit'
+      GroupIndex = 2
+      object EditUndoMenu: TMenuItem
+        Action = EditUndoAction
+      end
+      object CopySeparator: TMenuItem
+        Caption = '-'
+      end
+      object EditSelectAllMenu: TMenuItem
+        Action = EditSelectAllAction
+      end
+      object FileCutMenu: TMenuItem
+        Action = EditCutAction
+      end
+      object FileCopyMenu: TMenuItem
+        Action = EditCopyAction
+      end
+      object FilePasteMenu: TMenuItem
+        Action = EditPasteAction
+      end
+      object EditDeleteMenu: TMenuItem
+        Action = EditDeleteAction
+      end
+      object SearchSeparator: TMenuItem
+        Caption = '-'
+      end
+      object EditFindMenu: TMenuItem
+        Action = FindAction
+      end
+      object EditFindAllMenu: TMenuItem
+        Action = FindAllAction
+      end
+      object FileReplaceMenu: TMenuItem
+        Action = ReplaceAction
+      end
+      object LabelLookupMenu: TMenuItem
+        Action = LabelLookupAction
+      end
+      object EditGotoMenu: TMenuItem
+        Action = GotoAction
+      end
+    end
+    object ViewMenu: TMenuItem
+      Caption = '&View'
+      GroupIndex = 3
+      object ViewNavigatorMenu: TMenuItem
+        Action = ViewNavigatorAction
+      end
+      object ViewStatusMenu: TMenuItem
+        Action = ViewStatusAction
+      end
+      object ViewForwardMenu: TMenuItem
+        Action = ForwardAction
+      end
+      object ViewBackwardMenu: TMenuItem
+        Action = BackwardAction
+      end
+    end
+  end
+  object Actions: TActionList
+    Images = Images
+    Left = 56
+    Top = 173
+    object EditCutAction: TEditCut
+      Category = 'Edit'
+      Caption = 'Cu&t'
+      Hint = 'Cut the selected text to the clipboard.'
+      ShortCut = 16472
+    end
+    object EditCopyAction: TEditCopy
+      Category = 'Edit'
+      Caption = '&Copy'
+      Hint = 'Copy the selected text to the clipboard.'
+      ShortCut = 16451
+    end
+    object EditPasteAction: TEditPaste
+      Category = 'Edit'
+      Caption = '&Paste'
+      Hint = 'Paste the clipboard contents.'
+      ShortCut = 16470
+    end
+    object EditSelectAllAction: TEditSelectAll
+      Category = 'Edit'
+      Caption = 'Select &All'
+      Hint = 'Select all the text.'
+      ShortCut = 16449
+    end
+    object EditUndoAction: TEditUndo
+      Category = 'Edit'
+      Caption = '&Undo'
+      Hint = 'Undo the last action.'
+      ShortCut = 16474
+    end
+    object EditDeleteAction: TEditDelete
+      Category = 'Edit'
+      Caption = '&Delete'
+      Hint = 'Delete the selected text.'
+      ShortCut = 46
+    end
+    object NewFileAction: TAction
+      Caption = '&New File...'
+      Hint = 'Create a new file.'
+      OnExecute = NewFileActionExecute
+      OnUpdate = IsFolderUpdate
+      ShortCut = 16462
+    end
+    object NewFolderAction: TAction
+      Caption = 'New &Folder...'
+      Hint = 'Create a new folder.'
+      OnExecute = NewFolderActionExecute
+      OnUpdate = IsFolderUpdate
+      ShortCut = 24654
+    end
+    object OpenFileAction: TAction
+      Caption = '&Open...'
+      Hint = 'Open a file.'
+      OnExecute = OpenFileActionExecute
+      OnUpdate = OpenFileActionUpdate
+    end
+    object SaveFileAction: TAction
+      Caption = '&Save'
+      Hint = 'Save the selected file.'
+      OnExecute = SaveFileActionExecute
+      OnUpdate = SaveFileActionUpdate
+      ShortCut = 16467
+    end
+    object SaveAsFileAction: TAction
+      Caption = 'Save &As...'
+      Hint = 'Save the selected file with a new filename.'
+      ShortCut = 24659
+    end
+    object RenameFileAction: TAction
+      Caption = '&Rename...'
+      Hint = 'Rename the selected file.'
+      ShortCut = 113
+    end
+    object CloseFileAction: TAction
+      Caption = '&Close'
+      Hint = 'Close the selected file.'
+      OnExecute = CloseFileActionExecute
+      OnUpdate = CloseFileActionUpdate
+      ShortCut = 16499
+    end
+    object CloseAllFileAction: TAction
+      Caption = 'Close &All'
+      Hint = 'Close all opened files.'
+      OnExecute = CloseAllFilesActionExecute
+      OnUpdate = CloseAllFilesActionUpdate
+      ShortCut = 24691
+    end
+    object CloseAllOtherFilesAction: TAction
+      Caption = 'Close All &Other'
+      Hint = 'Close all other files except the selected file.'
+      OnExecute = CloseAllOtherFilesActionExecute
+      OnUpdate = CloseAllOtherFilesActionUpdate
+    end
+    object CloseUnmodifiedFilesAction: TAction
+      Caption = 'Close All &Unmodified'
+      Hint = 'Close all unmodified files.'
+      OnExecute = CloseUnmodifiedFilesActionExecute
+      OnUpdate = CloseUnmodifiedFilesActionUpdate
+    end
+    object RevertFileAction: TAction
+      Caption = '&Revert'
+      Hint = 'Revert the selected file.'
+      OnExecute = RevertActionExecute
+      OnUpdate = RevertActionUpdate
+      ShortCut = 16500
+    end
+    object DeleteFolderAction: TAction
+      Caption = '&Delete...'
+      Hint = 'Delete the selected folder and all of its contents.'
+      OnExecute = DeleteFolderActionExecute
+      OnUpdate = DeleteFolderActionUpdate
+    end
+    object ExpandAllAction: TAction
+      Caption = '&Expand All'
+      Hint = 'Expand all branches.'
+      OnExecute = ExpandAllActionExecute
+    end
+    object CollapseAllAction: TAction
+      Caption = '&Collapse All'
+      Hint = 'Collapse all branches.'
+      OnExecute = CollapseAllActionExecute
+    end
+    object FindAction: TAction
+      Tag = 1
+      Caption = '&Find...'
+      Hint = 'Find a specified word or file.'
+      OnExecute = FindActionExecute
+      OnUpdate = FindActionUpdate
+      ShortCut = 16454
+    end
+    object ReplaceAction: TAction
+      Tag = 2
+      Caption = 'R&eplace...'
+      Hint = 'Replace text of next match.'
+      OnExecute = FindActionExecute
+      OnUpdate = FindActionUpdate
+      ShortCut = 16456
+      Visible = False
+    end
+    object FindAllAction: TAction
+      Tag = 3
+      Caption = 'Fin&d in Files...'
+      Hint = 'Replace text of all matches.'
+      OnExecute = FindActionExecute
+      OnUpdate = FindActionUpdate
+      ShortCut = 24646
+    end
+    object LabelLookupAction: TAction
+      Tag = 4
+      Caption = '&Labels...'
+      Hint = 'Search for label declaration.'
+      OnExecute = FindActionExecute
+      OnUpdate = FindActionUpdate
+      ShortCut = 24647
+    end
+    object GotoAction: TAction
+      Tag = 5
+      Caption = '&Go To...'
+      Hint = 'Go to specific line number.'
+      OnExecute = FindActionExecute
+      OnUpdate = FindActionUpdate
+      ShortCut = 16455
+    end
+    object ExecuteCommandAction: TAction
+      Caption = 'E&xecute Command...'
+      Hint = 'Execute selected command file within utility.'
+      OnExecute = ExecuteCommandActionExecute
+      OnUpdate = ExecuteCommandActionUpdate
+    end
+    object RefreshAction: TAction
+      Caption = '&Refresh...'
+      Hint = 'Refresh the Navigator.'
+      OnExecute = RefreshActionExecute
+      ShortCut = 116
+    end
+    object CloseStatusAction: TAction
+      Caption = 'Close &Results'
+      Hint = 'Close the list of results.'
+      OnExecute = CloseStatusActionExecute
+      OnUpdate = CloseStatusActionUpdate
+    end
+    object ClearStatusAction: TAction
+      Caption = '&Clear Log'
+      Hint = 'Clear the status log.'
+      OnExecute = ClearStatusActionExecute
+      OnUpdate = ClearStatusActionUpdate
+    end
+    object ViewNavigatorAction: TAction
+      Caption = '&Navigator'
+      Checked = True
+      Hint = 'Show or hide the Navigator.'
+      OnExecute = ViewNavigatorActionExecute
+      OnUpdate = ViewNavigatorActionUpdate
+    end
+    object ViewStatusAction: TAction
+      Caption = '&Status'
+      Hint = 'Show or hide the Status.'
+      OnExecute = ViewStatusActionExecute
+      OnUpdate = ViewStatusActionUpdate
+    end
+    object LaunchExplorerFolderAction: TAction
+      Caption = 'Launch &Explorer'
+      Hint = 'Open selected folder in Windows Explorer.'
+      OnExecute = LaunchExplorerFolderActionExecute
+      OnUpdate = LaunchActionUpdate
+    end
+    object LaunchExplorerFileAction: TAction
+      Caption = 'Launch &Explorer'
+      Hint = 'Open containing folder of selected file in Windows Explorer.'
+      OnExecute = LaunchExplorerFileActionExecute
+      OnUpdate = LaunchExplorerFileActionUpdate
+    end
+    object LaunchConsoleFolderAction: TAction
+      Caption = 'Launch &Console'
+      Hint = 'Open selected folder in console.'
+      OnExecute = LaunchConsoleFolderActionExecute
+      OnUpdate = LaunchActionUpdate
+    end
+    object LaunchConsoleFileAction: TAction
+      Caption = 'Launch &Console'
+      Hint = 'Open containing folder of selected file in console.'
+      OnExecute = LaunchConsoleFileActionExecute
+      OnUpdate = LaunchConsoleFileActionUpdate
+    end
+    object LaunchExecuteAction: TAction
+      Caption = 'Launch Execute...'
+      Hint = 'Execute selected command file within console.'
+      OnExecute = LaunchExecuteActionExecute
+      OnUpdate = LaunchExecuteActionUpdate
+    end
+    object FilePrintAction: TAction
+      Caption = '&Print...'
+      Hint = 'Print the selected file.'
+      OnExecute = FilePrintActionExecute
+    end
+    object FilePrintSetupAction: TAction
+      Caption = 'P&rint Setup...'
+      Hint = 'Setup the printer configuration.'
+      OnExecute = FilePrintSetupActionExecute
+    end
+    object ExportHtmlAction: TAction
+      Caption = 'E&xport to HTML'
+      Hint = 'Export selected file to HTML file.'
+      OnExecute = ExportHtmlActionExecute
+      OnUpdate = ExportHtmlActionUpdate
+    end
+    object BackwardAction: TAction
+      Caption = 'Jump &Backward'
+      Hint = 'Move to last visisted fie.'
+      ImageIndex = 6
+      OnExecute = BackwardActionExecute
+      OnUpdate = BackwardActionUpdate
+      ShortCut = 32805
+    end
+    object ForwardAction: TAction
+      Caption = 'Jump &Forward'
+      Hint = 'Move to previously visited file.'
+      ImageIndex = 7
+      OnExecute = ForwardActionExecute
+      OnUpdate = ForwardActionUpdate
+      ShortCut = 32807
+    end
+    object MoveLeftAction: TAction
+      Caption = 'Move Tab Left'
+      Hint = 'Move the selected tab place position to the left.'
+      OnExecute = MoveLeftActionExecute
+      OnUpdate = MoveLeftActionUpdate
+    end
+    object MoveRightAction: TAction
+      Caption = 'Move Tab Right'
+      Hint = 'Move the selected file one position to the right.'
+      OnExecute = MoveRightActionExecute
+      OnUpdate = MoveRightActionUpdate
+    end
+    object MoveFarLeftAction: TAction
+      Caption = 'Move Tab Far Left'
+      Hint = 'Move the selected file to the extreme left.'
+      OnExecute = MoveFarLeftActionExecute
+      OnUpdate = MoveFarLeftActionUpdate
+    end
+    object MoveFarRightAction: TAction
+      Caption = 'Move Tab Far Right'
+      Hint = 'Move the selected file to the extreme right.'
+      OnExecute = MoveFarRightActionExecute
+      OnUpdate = MoveFarRightActionUpdate
+    end
+  end
+  object NavigatorPopupMenu: TPopupMenu
+    Left = 55
+    Top = 224
+    object RefreshMenu: TMenuItem
+      Action = RefreshAction
+    end
+    object ExpandAllMenu: TMenuItem
+      Action = ExpandAllAction
+    end
+    object CollapseAllMenu: TMenuItem
+      Action = CollapseAllAction
+    end
+    object FileSeparator: TMenuItem
+      Caption = '-'
+    end
+    object NavigatorNewFolderMenu: TMenuItem
+      Action = NewFolderAction
+    end
+    object NavigatorNewFileMenu: TMenuItem
+      Action = NewFileAction
+    end
+    object NavigatorDeleteMenu: TMenuItem
+      Action = DeleteFolderAction
+    end
+    object LaunchSeparator: TMenuItem
+      Caption = '-'
+    end
+    object LaunchExplorerMenu: TMenuItem
+      Action = LaunchExplorerFolderAction
+    end
+    object LaunchConsoleMenu: TMenuItem
+      Action = LaunchConsoleFolderAction
+    end
+    object LaunchExecuteMenu: TMenuItem
+      Action = LaunchExecuteAction
+    end
+  end
+  object StatusPopupMenu: TPopupMenu
+    Left = 55
+    Top = 274
+    object CloseStatusMenu: TMenuItem
+      Action = CloseStatusAction
+    end
+    object ClearStatusMenu: TMenuItem
+      Action = ClearStatusAction
+    end
+  end
+  object EditorMenu: TPopupMenu
+    Left = 58
+    Top = 19
+    object EditorCloseMenu: TMenuItem
+      Action = CloseFileAction
+    end
+    object EditorCloseAllMenu: TMenuItem
+      Action = CloseAllOtherFilesAction
+    end
+    object EditorCloseUnchangedMenu: TMenuItem
+      Action = CloseUnmodifiedFilesAction
+    end
+    object EditorMoveSeparator: TMenuItem
+      Caption = '-'
+    end
+    object EditMoveLeftMenu: TMenuItem
+      Action = MoveLeftAction
+    end
+    object EditorModeFarLeftMenu: TMenuItem
+      Action = MoveFarLeftAction
+    end
+    object EditorMoveRightMenu: TMenuItem
+      Action = MoveRightAction
+    end
+    object EditorMoveFarRightMenu: TMenuItem
+      Action = MoveFarRightAction
+    end
+    object EditorOpenSeparator: TMenuItem
+      Caption = '-'
+    end
+    object EditorOpenExmplorerMenu: TMenuItem
+      Action = LaunchExplorerFileAction
+    end
+    object EditorOpenConsoleMenu: TMenuItem
+      Action = LaunchConsoleFileAction
+    end
+  end
+end

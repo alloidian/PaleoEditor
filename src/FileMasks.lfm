@@ -1,0 +1,168 @@
+object EditFileMaskForm: TEditFileMaskForm
+  Left = 2816
+  Height = 320
+  Top = 243
+  Width = 360
+  BorderIcons = []
+  Caption = 'File Masks'
+  ClientHeight = 320
+  ClientWidth = 360
+  Color = clBtnFace
+  Constraints.MaxWidth = 360
+  Constraints.MinHeight = 320
+  Constraints.MinWidth = 360
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  OnCreate = FormCreate
+  Position = poMainFormCenter
+  ShowHint = True
+  LCLVersion = '2.2.2.0'
+  object MoveUpButton: TSpeedButton
+    Left = 327
+    Height = 22
+    Top = 68
+    Width = 23
+    Action = MoveUpAction
+    Images = Images
+    ImageIndex = 0
+  end
+  object MoveDownButton: TSpeedButton
+    Left = 327
+    Height = 22
+    Top = 112
+    Width = 23
+    Action = MoveDownAction
+    Images = Images
+    ImageIndex = 1
+  end
+  object DirectoryLabel: TLabel
+    Left = 10
+    Height = 13
+    Top = 5
+    Width = 122
+    Caption = 'Ordered list of file masks:'
+    FocusControl = DirectoryEdit
+    ParentColor = False
+  end
+  object OKButton: TButton
+    Left = 165
+    Height = 25
+    Top = 289
+    Width = 75
+    Action = OKAction
+    Anchors = [akRight, akBottom]
+    TabOrder = 5
+  end
+  object CancelButton: TButton
+    Left = 246
+    Height = 25
+    Top = 289
+    Width = 75
+    Action = CancelAction
+    Anchors = [akRight, akBottom]
+    Cancel = True
+    TabOrder = 6
+  end
+  object ReplaceButton: TButton
+    Left = 84
+    Height = 25
+    Top = 241
+    Width = 75
+    Action = ReplaceAction
+    Anchors = [akRight, akBottom]
+    TabOrder = 2
+  end
+  object AddButton: TButton
+    Left = 165
+    Height = 25
+    Top = 241
+    Width = 75
+    Action = AddAction
+    Anchors = [akRight, akBottom]
+    TabOrder = 3
+  end
+  object DeleteButton: TButton
+    Left = 246
+    Height = 25
+    Top = 241
+    Width = 75
+    Action = DeleteAction
+    Anchors = [akRight, akBottom]
+    TabOrder = 4
+  end
+  object DirectoryEdit: TListBox
+    Left = 10
+    Height = 179
+    Top = 20
+    Width = 311
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    ItemHeight = 0
+    OnClick = DirectoryEditClick
+    TabOrder = 0
+  end
+  object FolderEdit: TEdit
+    Left = 10
+    Height = 21
+    Hint = 'Create or edit file extension mask.'
+    Top = 214
+    Width = 311
+    Anchors = [akLeft, akRight, akBottom]
+    TabOrder = 1
+  end
+  object Actions: TActionList
+    Images = Images
+    Left = 40
+    Top = 270
+    object MoveUpAction: TAction
+      Hint = 'Move selected file extension mask up the list.'
+      ImageIndex = 0
+      OnExecute = MoveUpActionExecute
+      OnUpdate = MoveUpActionUpdate
+    end
+    object MoveDownAction: TAction
+      Hint = 'Move selected file extension mask down the list.'
+      ImageIndex = 1
+      OnExecute = MoveDownActionExecute
+      OnUpdate = MoveDownActionUpdate
+    end
+    object ReplaceAction: TAction
+      Caption = '&Replace'
+      Hint = 'Replace select file extension mask.'
+      OnExecute = ReplaceActionExecute
+      OnUpdate = ReplaceActionUpdate
+    end
+    object AddAction: TAction
+      Caption = '&Add'
+      Hint = 'Add new file extension mask.'
+      OnExecute = AddActionExecute
+      OnUpdate = AddActionUpdate
+    end
+    object DeleteAction: TAction
+      Caption = '&Delete'
+      Hint = 'Delete selected file extension mask.'
+      OnExecute = DeleteActionExecute
+      OnUpdate = DeleteActionUpdate
+    end
+    object OKAction: TAction
+      Caption = 'OK'
+      Hint = 'Save changes.'
+      OnExecute = OKActionExecute
+    end
+    object CancelAction: TAction
+      Caption = 'Cancel'
+      Hint = 'Disregard changes.'
+      OnExecute = CancelActionExecute
+    end
+  end
+  object Images: TImageList
+    Left = 96
+    Top = 270
+    Bitmap = {
+      4C7A020000001000000010000000560000000000000078DA6360C00BFE335006
+      FE53A6F7FF7F0ACCA0443F54EF7F72CDA0443F9A5E92CDA0443F0EBD449BF11F
+      15FFFF8F293624E27F98E8671860FDA3F1477A9AA728FF509A7F07BAFC190CE5
+      EF60493F74A97F012146C53B
+    }
+  end
+end

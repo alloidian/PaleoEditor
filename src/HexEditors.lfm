@@ -1,0 +1,100 @@
+inherited HexEditorFrame: THexEditorFrame
+  object Editor: TMPHexEditorEx[1]
+    Cursor = crIBeam
+    Left = 0
+    Height = 361
+    Top = 0
+    Width = 512
+    BackupExtension = '.bak'
+    PrintOptions.MarginLeft = 20
+    PrintOptions.MarginTop = 15
+    PrintOptions.MarginRight = 25
+    PrintOptions.MarginBottom = 25
+    PrintOptions.Flags = [pfSelectionBold, pfMonochrome]
+    PrintFont.Height = -18
+    PrintFont.Name = 'Courier New'
+    Align = alClient
+    Font.Height = -18
+    Font.Name = 'Courier New'
+    ParentFont = False
+    TabOrder = 1
+    BytesPerRow = 16
+    Translation = tkAsIs
+    OffsetFormat = '-!10:0x|'
+    Colors.Background = clWindow
+    Colors.ChangedBackground = 11075583
+    Colors.ChangedText = clMaroon
+    Colors.CursorFrame = clNavy
+    Colors.Offset = clBlack
+    Colors.OddColumn = clBlue
+    Colors.EvenColumn = clNavy
+    Colors.CurrentOffsetBackground = clBtnShadow
+    Colors.OffsetBackground = clBtnFace
+    Colors.CurrentOffset = clBtnHighlight
+    Colors.Grid = clBtnFace
+    Colors.NonFocusCursorFrame = clAqua
+    Colors.ActiveFieldBackground = clWindow
+    FocusFrame = True
+    DrawGridLines = False
+    Version = 'september 30, 2007; © markus stephany, vcl[at]mirkes[dot]de'
+    OnChange = EditorChange
+    ColWidths = (
+      65
+      6
+      11
+      11
+      11
+      22
+      11
+      11
+      11
+      22
+      11
+      11
+      11
+      22
+      11
+      11
+      11
+      22
+      11
+      11
+      11
+      22
+      11
+      11
+      11
+      22
+      11
+      11
+      11
+      22
+      11
+      11
+      11
+      22
+      11
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      12
+      23
+    )
+    RowHeights = (
+      0
+      0
+      22
+    )
+  end
+end

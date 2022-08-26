@@ -1,0 +1,42 @@
+inherited NavigatorConfigFrame: TNavigatorConfigFrame
+  object ConfigEdit: TValueListEditor[0]
+    Left = 8
+    Height = 171
+    Top = 8
+    Width = 384
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    AutoAdvance = aaDown
+    DefaultColWidth = 144
+    FixedCols = 0
+    RowCount = 7
+    ScrollBars = ssAutoHorizontal
+    TabOrder = 0
+    OnButtonClick = ConfigEditButtonClick
+    Options = [goFixedHorzLine, goHorzLine, goEditing, goAlwaysShowEditor, goThumbTracking]
+    Strings.Strings = (
+      'Editable File Extension='
+      'Executable File Extensions='
+      'Searchable File Extensions='
+      'Uneditable File Extensions='
+      'Exclude File Extensions='
+      'Exclude Folders='
+    )
+    TitleCaptions.Strings = (
+      'Option'
+      'Masks'
+    )
+    ColWidths = (
+      144
+      236
+    )
+  end
+  object SaveWorkspaceEdit: TCheckBox[1]
+    Left = 8
+    Height = 19
+    Hint = 'Saves open file status when project is closed.'
+    Top = 192
+    Width = 105
+    Caption = 'Save &Workspace'
+    TabOrder = 1
+  end
+end

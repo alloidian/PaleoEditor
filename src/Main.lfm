@@ -1,0 +1,185 @@
+object MainForm: TMainForm
+  Left = 2415
+  Height = 540
+  Top = 219
+  Width = 819
+  Caption = 'Paleo Editor'
+  ClientHeight = 520
+  ClientWidth = 819
+  Color = clAppWorkspace
+  Constraints.MinHeight = 540
+  Constraints.MinWidth = 819
+  FormStyle = fsMDIForm
+  Menu = MainMenu
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  ShowHint = True
+  LCLVersion = '2.2.2.0'
+  object StatusBar: TStatusBar
+    Left = 0
+    Height = 23
+    Top = 497
+    Width = 819
+    Panels = <    
+      item
+        Alignment = taCenter
+        Width = 150
+      end    
+      item
+        Width = 40
+      end>
+    SimplePanel = False
+  end
+  object MainMenu: TMainMenu
+    Images = Images
+    Left = 51
+    Top = 55
+    object ProjectMenu: TMenuItem
+      Caption = '&Project'
+      object ProjectOpenMenu: TMenuItem
+        Caption = '&Open'
+        object ProjectOpenFolderMenu: TMenuItem
+          Action = OpenFolderAction
+        end
+        object ProjectOpenListingMenu: TMenuItem
+          Action = OpenListingAction
+        end
+      end
+      object ProjectOpenRecentMenu: TMenuItem
+        Caption = 'Open &Recent'
+        Hint = 'Open recently used projects.'
+      end
+      object ProjectCloseMenu: TMenuItem
+        Action = CloseProjectAction
+      end
+      object ProjectCloseAllMenu: TMenuItem
+        Action = CloseAllProjectAction
+      end
+      object ConfigSeparator: TMenuItem
+        Caption = '-'
+      end
+      object ProjectConfigMenu: TMenuItem
+        Action = ConfigAction
+      end
+      object ExitSeparator: TMenuItem
+        Caption = '-'
+      end
+      object ProjectExitMenu: TMenuItem
+        Action = FileExitAction
+      end
+    end
+    object WindowMenu: TMenuItem
+      Caption = '&Window'
+      GroupIndex = 4
+      object WindowTileVertialMenu: TMenuItem
+        Caption = 'File &Vertically'
+        GroupIndex = 4
+      end
+      object WindowTileHorizontalMenu: TMenuItem
+        Caption = 'Tile &Horizontally'
+        GroupIndex = 4
+      end
+      object WindowCascadeMenu: TMenuItem
+        Caption = '&Cascade'
+        GroupIndex = 4
+      end
+      object WindowSeparator: TMenuItem
+        Caption = '-'
+      end
+    end
+    object HelpMenu: TMenuItem
+      Caption = '&Help'
+      GroupIndex = 6
+      object HelpContextMenu: TMenuItem
+        Caption = 'Help &Contents'
+        GroupIndex = 6
+        ShortCut = 112
+        OnClick = UnimplementedMenuClick
+      end
+      object HelpIndexMenu: TMenuItem
+        Caption = 'Help &Index'
+        GroupIndex = 6
+        OnClick = UnimplementedMenuClick
+      end
+      object HelpOnlineMenu: TMenuItem
+        Caption = '&Online Help'
+        GroupIndex = 6
+        OnClick = UnimplementedMenuClick
+      end
+      object UpdateSeparator: TMenuItem
+        Caption = '-'
+      end
+      object HelpCheckMenu: TMenuItem
+        Caption = '&Check for Updates'
+        GroupIndex = 6
+        OnClick = UnimplementedMenuClick
+      end
+      object AboutSeparator: TMenuItem
+        Caption = '-'
+      end
+      object HelpAboutMenu: TMenuItem
+        Action = ShowAboutAction
+        GroupIndex = 6
+      end
+    end
+  end
+  object Actions: TActionList
+    Images = Images
+    OnUpdate = ActionsUpdate
+    Left = 128
+    Top = 55
+    object OpenFolderAction: TAction
+      Caption = '&Folder...'
+      Hint = 'Open a project folder.'
+      OnExecute = OpenFolderActionExecute
+      ShortCut = 16463
+    end
+    object OpenListingAction: TAction
+      Caption = '&Listing...'
+      Hint = 'Open a listing file.'
+      OnExecute = OpenListingActionExecute
+      ShortCut = 24655
+    end
+    object CloseProjectAction: TAction
+      Caption = '&Close'
+      Hint = 'Close the selected project.'
+      OnExecute = CloseProjectActionExecute
+      OnUpdate = CloseProjectActionUpdate
+    end
+    object CloseAllProjectAction: TAction
+      Caption = 'Close &All'
+      Hint = 'Close all open projects.'
+      OnExecute = CloseAllProjectActionExecute
+      OnUpdate = CloseAllProjectActionUpdate
+    end
+    object ConfigAction: TAction
+      Caption = 'Con&figuration...'
+      Hint = 'Application user configuration.'
+      OnExecute = ConfigActionExecute
+    end
+    object FileExitAction: TFileExit
+      Category = 'File'
+      Caption = 'E&xit'
+      Hint = 'Exit the application.'
+    end
+    object ShowAboutAction: TAction
+      Caption = '&About Paleo Editor...'
+      Hint = 'Show the About Paleo Editor dialog.'
+      OnExecute = ShowAboutActionExecute
+    end
+  end
+  object Images: TImageList
+    Left = 198
+    Top = 55
+    Bitmap = {
+      4C7A0200000010000000100000009A0000000000000078DA63606060666060E0
+      47C25C0CA481BD403C1F0983F80E24E85F8EC607D9BF1188D713812760D14F0A
+      5801C4CFA06690839F5168FFF251FD235E3F7AFE210583F4A2E75F523033925B
+      F6E348E327807826103312F0CB7A1CE2F1403C1788A71130039F7E77200E2760
+      0621FD0C04CCC0A77F2510B743F13920EE25413F3710CBA3E14D24E827D6AFA3
+      FA47B6FEFD24D45BFB619A00DFC25570
+    }
+  end
+end

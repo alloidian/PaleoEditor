@@ -1,0 +1,38 @@
+Building Instructions
+
+The Paleo Editor project has only been designed to run on 32- and 64-bit versions of Microsoft Windows. At this time, there has been no effort to
+port the project to any other operating systems.
+
+The Paleo Editor project was developed with the Microsoft Windows 64-bit
+version of the Lazarus IDE, version 2.2.2 (dated 2022-07-10) and compiled
+with the Free Pascal Compiler (FPC) version 3.2.2.
+
+In order to work with and compile the project, these tools need to be
+installed onto your computer. Note: compiling this project on platforms
+other than Microsoft Windows (i.e., Linux or Macintosh) has not been
+tested.
+
+The Lazarus IDE (along with the Free Pascal Compiler) can be founded from
+SourceForce at:
+
+https://sourceforge.net/projects/lazarus/
+
+In addition to the Lazarus IDE, the Paleo Editor project used the third-
+party component library MPHexEditor. The package can be found from GitHub
+at:
+
+https://github.com/michalgw/mphexeditor
+
+This package must be installed into the Lazarus IDE. Installation
+instructions can be found at:
+
+https://wiki.freepascal.org/Install_Packages
+
+Windows-based setup installers scripts have been prepared for Inno Setup
+by JRSoftware. The required compiler can be found at:
+
+https://jrsoftware.org/isdl.php
+
+This compiler must be installed onto your Windows-based computer in order
+to build the Setup installer for both 32- and 64-bit version of the Paleo
+Editor.
