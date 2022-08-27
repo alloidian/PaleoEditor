@@ -22,8 +22,9 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MinorVersionNr Value="1"/>
+      <RevisionNr Value="1"/>
       <Attributes pvaPreRelease="True"/>
-      <StringTable Comments="Developed in Lazarus 2.2.2 with FPC 3.2.2" CompanyName="https://homebrew.computer" FileDescription="Paleo Editor for RomWBW Development" InternalName="PaleoEditor.exe" LegalCopyright="Copyright ©2022 Steve García" LegalTrademarks="Licensed by GNU GPL V3" ProductName="Paleo Editor" ProductVersion="0.1.0 Pre-Release"/>
+      <StringTable Comments="Developed in Lazarus 2.2.2 with FPC 3.2.2" CompanyName="https://homebrew.computer" FileDescription="Paleo Editor for RomWBW Development" InternalName="PaleoEditor.exe" LegalCopyright="Copyright ©2022 Steve García" LegalTrademarks="Licensed by GNU GPL V3" ProductName="Paleo Editor" ProductVersion="0.1.1 Pre-Release"/>
     </VersionInfo>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -305,6 +306,13 @@
       <Unit>
         <Filename Value="DirMonitors.pas"/>
         <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="EditorConfigs.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="EditorConfigFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
       </Unit>
     </Units>
   </ProjectOptions>

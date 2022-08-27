@@ -86,6 +86,7 @@ type
     procedure AddProject(const FolderName: TFileName);
     function GetActiveProject: TCustomWorkForm;
   protected
+    procedure RefreshConfig;
     property ActiveProject: TCustomWorkForm read GetActiveProject;
   public
   end;
@@ -109,6 +110,7 @@ begin
   Config.ReadConfig;
   Config.ReadConfig(ProjectOpenRecentMenu, FileOpenRecentMenuClick);
   StatusBar.Panels[0].Text := Format(MASK, [Config.VersionText, Config.Platform, Config.PreRelease]).Trim;
+  StatusBar.Panels[0].Width := StatusBar.Canvas.TextWidth(StatusBar.Panels[0].Text) + 10;
   Application.OnHint := HintEvent;
   FWindowCascade := TWindowCascade.Create(Self);
   FWindowCascade.Name := 'FWindowCascade';
@@ -255,7 +257,8 @@ end;
 
 procedure TMainForm.ConfigActionExecute(Sender: TObject);
 begin
-  ShowConfig;
+  if ShowConfig then
+    RefreshConfig;
 end;
 
 procedure TMainForm.ShowAboutActionExecute(Sender: TObject);
@@ -320,6 +323,18 @@ begin
     Result := ActiveMDIChild as TCustomWorkForm
   else
     Result := nil;
+end;
+
+procedure TMainForm.RefreshConfig;
+var
+  I: Integer;
+  Form: TCustomForm;
+begin
+  for I := 0 to MDIChildCount - 1 do begin
+    Form := MDIChildren[I];
+    if Form is TCustomWorkForm then
+      (Form as TCustomWorkForm).RefreshConfig;
+  end;
 end;
 
 end.

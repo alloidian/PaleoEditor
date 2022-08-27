@@ -13,7 +13,7 @@
 @REM  You should have received a copy of the GNU General Public License along with the Paleo
 @REM  Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-@SET VER=0.1.0
+@SET VER=0.1.1
 
 @CALL :BUILD 32
 @CALL :BUILD 64
@@ -24,6 +24,6 @@
 @COPY ..\bin\PaleoEditor%1.exe ..\bin\PaleoEditor.exe
 @..\tool\7zip\7zr a -bd ..\bin\Paleo_%VER%_Win%1.7z ..\bin\PaleoEditor.exe
 @DEL ..\bin\PaleoEditor.exe
-@"..\tool\upx\upx.exe" -qk "..\bin\PaleoEditor%1.exe"
+@REM "..\tool\upx\upx.exe" -qk "..\bin\PaleoEditor%1.exe"
 @"C:\Program Files (x86)\Inno Setup 6\iscc.exe" /Q "Paleo%1.iss"
 @EXIT /B

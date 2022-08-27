@@ -285,6 +285,7 @@ type
   public
     procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); virtual; abstract;
     procedure Idle;
+    procedure RefreshConfig;
     property ActiveEditor: TCustomEditorFrame read GetActiveEditor;
     property IsModified: Boolean read GetIsModified;
     property IsAllModified: Boolean read GetIsAllModified;
@@ -1579,6 +1580,19 @@ procedure TCustomWorkForm.Idle;
 begin
   if Assigned(ActiveEditor) then
     ActiveEditor.Idle;
+end;
+
+procedure TCustomWorkForm.RefreshConfig;
+var
+  I: Integer;
+  Page: TTabSheet;
+begin
+(*if Navigator.Font.Size <> Config.FontSize then
+    Navigator.Font.Size := Config.FontSize; *)
+  for I := 0 to WorkPages.PageCount - 1 do begin
+    Page := WorkPages.Pages[I];
+    Page.Editor.RefreshConfig;
+  end;
 end;
 
 { TNavigatorIterator }
