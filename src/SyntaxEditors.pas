@@ -77,6 +77,7 @@ type
     function LineNumber: Integer; override;
     procedure RetrieveLabels(List: TStrings); override;
     procedure Idle; override;
+    procedure RefreshConfig; override;
   end;
 
 var
@@ -88,7 +89,7 @@ implementation
 
 uses
   StrUtils, SynEditTypes, SynHighlighterBat, SynHighlighterZ80, SynHighlighterSpin,
-  SynHighlighterVB, SynHighlighterPas, Utils;
+  SynHighlighterVB, SynHighlighterPas, Utils, Configs;
 
 { TSyntaxEditorFrame }
 
@@ -426,6 +427,16 @@ end;
 procedure TSyntaxEditorFrame.Idle;
 begin
   // Do nothing
+end;
+
+procedure TSyntaxEditorFrame.RefreshConfig;
+begin
+  if not AnsiSameText(Editor.Font.Name, Config.FontName) then
+    Editor.Font.Name := Config.FontName;
+  if Editor.Font.Size <> Config.FontSize then
+    Editor.Font.Size := Config.FontSize;
+  if Editor.RightEdge <> Config.RightMargin then
+    Editor.RightEdge := Config.RightMargin;
 end;
 
 end.

@@ -23,12 +23,15 @@ uses
   Classes, SysUtils, Graphics, ComCtrls, Generics.Collections, Forms, Menus, IniFiles;
 
 const
-  ITEM_EDIT              = 'Editable File Extensions';
-  ITEM_EXEC              = 'Executable File Extensions';
-  ITEM_SEARCH            = 'Searchable File Extensions';
-  ITEM_UNEDITABLE        = 'Uneditable File Extensions';
-  ITEM_EXCLUDE_FILE      = 'Exclude File Extensions';
-  ITEM_EXCLUDE_FOLDER    = 'Exclude Folders';
+  ITEM_EDIT                   = 'Editable File Extensions';
+  ITEM_EXEC                   = 'Executable File Extensions';
+  ITEM_SEARCH                 = 'Searchable File Extensions';
+  ITEM_UNEDITABLE             = 'Uneditable File Extensions';
+  ITEM_EXCLUDE_FILE           = 'Exclude File Extensions';
+  ITEM_EXCLUDE_FOLDER         = 'Exclude Folders';
+  INI_EDITOR_FONT_NAME_DEF    = 'Courier New';
+  INI_EDITOR_FONT_SIZE_DEF    = 10;
+  INI_EDITOR_RIGHT_MARGIN_DEF = 90;
 
 type
   TAttributeType = (atComment, atConfig, atConstant, atDataType, atDeclaration,
@@ -107,6 +110,9 @@ type
     FParams: TParamType;
     FMonitorFolder: Boolean;
     FAttributes: TAttributes;
+    FFontName: String;
+    FFontSize: Integer;
+    FRightMargin: Integer;
   protected
     function IsMatch(const Value: String; const Masks: String): Boolean;
     function GetVersionText: String;
@@ -159,6 +165,9 @@ type
     property Params: TParamType read FParams write FParams;
     property Attributes: TAttributes read FAttributes;
     property MonitorFolder: Boolean read FMonitorFolder;
+    property FontName: String read FFontName write FFontName;
+    property FontSize: Integer read FFontSize write FFontSize;
+    property RightMargin: Integer read FRightMargin write FRightMargin;
   end;
 
 implementation
@@ -234,6 +243,10 @@ const
   INI_WIDTH                = 'Width';
   INI_WIN_STATE            = 'WindowsState';
   INI_WIN_STATE_DEF        = 'wsNormal';
+  INI_EDITOR               = 'Editor';
+  INI_EDITOR_FONT_NAME     = 'Font';
+  INI_EDITOR_FONT_SIZE     = 'Size';
+  INI_EDITOR_RIGHT_MARGIN  = 'RightMargin';
 
   { TAttribute }
 
@@ -552,6 +565,9 @@ begin
     FSaveWorkspace := Ini.ReadBool(INI_SETTING, INI_SAVE_WORKSPACE, INI_SAVE_WORKSPACE_DEF);
     FExcludeFiles := Ini.ReadString(INI_EXCLUDE, INI_EXCLUDE_FILE, INI_EXCLUDE_FILE_DEF);
     FExcludeFolders := Ini.ReadString(INI_EXCLUDE, INI_EXCLUDE_FOLDER, INI_EXCLUDE_FOLDER_DEF);
+    FFontName := Ini.ReadString(INI_EDITOR, INI_EDITOR_FONT_NAME, INI_EDITOR_FONT_NAME_DEF);
+    FFontSize := Ini.ReadInteger(INI_EDITOR, INI_EDITOR_FONT_SIZE, INI_EDITOR_FONT_SIZE_DEF);
+    FRightMargin := Ini.ReadInteger(INI_EDITOR, INI_EDITOR_RIGHT_MARGIN, INI_EDITOR_RIGHT_MARGIN_DEF);
     if Ini.SectionExists(INI_PARAMS) then begin
       FParams.Clear;
       Temp := TStringList.Create;
@@ -590,6 +606,9 @@ begin
     Ini.WriteBool(INI_SETTING, INI_SAVE_WORKSPACE, FSaveWorkspace);
     Ini.WriteString(INI_EXCLUDE, INI_EXCLUDE_FILE, FExcludeFiles);
     Ini.WriteString(INI_EXCLUDE, INI_EXCLUDE_FOLDER, FExcludeFolders);
+    Ini.WriteString(INI_EDITOR, INI_EDITOR_FONT_NAME, FFontName);
+    Ini.WriteInteger(INI_EDITOR, INI_EDITOR_FONT_SIZE, FFontSize);
+    Ini.WriteInteger(INI_EDITOR, INI_EDITOR_RIGHT_MARGIN, FRightMargin);
     Ini.EraseSection(INI_PARAMS);
     for Command in FParams.Keys do begin
       Param := FParams[Command];

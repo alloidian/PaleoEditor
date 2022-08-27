@@ -70,6 +70,7 @@ type
     function LineNumber: Integer; virtual; abstract;
     procedure RetrieveLabels(List: TStrings); virtual;
     procedure Idle; virtual; abstract;
+    procedure RefreshConfig; virtual; abstract;
     property IsModified: Boolean read GetIsModified write SetIsModified;
     property Node: TTreeNode read FNode write FNode;
     property LogicalFileName: TFileName read GetLogicalFileName write SetLogicalFileName;
@@ -111,6 +112,7 @@ begin
   FValidActions := [vaCase, vaWord, vaLabel, vaPrevious];
   InsertMode := True;
   ReadOnly := False;
+  RefreshConfig;
 end;
 
 function TCustomEditorFrame.GetRow: Integer;

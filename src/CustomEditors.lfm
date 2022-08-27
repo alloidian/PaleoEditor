@@ -5,6 +5,7 @@ object CustomEditorFrame: TCustomEditorFrame
   Width = 512
   ClientHeight = 384
   ClientWidth = 512
+  LCLVersion = '2.2.2.0'
   ParentFont = False
   TabOrder = 0
   DesignLeft = 2345

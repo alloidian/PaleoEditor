@@ -48,6 +48,7 @@ type
     procedure GotoLine(LineNumber: Integer); override;
     function LineNumber: Integer; override;
     procedure Idle; override;
+    procedure RefreshConfig; override;
   end;
 
 var
@@ -58,7 +59,7 @@ implementation
 {$R *.lfm}
 
 uses
-  MPHexEditor, Utils, Searches;
+  MPHexEditor, Utils, Searches, Configs;
 
 { THexEditorFrame }
 
@@ -240,6 +241,14 @@ begin
   Pos := Editor.GetCursorPos;
   Row := Pos mod 16 + 1;
   Column := Pos div 16 + 1;
+end;
+
+procedure THexEditorFrame.RefreshConfig;
+begin
+  if not AnsiSameText(Editor.Font.Name, Config.FontName) then
+    Editor.Font.Name := Config.FontName;
+  if Editor.Font.Size <> Config.FontSize then
+    Editor.Font.Size := Config.FontSize;
 end;
 
 end.

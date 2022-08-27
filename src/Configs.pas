@@ -21,7 +21,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Menus, ComCtrls,
-  ExtCtrls, ActnList, ConfigUtils, NavigatorConfigs, ColorConfigs;
+  ExtCtrls, ActnList, ConfigUtils, NavigatorConfigs, ColorConfigs, EditorConfigs;
 
 type
   TConfigForm = class(TForm)
@@ -30,6 +30,7 @@ type
     Pages: TPageControl;
     NavigatorPage: TTabSheet;
     ColorPage: TTabSheet;
+    EditorPage: TTabSheet;
     ButtonPanel: TPanel;
     OKButton: TButton;
     CancelButton: TButton;
@@ -40,6 +41,7 @@ type
     FConfig: TConfig;
     FNavigatorConfig: TNavigatorConfigFrame;
     FColorConfig: TColorConfigFrame;
+    FEditorConfig: TEditorConfigFrame;
     procedure SetConfig(Value: TConfig);
     function GetIsModified: Boolean;
   public
@@ -50,20 +52,21 @@ type
 var
   Config: TConfig;
 
-procedure ShowConfig;
+function ShowConfig: Boolean;
 
 implementation
 
 {$R *.lfm}
 
-procedure ShowConfig;
+function ShowConfig: Boolean;
 var
   Dialog: TConfigForm;
 begin
   Dialog := TConfigForm.Create(Application.MainForm);
   try
     Dialog.Config := Config;
-    if Dialog.ShowModal = mrOk then
+    Result := Dialog.ShowModal = mrOk;
+    if Result then
       Config.WriteConfig;
   finally
     Dialog.Free;
@@ -80,6 +83,9 @@ begin
   FColorConfig := TColorConfigFrame.Create(Self);
   FColorConfig.Parent := ColorPage;
   FColorConfig.Align := alClient;
+  FEditorConfig := TEditorConfigFrame.Create(Self);
+  FEditorConfig.Parent := EditorPage;
+  FEditorConfig.Align := alClient;
 end;
 
 procedure TConfigForm.SaveActionExecute(Sender: TObject);
@@ -88,6 +94,8 @@ begin
     FNavigatorConfig.WriteConfig(FConfig);
   if FColorConfig.IsModified then
     FColorConfig.WriteConfig(FConfig);
+  if FEditorConfig.IsModified then
+    FEditorConfig.WriteConfig(FConfig);
   ModalResult := mrOk;
 end;
 
@@ -101,11 +109,12 @@ begin
   FConfig := Value;
   FNavigatorConfig.ReadConfig(FConfig);
   FColorConfig.ReadConfig(FConfig);
+  FEditorConfig.ReadConfig(FConfig);
 end;
 
 function TConfigForm.GetIsModified: Boolean;
 begin
-  Result := FNavigatorConfig.IsModified or FColorConfig.IsModified;
+  Result := FNavigatorConfig.IsModified or FColorConfig.IsModified or FEditorConfig.IsModified;
 end;
 
 initialization

@@ -30,6 +30,9 @@ object ConfigForm: TConfigForm
     object ColorPage: TTabSheet
       Caption = 'Color'
     end
+    object EditorPage: TTabSheet
+      Caption = 'Editor'
+    end
   end
   object ButtonPanel: TPanel
     Left = 0
