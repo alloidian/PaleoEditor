@@ -1,25 +1,26 @@
 inherited NavigatorConfigFrame: TNavigatorConfigFrame
   object ConfigEdit: TValueListEditor[0]
     Left = 8
-    Height = 171
+    Height = 180
     Top = 8
     Width = 384
     Anchors = [akTop, akLeft, akRight, akBottom]
     AutoAdvance = aaDown
     DefaultColWidth = 144
     FixedCols = 0
-    RowCount = 7
+    RowCount = 8
     ScrollBars = ssAutoHorizontal
     TabOrder = 0
     OnButtonClick = ConfigEditButtonClick
     Options = [goFixedHorzLine, goHorzLine, goEditing, goAlwaysShowEditor, goThumbTracking]
     Strings.Strings = (
-      'Editable File Extension='
-      'Executable File Extensions='
-      'Searchable File Extensions='
-      'Uneditable File Extensions='
-      'Exclude File Extensions='
-      'Exclude Folders='
+      'Editable Files='
+      'Assembly Files='
+      'Executable Files='
+      'Searchable Files='
+      'Uneditable Files='
+      'Excluded Files='
+      'Excluded Folders='
     )
     TitleCaptions.Strings = (
       'Option'

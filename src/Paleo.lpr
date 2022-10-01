@@ -29,7 +29,7 @@ uses
   CustomEditors, Utils, SyntaxEditors, Executions, HexEditors, Actions, Abouts,
   SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
   NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
-  DirMonitors, EditorConfigs;
+  DirMonitors, EditorConfigs, Assemblers, ProjectConfigs;
 
 {$R *.res}
 

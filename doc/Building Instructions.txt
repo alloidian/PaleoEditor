@@ -1,6 +1,7 @@
 Building Instructions
 
-The Paleo Editor project has only been designed to run on 32- and 64-bit versions of Microsoft Windows. At this time, there has been no effort to
+The Paleo Editor project has only been designed to run on 32- and 64-bit
+versions of Microsoft Windows. At this time, there has been no effort to
 port the project to any other operating systems.
 
 The Paleo Editor project was developed with the Microsoft Windows 64-bit

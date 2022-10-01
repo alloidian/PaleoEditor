@@ -1,4 +1,6 @@
 inherited ProjectWorkForm: TProjectWorkForm
+  Left = 100
+  Top = 100
   OnCreate = FormCreate
   inherited Navigator: TTreeView
     Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips, tvoNoDoubleClickExpand]
@@ -30,11 +32,7 @@ inherited ProjectWorkForm: TProjectWorkForm
       end
       inherited FileRevertMenu: TMenuItem[18]
       end
-      inherited FileExportHtmlMenu: TMenuItem[19]
-      end
-      inherited FilePrintMenu: TMenuItem[20]
-      end
-      inherited FilePrintSetupMenu: TMenuItem[21]
+      inherited FileAssembleMenu: TMenuItem[22]
       end
     end
   end
@@ -85,6 +83,8 @@ inherited ProjectWorkForm: TProjectWorkForm
     end
     inherited LaunchConsoleFileAction: TAction[37]
     end
+    inherited AssembleAction: TAction[38]
+    end
   end
   inherited NavigatorPopupMenu: TPopupMenu
     inherited LaunchSeparator: TMenuItem[6]
@@ -96,6 +96,8 @@ inherited ProjectWorkForm: TProjectWorkForm
     inherited LaunchExecuteMenu: TMenuItem[9]
     end
     inherited NavigatorDeleteMenu: TMenuItem[10]
+    end
+    inherited AssembleMenu: TMenuItem[11]
     end
   end
 end

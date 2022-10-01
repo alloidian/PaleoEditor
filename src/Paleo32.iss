@@ -14,7 +14,7 @@
 ; Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
 #define PaleoAppName "Paleo Editor"
-#define PaleoAppVersion "0.1.1"
+#define PaleoAppVersion "0.1.2"
 #define PaleoAppPublisher "Steve García"
 #define PaleoAppURL "https://homebrew.computer/"
 #define PaleoAppExeName "..\bin\PaleoEditor32.exe"

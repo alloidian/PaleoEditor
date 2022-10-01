@@ -47,23 +47,28 @@ type
   TCustomExecutionEngine = class(TObject)
   private type
     TExecutionLogEvent = procedure(Sender: TObject; LogEvent: TLogEvent) of object;
+    TExecutionCompleteEvent = procedure(Sender: TObject; ResultCode: Integer) of object;
   private
     FOnLog: TExecutionLogEvent;
+    FOnComplete: TExecutionCompleteEvent;
   protected
     FProgramName: String;
     FFolderName: String;
     FParameters: String;
-    FEnvironment: Pointer;
+    FEnvironment: TStringList;
     FResultCode: Cardinal;
     function DoLog(const Text: String): String; overload; virtual;
     function DoLog(const Mask: string; const Args: array of const): String; overload;
+    procedure DoComplete(ResultCode: Integer);
   public
     constructor Create; virtual;
     destructor Destroy; override;
     procedure Clear; virtual;
     function Execute: Integer; virtual;
+    property Environment: TStringList read FEnvironment;
     property ResultCode: Cardinal read FResultCode;
     property OnLog: TExecutionLogEvent read FOnLog write FOnLog;
+    property OnComplete: TExecutionCompleteEvent read FOnComplete write FOnComplete;
   end;
 
   TExecutionEngine = class(TCustomExecutionEngine)
@@ -84,20 +89,26 @@ type
   TExecutionThread = class(TThread)
   private
     FEngine: TExecutionEngine;
-    FRecipientHandle: THandle;
+    FOnLog: TCustomExecutionEngine.TExecutionLogEvent;
   protected
     procedure Execute; override;
-    procedure DoLog(Sender: TObject; LogEvent: TLogEvent);
+    procedure DoLog(Data: PtrInt);
+    procedure DoEventLog(Sender: TObject; LogEvent: TLogEvent);
     function GetProgramName: TFileName;
     procedure SetProgramName(const Value: TFileName);
+    function GetFolderName: TFileName;
+    procedure SetFolderName(const Value: TFileName);
     function GetParameters: String;
     procedure SetParameters(const Value: String);
+    function GetEnvironment: TStringList;
   public
     constructor Create; virtual;
     destructor Destroy; override;
     property ProgramName: TFileName read GetProgramName write SetProgramName;
+    property FolderName: TFileName read GetFolderName write SetFolderName;
     property Parameters: String read GetParameters write SetParameters;
-    property RecipientHandle: THandle read FRecipientHandle write FRecipientHandle;
+    property Environment: TStringList read GetEnvironment;
+    property OnLog: TCustomExecutionEngine.TExecutionLogEvent read FOnLog write FOnLog;
   end;
 
   TExecutionForm = class(TForm)
@@ -137,7 +148,7 @@ begin
     Dialog := TExecutionForm.Create(Application.MainForm);
     try
       Dialog.ExecutableName := Command;
-      Result := Dialog.showModal = mrOk;
+      Result := Dialog.ShowModal = mrOk;
       if Result then begin
         Parameters := Dialog.Parameters;
         Config.AddParam(Command, Parameters);
@@ -196,12 +207,13 @@ end;
 constructor TCustomExecutionEngine.Create;
 begin
   inherited Create;
-  FEnvironment := nil;
+  FEnvironment := TStringList.Create;
   Clear;
 end;
 
 destructor TCustomExecutionEngine.Destroy;
 begin
+  FEnvironment.Free;
   inherited;
 end;
 
@@ -215,6 +227,12 @@ end;
 function TCustomExecutionEngine.DoLog(const Mask: string; const Args: array of const): String;
 begin
   Result := DoLog(Format(Mask, Args));
+end;
+
+procedure TCustomExecutionEngine.DoComplete(ResultCode: Integer);
+begin
+  if Assigned(FOnComplete) then
+    FOnComplete(Self, ResultCode);
 end;
 
 procedure TCustomExecutionEngine.Clear;
@@ -237,8 +255,55 @@ var
   CommandLine: string;
   ProcessInfo: TProcessInformation;
   Buffer: PAnsiChar;
+  Env: Pointer;
   BytesRead: DWord;
   AppRunning: DWord;
+
+  function ToBuffer(List: TStrings): Pointer;
+  const
+    NULL = #0;
+  var
+    Temp: TStringList;
+    I: Integer;
+    EnvBlock: UnicodeString;
+    Env: String;
+
+    function GetParentEnvironment: TStringList;
+    var
+      PEnvVars: PChar;
+      PEnvEntry: PChar;
+    begin
+      Result := TStringList.Create;
+      PEnvVars := GetEnvironmentStrings;
+      if PEnvVars <> nil then begin
+        try
+          PEnvEntry := PEnvVars;
+          while PEnvEntry^ <> NULL do begin
+            Result.Add(PEnvEntry);
+            Inc(PEnvEntry, StrLen(PEnvEntry) + 1);
+          end;
+        finally
+          Windows.FreeEnvironmentStrings(PEnvVars);
+        end;
+      end;
+    end;
+
+  begin
+    Temp := GetParentEnvironment;
+    try
+      for I := 0 to List.Count - 1 do
+        Temp.Values[List.Names[I]] := List.ValueFromIndex[I];
+      EnvBlock := '';
+      for Env in Temp do
+        EnvBlock := EnvBlock + UnicodeString(Env) + NULL;
+      EnvBlock := EnvBlock + NULL;
+      GetMem(Result, Length(EnvBlock) * 2);
+      CopyMemory(Result, @EnvBlock[1], Length(EnvBlock) * 2);
+    finally
+      Temp.Free
+    end;
+  end;
+
 begin
   if FFolderName.IsEmpty then
     FFolderName := ExcludeTrailingPathDelimiter(ExtractFilePath(FProgramName));
@@ -259,33 +324,38 @@ begin
         StartupInfo.lpDesktop := PChar('winsta0\default');
         CommandLine := Format(MASK, [FProgramName, FParameters]);
         DoLog(CommandLine);
-        if not CreateProcess(PChar(FProgramName), PChar(CommandLine), @Security, @Security,
-            True, NORMAL_PRIORITY_CLASS + CREATE_UNICODE_ENVIRONMENT, FEnvironment,
-            PChar(FFolderName), StartupInfo, ProcessInfo) then
-          DoLog('Execution Failed. ErrorCode = %d', [GetLastError])
-        else begin
-          try
-            repeat
-              AppRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
+        Env := ToBuffer(FEnvironment);
+        try
+          if not CreateProcess(PChar(FProgramName), PChar(CommandLine), @Security, @Security,
+              True, NORMAL_PRIORITY_CLASS + CREATE_UNICODE_ENVIRONMENT, Env,
+              PChar(FFolderName), StartupInfo, ProcessInfo) then
+            DoLog('Execution Failed. ErrorCode = %d', [GetLastError])
+          else begin
+            try
               repeat
-                BytesRead := 0;
-                if PeekNamedPipe(ReadPipe, Buffer, MAX_BUFFER, @BytesRead, nil, nil) then begin
-                  if BytesRead > 0 then begin
-                    BytesRead := 0;
-                    ReadFile(ReadPipe, Buffer[0], MAX_BUFFER, BytesRead, nil);
-                    Buffer[BytesRead] := #0;
-                    OemToAnsi(Buffer, Buffer);
-                    DoLog(String(Buffer));
+                AppRunning := WaitForSingleObject(ProcessInfo.hProcess, 100);
+                repeat
+                  BytesRead := 0;
+                  if PeekNamedPipe(ReadPipe, Buffer, MAX_BUFFER, @BytesRead, nil, nil) then begin
+                    if BytesRead > 0 then begin
+                      BytesRead := 0;
+                      ReadFile(ReadPipe, Buffer[0], MAX_BUFFER, BytesRead, nil);
+                      Buffer[BytesRead] := #0;
+                      OemToAnsi(Buffer, Buffer);
+                      DoLog(String(Buffer));
+                    end;
                   end;
-                end;
-              until BytesRead < MAX_BUFFER;
-            until AppRunning <> WAIT_TIMEOUT;
-            if not GetExitCodeProcess(ProcessInfo.hProcess, FResultCode) then
-              FResultCode := GetLastError;
-          finally
-            CloseHandle(ProcessInfo.hProcess);
-            CloseHandle(ProcessInfo.hThread);
+                until BytesRead < MAX_BUFFER;
+              until AppRunning <> WAIT_TIMEOUT;
+              if not GetExitCodeProcess(ProcessInfo.hProcess, FResultCode) then
+                FResultCode := GetLastError;
+            finally
+              CloseHandle(ProcessInfo.hProcess);
+              CloseHandle(ProcessInfo.hThread);
+            end;
           end;
+        finally
+          FreeMem(Env);
         end;
       finally
         FreeMem(Buffer);
@@ -295,6 +365,7 @@ begin
       CloseHandle(ReadPipe);
     end;
   end;
+  DoComplete(FResultCode);
   Result := FResultCode;
 end;
 
@@ -346,7 +417,7 @@ begin
   inherited Create(True);
   FreeOnTerminate := True;
   FEngine := TExecutionEngine.Create;
-  FEngine.OnLog := DoLog;
+  FEngine.OnLog := DoEventLog;
 end;
 
 destructor TExecutionThread.Destroy;
@@ -360,10 +431,19 @@ begin
   ReturnValue := FEngine.Execute;
 end;
 
-procedure TExecutionThread.DoLog(Sender: TObject; LogEvent: TLogEvent);
+procedure TExecutionThread.DoLog(Data: PtrInt);
+var
+  LogEvent: TLogEvent;
 begin
-  if FRecipientHandle <> 0 then
-    PostMessage(FRecipientHandle, WM_EXEC_LOG, NativeUInt(LogEvent), 0);
+  if Assigned(FOnLog) then begin
+    LogEvent := TLogEvent(Data);
+    FOnLog(Self, LogEvent);
+  end;
+end;
+
+procedure TExecutionThread.DoEventLog(Sender: TObject; LogEvent: TLogEvent);
+begin
+  Application.QueueAsyncCall(DoLog, PtrInt(LogEvent));
 end;
 
 function TExecutionThread.GetProgramName: TFileName;
@@ -376,6 +456,16 @@ begin
   FEngine.ProgramName := Value;
 end;
 
+function TExecutionThread.GetFolderName: TFileName;
+begin
+  Result := FEngine.FolderName;
+end;
+
+procedure TExecutionThread.SetFolderName(const Value: TFileName);
+begin
+  FEngine.FolderName := ExcludeTrailingPathDelimiter(Value);
+end;
+
 function TExecutionThread.GetParameters: String;
 begin
   Result := FEngine.Parameters;
@@ -384,6 +474,11 @@ end;
 procedure TExecutionThread.SetParameters(const Value: String);
 begin
   FEngine.Parameters := Value;
+end;
+
+function TExecutionThread.GetEnvironment: TStringList;
+begin
+  Result := FEngine.Environment;
 end;
 
 { TExecutionForm }

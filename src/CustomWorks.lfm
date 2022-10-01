@@ -1,7 +1,7 @@
 object CustomWorkForm: TCustomWorkForm
-  Left = 2170
+  Left = 40
   Height = 482
-  Top = 201
+  Top = 30
   Width = 864
   ActiveControl = Navigator
   Caption = 'Project'
@@ -206,6 +206,9 @@ object CustomWorkForm: TCustomWorkForm
       end
       object ExecuteSeparator: TMenuItem
         Caption = '-'
+      end
+      object FileAssembleMenu: TMenuItem
+        Action = AssembleAction
       end
       object FileExecuteMenu: TMenuItem
         Action = ExecuteCommandAction
@@ -459,6 +462,12 @@ object CustomWorkForm: TCustomWorkForm
       OnUpdate = FindActionUpdate
       ShortCut = 16455
     end
+    object AssembleAction: TAction
+      Caption = '&Assemble...'
+      Hint = 'Assemble selected assembly file within utility.'
+      OnExecute = AssembleActionExecute
+      OnUpdate = AssembleActionUpdate
+    end
     object ExecuteCommandAction: TAction
       Caption = 'E&xecute Command...'
       Hint = 'Execute selected command file within utility.'
@@ -609,6 +618,9 @@ object CustomWorkForm: TCustomWorkForm
     end
     object LaunchSeparator: TMenuItem
       Caption = '-'
+    end
+    object AssembleMenu: TMenuItem
+      Action = AssembleAction
     end
     object LaunchExplorerMenu: TMenuItem
       Action = LaunchExplorerFolderAction

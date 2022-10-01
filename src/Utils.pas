@@ -120,6 +120,7 @@ type
     function GetPage: TTabSheet;
     procedure SetPage(Value: TTabSheet);
     function GetIsExecutable: Boolean;
+    function GetIsAssemblable: Boolean;
     function GetHasStructure: Boolean;
   public
     property Kind: TFileAttribute.TPropertyKind read GetKind;
@@ -129,6 +130,7 @@ type
     property IsFileModified: Boolean read GetIsFileModified write SetIsFileModified;
     property Page: TTabSheet read GetPage write SetPage;
     property IsExecutable: Boolean read GetIsExecutable;
+    property IsAssemblable: Boolean read GetIsAssemblable;
     property HasStructure: Boolean read GetHasStructure;
   end;
 
@@ -431,6 +433,17 @@ begin
   if Result then begin
     Attribute := TFileAttribute(Data);
     Result := (Attribute.Kind = pkFile) and  Config.IsExecutableFile(Attribute.ShortName);
+  end;
+end;
+
+function TTreeNodeHelper.GetIsAssemblable: Boolean;
+var
+  Attribute: TFileAttribute;
+begin
+  Result := Assigned(Data);
+  if Result then begin
+    Attribute := TFileAttribute(Data);
+    Result := (Attribute.Kind = pkFile) and  Config.IsAssemblyFile(Attribute.ShortName);
   end;
 end;
 

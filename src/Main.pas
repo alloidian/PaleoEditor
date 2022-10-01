@@ -257,7 +257,7 @@ end;
 
 procedure TMainForm.ConfigActionExecute(Sender: TObject);
 begin
-  if ShowConfig then
+  if ShowConfig(ActiveProject) then
     RefreshConfig;
 end;
 

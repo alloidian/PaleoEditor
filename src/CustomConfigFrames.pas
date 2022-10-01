@@ -28,14 +28,28 @@ type
   protected
     function GetIsModified: Boolean; virtual; abstract;
   public
-    procedure ReadConfig(Config: TConfig); virtual; abstract;
-    procedure WriteConfig(Config: TConfig); virtual; abstract;
+    procedure ReadConfig(Config: TConfig); virtual; abstract; overload;
+    procedure WriteConfig(Config: TConfig); virtual; abstract; overload;
+    procedure ReadConfig(Config: TCustomConfig); virtual; overload;
+    procedure WriteConfig(Config: TCustomConfig); virtual; overload;
     property IsModified: Boolean read GetIsModified;
   end;
 
 implementation
 
 {$R *.lfm}
+
+{ TCustomConfigFrame }
+
+procedure TCustomConfigFrame.ReadConfig(Config: TCustomConfig);
+begin
+  // Do nothing
+end;
+
+procedure TCustomConfigFrame.WriteConfig(Config: TCustomConfig);
+begin
+  // Do nothing
+end;
 
 end.
 

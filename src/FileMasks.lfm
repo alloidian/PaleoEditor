@@ -1,7 +1,7 @@
 object EditFileMaskForm: TEditFileMaskForm
-  Left = 2816
+  Left = 460
   Height = 320
-  Top = 243
+  Top = 630
   Width = 360
   BorderIcons = []
   Caption = 'File Masks'
