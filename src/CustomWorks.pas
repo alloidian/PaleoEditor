@@ -22,7 +22,7 @@ interface
 uses
   Classes, Windows, SysUtils, Forms, Controls, StrUtils, Graphics, Dialogs, ComCtrls,
   StdCtrls, ExtCtrls, Menus, ActnList, StdActns, Types, Utils, CustomEditors, Searches,
-  Executions, DirMonitors;
+  ConfigUtils, Executions, DirMonitors;
 
 type
   TIterateTreeNodeProc = procedure(Node: TTreeNode; var Continue: Boolean);
@@ -42,6 +42,7 @@ type
     CloseUnmodifiedFilesAction: TAction;
     RevertFileAction: TAction;
     DeleteFolderAction: TAction;
+    AssembleAction: TAction;
     ExecuteCommandAction: TAction;
     LaunchExplorerFileAction: TAction;
     LaunchConsoleFileAction: TAction;
@@ -90,6 +91,7 @@ type
     FileRevertMenu: TMenuItem;
     FileDeleteFileMenu: TMenuItem;
     ExecuteSeparator: TMenuItem;
+    FileAssembleMenu: TMenuItem;
     FileExecuteMenu: TMenuItem;
     FileLaunchExplorerMenu: TMenuItem;
     FileLaunchConsoleMenu: TMenuItem;
@@ -140,6 +142,7 @@ type
     LaunchSeparator: TMenuItem;
     LaunchExplorerMenu: TMenuItem;
     LaunchConsoleMenu: TMenuItem;
+    AssembleMenu: TMenuItem;
     LaunchExecuteMenu: TMenuItem;
     StatusPopupMenu: TPopupMenu;
     CloseStatusMenu: TMenuItem;
@@ -180,6 +183,8 @@ type
     procedure RevertActionUpdate(Sender: TObject);
     procedure DeleteFolderActionExecute(Sender: TObject);
     procedure DeleteFolderActionUpdate(Sender: TObject);
+    procedure AssembleActionExecute(Sender: TObject);
+    procedure AssembleActionUpdate(Sender: TObject);
     procedure ExecuteCommandActionExecute(Sender: TObject);
     procedure ExecuteCommandActionUpdate(Sender: TObject);
     procedure LaunchExplorerFileActionExecute(Sender: TObject);
@@ -235,6 +240,7 @@ type
     procedure DoRetrieveLabels(Sender: TObject; List: TStrings);
     procedure DoGotoLine(Sender: TObject; LineNumber: Integer);
     procedure DoOriginate(Sender: TObject; const Criteria, Filter: String);
+    procedure AdjustSymbolFile(Sender: TObject);
     procedure WindowClickHandler(Sender: TObject);
     procedure WorkPagesDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure WorkPagesDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState;
@@ -246,6 +252,7 @@ type
     FFindFileName: TFileName;
     FFindNode: TTreeNode;
     FItinerary: TItinerary;
+    FSymbolFileName: TFileName;
     function GetIsModified: Boolean;
     function GetIsAllModified: Boolean;
     function GetActiveEditor: TCustomEditorFrame;
@@ -272,12 +279,16 @@ type
       MatchCase, MatchWholeWordOnly: Boolean);
   protected
     FFolderName: TFileName;
+    FConfigs: TCustomConfig;
+    FDirMonitor: TDirMonitor;
     procedure RefreshView; virtual; abstract;
     procedure Log(const Text: String); overload;
     procedure Log(const Mask: String; Args: array of const); overload;
     procedure LogHandler(Sender: TObject; const Text: String);
+    procedure LogEventHandler(Sender: TObject; LogEvent: TLogEvent);
     procedure DoFileEvent(Sender: TObject; Action: TDirMonitorAction;
       const FileName: TFileName); virtual;
+    procedure DoExecuteComplete(Sender: TObject);
     procedure FindIdentifier(Sender: TObject; const Criteria, Filter: String;
       MatchCase, MatchWholeWordOnly: Boolean);
     procedure RetrieveLabels(List: TStrings);
@@ -287,6 +298,7 @@ type
     procedure Idle;
     procedure RefreshConfig;
     property ActiveEditor: TCustomEditorFrame read GetActiveEditor;
+    property Configs: TCustomConfig read FConfigs;
     property IsModified: Boolean read GetIsModified;
     property IsAllModified: Boolean read GetIsAllModified;
   end;
@@ -379,8 +391,8 @@ implementation
 {$R *.lfm}
 
 uses
-  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf, Generics.Collections, SyntaxEditors, HexEditors,
-  Configs, NewFiles;
+  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf, Generics.Collections, AsyncProcess,
+  SyntaxEditors, HexEditors, Configs, NewFiles, Assemblers;
 
 var
   Search_Index: Integer;
@@ -389,6 +401,10 @@ var
 
 procedure TCustomWorkForm.FormCreate(Sender: TObject);
 begin
+  FDirMonitor := TDirMonitor.Create;
+  FDirMonitor.Actions := ALL_ACTIONS;
+  FDirMonitor.Subdirectories := True;
+  FDirMonitor.OnChange := DoFileEvent;
   FSearchFrame := TSearchFrame.Create(Self);
   FSearchFrame.Parent := SearchPanel;
   FSearchFrame.Align := alClient;
@@ -401,6 +417,7 @@ begin
   FSearchFrame.OnGotoLine := DoGotoLine;
   FSearchFrame.SearchBy := sbNone;
   FItinerary := TItinerary.Create;
+  FSymbolFileName := EmptyStr;
 end;
 
 procedure TCustomWorkForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -425,6 +442,11 @@ var
   Editor: TCustomEditorFrame;
   Node: TTreeNode;
 begin
+  if FDirMonitor.Active then
+    FDirMonitor.Stop;
+  FDirMonitor.Free;
+  FConfigs.WriteConfig;
+  FConfigs.Free;
   FItinerary.Free;
   Config.WriteConfig(Navigator, FFolderName);
   Config.WriteConfig(StatusPages, FFolderName);
@@ -586,8 +608,14 @@ var
   Editor: TCustomEditorFrame;
 begin
   Editor := ActiveEditor;
-  if Assigned(Editor) then
-    Editor.Save;
+  if Assigned(Editor) then begin
+    FDirMonitor.Pause;
+    try
+      Editor.Save;
+    finally
+      FDirMonitor.Resume;
+    end;
+  end;
 end;
 
 procedure TCustomWorkForm.SaveFileActionUpdate(Sender: TObject);
@@ -722,6 +750,62 @@ begin
   (Sender as TAction).Enabled := Assigned(Navigator.Selected);
 end;
 
+procedure TCustomWorkForm.AssembleActionExecute(Sender: TObject);
+const
+  MASK = 'TASMTABS=%s';
+var
+  Node: TTreeNode;
+  Parameters: String;
+  Platform: TAssemblerPlatform;
+  UpdateSymbols: Boolean;
+  Engine: TExecutionThread;
+begin
+  if FConfigs.HasAssembler then begin
+    Node := Navigator.Selected;
+    if Assigned(Node) then begin
+      Parameters := EmptyStr;
+      Platform := apZ80;
+      UpdateSymbols := False;
+      if AssembleFile(Node, Parameters, Platform, UpdateSymbols) then begin
+        if not StatusPages.Visible then
+          SetStatusVisible(True);
+        StatusPages.ActivePage := MessagePage;
+        LogEdit.Lines.Clear;
+        Engine := TExecutionThread.Create;
+        Engine.ProgramName := FConfigs.AssemblerNameFile;
+        Engine.FolderName := ExtractFilePath(Node.FullName);
+        Engine.Parameters := Parameters;
+        Engine.Environment.Text := Format(MASK, [FConfigs.AssemblerFolderName]);
+        Engine.OnLog := LogEventHandler;
+        if not UpdateSymbols then
+          Engine.OnTerminate := DoExecuteComplete
+        else begin
+          FSymbolFileName := Node.FullName;
+          Engine.OnTerminate := AdjustSymbolFile;
+        end;
+        FDirMonitor.Pause;
+        Engine.Start;
+      end;
+    end;
+  end;
+end;
+
+procedure TCustomWorkForm.AssembleActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
+begin
+  Action := Sender as TAction;
+  Action.Enabled := FConfigs.HasAssembler;
+  if Action.Enabled then begin
+    Node := Navigator.Selected;
+    if Assigned(Node) then
+      Action.Enabled := Node.IsAssemblable
+    else
+      Action.Enabled := False;
+  end;
+end;
+
 procedure TCustomWorkForm.ExecuteCommandActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
@@ -739,7 +823,9 @@ begin
       Engine := TExecutionThread.Create;
       Engine.ProgramName := Node.FullName;
       Engine.Parameters := Parameters;
-      Engine.RecipientHandle := Handle;
+      Engine.OnLog := LogEventHandler;
+      Engine.OnTerminate := DoExecuteComplete;
+      FDirMonitor.Pause;
       Engine.Start;
     end;
 end;
@@ -1182,6 +1268,31 @@ begin
   end;
 end;
 
+procedure TCustomWorkForm.AdjustSymbolFile(Sender: TObject);
+var
+  Temp: TStringList;
+  I: Integer;
+  L: String;
+begin
+  FDirMonitor.Resume;
+  Temp := TStringList.Create;
+  try
+    FSymbolFileName := ChangeFileExt(FSymbolFileName, '.sym');
+    if FileExists(FSymbolFileName) then begin
+      Temp.LoadFromFile(FSymbolFileName);
+      for I := 0 to Temp.Count - 1 do begin
+        L := Temp[I];
+        L := Trim(Copy(L, 19, Length(L))) + ' ' + Trim(Copy(L, 1, 18));
+        Temp[I] := L;
+      end;
+      Temp.SaveToFile(FSymbolFileName);
+    end;
+  finally
+    Temp.Free;
+    FSymbolFileName := EmptyStr;
+  end;
+end;
+
 procedure TCustomWorkForm.WindowClickHandler(Sender: TObject);
 begin
   BringToFront;
@@ -1411,7 +1522,8 @@ begin
   Node.Kind;
   if Assigned(Node) and Node.IsExecutable then begin
     FolderName := ExtractFilePath(Node.FullName);
-    ShellExecute(0, nil, PChar('cmd.exe'), PChar(Format(MASK, [Node.FullName, Parameters])), PChar(FolderName), SW_NORMAL);
+    ShellExecute(0, nil, PChar('cmd.exe'), PChar(Format(MASK, [Node.FullName, Parameters])),
+      PChar(FolderName), SW_NORMAL);
   end;
 end;
 
@@ -1497,7 +1609,7 @@ var
   LogEvent: TLogEvent;
 begin
   LogEvent := TLogEvent(Msg.WParam);
-  LogEdit.Lines.Add(LogEvent.Text);
+  Log(LogEvent.Text);
   LogEvent.Free;
 end;
 
@@ -1533,8 +1645,23 @@ begin
   Log(Text);
 end;
 
+procedure TCustomWorkForm.LogEventHandler(Sender: TObject; LogEvent: TLogEvent);
+begin
+  Log(LogEvent.Text);
+  LogEvent.Free;
+end;
+
 procedure TCustomWorkForm.DoFileEvent(Sender: TObject; Action: TDirMonitorAction;
   const FileName: TFileName);
+const
+  MASK = '%s: %s';
+  EVENTS: array[TDirMonitorAction] of String =
+   ('Unknown',        // daUnknown
+    'Added',          // daFileAdded
+    'Deleted',        // daFileRemoved
+    'Modified',       // daFileModified
+    'Rename (Old)',   // daFileRenamedOldName
+    'Rename (New)');  // daFileRenamedNewName
 var
   Engine: TFileRefreshEngine;
 begin
@@ -1546,6 +1673,12 @@ begin
   finally
     Engine.Free;
   end;
+  Log(MASK, [EVENTS[Action], FileName]);
+end;
+
+procedure TCustomWorkForm.DoExecuteComplete(Sender: TObject);
+begin
+  FDirMonitor.Resume;
 end;
 
 procedure TCustomWorkForm.FindIdentifier(Sender: TObject; const Criteria, Filter: String;
@@ -1587,8 +1720,6 @@ var
   I: Integer;
   Page: TTabSheet;
 begin
-(*if Navigator.Font.Size <> Config.FontSize then
-    Navigator.Font.Size := Config.FontSize; *)
   for I := 0 to WorkPages.PageCount - 1 do begin
     Page := WorkPages.Pages[I];
     Page.Editor.RefreshConfig;

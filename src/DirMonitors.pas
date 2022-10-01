@@ -66,8 +66,7 @@ type
     FOwner: TDirMonitor;
     FQueue: TDirMonitorQueue;
   protected
-    FMessage: TDirMonitorMessage;
-    procedure DoChange;
+    procedure DoChange(Data: PtrInt);
     procedure Execute; override;
   public
     constructor Create(Owner: TDirMonitor); virtual;
@@ -91,12 +90,14 @@ type
     procedure SetActions(const Value: TActionsToWatch);
     procedure SetDirectory(const Value: TFileName);
     procedure SetSubdirectories(const Value: Boolean);
-    procedure DoChange(Action: TDirMonitorAction; const FileName: TFileName); virtual;
+    procedure DoChange(Action: TDirMonitorAction; const FileName: TFileName);
   public
     constructor Create; virtual;
     destructor Destroy; override;
     procedure Start;
     procedure Stop;
+    procedure Pause;
+    procedure Resume;
     property Directory: TFileName read FDirectory write SetDirectory;
     property Actions: TActionsToWatch read FActions write SetActions default ALL_ACTIONS;
     property Subdirectories: Boolean read FSubdirectories write SetSubdirectories default False;
@@ -108,6 +109,7 @@ type
   private
     FDirectory: TFileName;
     FActions: TActionsToWatch;
+    FPauseCount: Integer;
     FSubdirectories: Boolean;
     FOwner: TDirMonitor;
     FQueue: TDirMonitorQueue;
@@ -125,12 +127,14 @@ type
   public
     constructor Create(Owner: TDirMonitor);
     destructor Destroy; override;
+    procedure Block;
+    procedure Unblock;
   end;
 
 implementation
 
 uses
-  DateUtils;
+  Forms, DateUtils;
 
 { TDirMonitorMessage }
 
@@ -215,21 +219,26 @@ begin
   inherited;
 end;
 
-procedure TDirMonitorListenThread.DoChange;
+procedure TDirMonitorListenThread.DoChange(Data: PtrInt);
+var
+  Message: TDirMonitorMessage;
 begin
-  FOwner.DoChange(FMessage.Action, FMessage.FileName);
+  Message := TDirMonitorMessage(Data);
+  try
+    FOwner.DoChange(Message.Action, Message.FileName);
+  finally
+    Message.Free;
+  end;
 end;
 
 procedure TDirMonitorListenThread.Execute;
+var
+  Temp: TDirMonitorMessage;
 begin
   while not Terminated do begin
     while FQueue.Count > 0 do begin
-      FMessage := FQueue.Pop;
-      try
-        Synchronize(DoChange);
-      finally
-        FMessage.Free;
-      end;
+      Temp := FQueue.Pop;
+      Application.QueueAsyncCall(DoChange, PtrInt(Temp));
     end;
     Sleep(500);
   end;
@@ -240,6 +249,7 @@ end;
 constructor TDirMonitorWorkerThread.Create(Owner: TDirMonitor);
 begin
   inherited Create(False);
+  FPauseCount := 0;
   FDirectory := IncludeTrailingPathDelimiter(Owner.FDirectory);
   FSubdirectories := Owner.Subdirectories;
   FActions := Owner.FActions;
@@ -326,6 +336,7 @@ begin
     Events[0] := FChangeHandle;
     Events[1] := FShutdownHandle;
     while not Terminated do begin
+      FillChar(Buffer[0], SizeOf(Buffer), 0);
       if ReadDirectoryChangesW(FDirHandle, @Buffer[0], BUFFER_SIZE, FSubdirectories, GetNotifyMask, @BytesRead,
           @Overlap, nil) then begin
         WaitResult := WaitForMultipleObjects(2, @Events[0], False, INFINITE);
@@ -335,7 +346,7 @@ begin
             Action := GetNotifyAction(Info^.Action);
             FileName := WideCharLenToString(@Info^.FileName[0], Info^.FileNameLength);
             FileName := FDirectory + String(PChar(FileName));
-            if not IsDuplicate(Action, FileName) then
+            if not IsDuplicate(Action, FileName) and (FPauseCount = 0) then
               FQueue.Push(Action, FileName);
             if Info.NextEntryOffset = 0 then
               Break
@@ -375,6 +386,19 @@ begin
     SetEvent(FShutdownHandle);
   inherited;
 end;
+
+procedure TDirMonitorWorkerThread.Block;
+begin
+  Inc(FPauseCount);
+end;
+
+procedure TDirMonitorWorkerThread.Unblock;
+begin
+  if FPauseCount > 0 then
+    Dec(FPauseCount);
+end;
+
+{ TDirMonitor }
 
 constructor TDirMonitor.Create;
 begin
@@ -450,6 +474,18 @@ end;
 procedure TDirMonitor.Stop;
 begin
   Active := False;
+end;
+
+procedure TDirMonitor.Pause;
+begin
+  FWorkerThread.Block;
+end;
+
+procedure TDirMonitor.Resume;
+begin
+  Application.ProcessMessages;
+  Sleep(500);
+  FWorkerThread.Unblock;
 end;
 
 end.

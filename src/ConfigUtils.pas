@@ -23,17 +23,22 @@ uses
   Classes, SysUtils, Graphics, ComCtrls, Generics.Collections, Forms, Menus, IniFiles;
 
 const
-  ITEM_EDIT                   = 'Editable File Extensions';
-  ITEM_EXEC                   = 'Executable File Extensions';
-  ITEM_SEARCH                 = 'Searchable File Extensions';
-  ITEM_UNEDITABLE             = 'Uneditable File Extensions';
-  ITEM_EXCLUDE_FILE           = 'Exclude File Extensions';
-  ITEM_EXCLUDE_FOLDER         = 'Exclude Folders';
+  ITEM_EDIT                   = 'Editable Files';
+  ITEM_EXEC                   = 'Executable Files';
+  ITEM_ASSEMBLE               = 'Assembly Files';
+  ITEM_SEARCH                 = 'Searchable Files';
+  ITEM_UNEDITABLE             = 'Uneditable Files';
+  ITEM_EXCLUDE_FILE           = 'Excluded Files';
+  ITEM_EXCLUDE_FOLDER         = 'Excluded Folders';
   INI_EDITOR_FONT_NAME_DEF    = 'Courier New';
   INI_EDITOR_FONT_SIZE_DEF    = 10;
   INI_EDITOR_RIGHT_MARGIN_DEF = 90;
+  ASSEMBLER_FOLDER_MASK       = '%s\tasm32';
+  ASSEMBLER_FILE_MASK         = '%s\TASM.EXE';
 
 type
+  TAssemblerPlatform = (apZ80, apZ180);
+
   TAttributeType = (atComment, atConfig, atConstant, atDataType, atDeclaration,
     atDirective, atFlow, atIdentifier, atKeyword, atMemory, atNumber, atRegister,
     atString, atSymbol, atWhitespace);
@@ -102,6 +107,7 @@ type
     FVersion: TVersion;
     FEditFiles: String;
     FExecuteFiles: String;
+    FAssemblyFiles: String;
     FSearchFiles: String;
     FUneditableFiles: String;
     FSaveWorkspace: Boolean;
@@ -116,7 +122,7 @@ type
   protected
     function IsMatch(const Value: String; const Masks: String): Boolean;
     function GetVersionText: String;
-    function GetPlatform: String;
+    function GetPlatform: String; overload;
     function GetDebug: String;
     function GetPreRelease: String;
     function GetPatched: String;
@@ -135,12 +141,18 @@ type
     procedure WriteConfig(Control: TTreeView; const FileName: TFileName); overload;
     procedure ReadConfig(Control: TPageControl; const FileName: TFileName); overload;
     procedure WriteConfig(Control: TPageControl; const FileName: TFileName); overload;
-    procedure AddParam(const Command, Param: String);
-    function GetParam(const Command: String): String;
+    procedure AddParam(const Command, Param: String); overload;
+    procedure AddParam(const Assembly: String; Platform: TAssemblerPlatform;
+      Parameter: String; UpdateSymbols: Boolean); overload;
+    function GetParam(const Command: String): String; overload;
+    function GetPlatform(const FileName: TFileName): TAssemblerPlatform; overload;
+    function GetParameter(const FileName: TFileName): String;
+    function GetUpdateSymbols(const FileName: TFileName): Boolean;
     function ReadWorkspace(const FolderName: string): TStringList;
     procedure WriteWorkspace(const FolderName: string; List: TStringList);
     function IsEditableFile(const FileName: TFileName): Boolean;
     function IsExecutableFile(const FileName: TFileName): Boolean;
+    function IsAssemblyFile(const FileName: TFileName): Boolean;
     function HasStructure(const FileName: TFileName): Boolean;
     function IsSearchableFile(const FileName: TFileName): Boolean;
     function IsReadonlyFile(const FileName: TFileName): Boolean;
@@ -157,6 +169,7 @@ type
     property SpecialBuild: String read GetSpecialBuild;
     property EditFiles: String read FEditFiles write FEditFiles;
     property ExecuteFiles: String read FExecuteFiles write FExecuteFiles;
+    property AssemblyFiles: String read FAssemblyFiles write FAssemblyFiles;
     property SearchFiles: String read FSearchFiles write FSearchFiles;
     property UneditableFiles: String read FUneditableFiles write FUneditableFiles;
     property SaveWorkspace: Boolean read FSaveWorkspace write FSaveWorkspace;
@@ -168,6 +181,46 @@ type
     property FontName: String read FFontName write FFontName;
     property FontSize: Integer read FFontSize write FFontSize;
     property RightMargin: Integer read FRightMargin write FRightMargin;
+  end;
+
+  TCustomConfig = class(TObject)
+  private
+    FConfigFileName: TFileName;
+  protected
+    FFileName: TFileName;
+    FHomeFolder: TFileName;
+    FToolFolderName: TFileName;
+    FHasTools: Boolean;
+    FAssemblerFolderName: TFileName;
+    FHasAssembler: Boolean;
+    FAssemblerFileName: TFileName;
+    procedure SetToolFolderName(const Value: TFileName);
+    property ConfigFileName: TFileName read FConfigFileName;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+    procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); virtual;
+    procedure WriteConfig;
+    property ToolFolderName: TFileName read FToolFolderName write SetToolFolderName;
+    property HasAssembler: Boolean read FHasAssembler;
+    property AssemblerFolderName: TFileName read FAssemblerFolderName;
+    property AssemblerNameFile: TFileName read FAssemblerFileName;
+  end;
+
+  TProjectConfig = class(TCustomConfig)
+  private
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+    procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
+  end;
+
+  TFolderConfig = class(TCustomConfig)
+  private
+  public
+    constructor Create; override;
+    destructor Destroy; override;
+    procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
   end;
 
 implementation
@@ -205,7 +258,7 @@ const
    (StorageName: SYNS_AttrWhitespace;  Foreground: clDefault;    Background: clNone; Style: []));       // atWhitespace   Z80
 
   DELIMITER                = ';';
-
+  INI_CONFIG               = '%s\Paleo\Editor.ini';
   INI_SETTING              = 'Setting';
   INI_EDIT                 = 'EditFiles';
   INI_EDIT_DEF             = '*.asm;*.z80;*.azm;*.inc;*.lib;*.ins;*.mac;*.lst;*.bat;*.sh;'  +
@@ -215,10 +268,17 @@ const
                              '.gitattributes;.gitignore;readme.unix;*.log';
   INI_EXEC                 = 'ExecuteFiles';
   INI_EXEC_DEF             = '*.cmd;*.bat';
+  INI_ASSEMBLE             = 'AssemblyFiles';
+  INI_ASSEMBLE_DEF         = 'Assign.asm;bcd.asm;BDOS.ASM;BDOS22.ASM;cbios.asm;cls.asm;' +
+                             'cpmldr.asm;Decode.asm;Encode.asm;FDU.asm;Format.asm;' +
+                             'Halt.asm;hbios.asm;IntTest.asm;loader.asm;Mode.asm;' +
+                             'Reboot.asm;RTC.asm;Startup.asm;Survey.asm;SysCopy.asm;' +
+                             'Talk.asm;TESTZ80.asm;Time.asm;Timer.asm;TimeUtil.asm;' +
+                             'tune.asm;zcpr.asm';
   INI_SEARCH               = 'SearchFiles';
-  INI_SEARCH_DEF           = '*.asm;*.azm;*.inc;*.lib;*.lst';
+  INI_SEARCH_DEF           = '*.asm;*.z80;*.azm;*.inc;*.lib;*.lst';
   INI_UNEDITABLE           = 'Uneditable';
-  INI_UNEDITABLE_DEF       = '*.lst;*.log';
+  INI_UNEDITABLE_DEF       = '*.list;*.lst;*.log';
   INI_SAVE_WORKSPACE       = 'SaveWorkspace';
   INI_SAVE_WORKSPACE_DEF   = False;
   INI_EXCLUDE              = 'Exclude';
@@ -228,6 +288,7 @@ const
   INI_EXCLUDE_FOLDER       = 'Folders';
   INI_EXCLUDE_FOLDER_DEF   = '.github;Tools;Tunes';
   INI_PARAMS               = 'Params';
+  INI_TOOLS                = 'Tools';
   INI_ATTRIBUTE_FOREGROUND = 'Foreground';
   INI_ATTRIBUTE_BACKGROUND = 'Background';
   INI_ATTRIBUTE_BOLD       = 'Bold';
@@ -248,177 +309,176 @@ const
   INI_EDITOR_FONT_SIZE     = 'Size';
   INI_EDITOR_RIGHT_MARGIN  = 'RightMargin';
 
-  { TAttribute }
+{ TAttribute }
 
-  constructor TAttribute.Create(Attr: TAttributeType; const StorageName: String);
-  begin
-    inherited Create;
-    FAttr := Attr;
-    FStorageName := StorageName;
+constructor TAttribute.Create(Attr: TAttributeType; const StorageName: String);
+begin
+  inherited Create;
+  FAttr := Attr;
+  FStorageName := StorageName;
+end;
+
+procedure TAttribute.ReadConfig(Ini: TIniFile);
+var
+  Config: TAttributeConfig;
+begin
+  Config := ATTRIBUTE_CONFIGS[Attr];
+  Foreground := TColor(Ini.ReadInteger(StorageName, INI_ATTRIBUTE_FOREGROUND, Integer(Config.Foreground)));
+  Background := TColor(Ini.ReadInteger(StorageName, INI_ATTRIBUTE_BACKGROUND, Integer(Config.Background)));
+  Style := [];
+  if Ini.ReadBool(StorageName, INI_ATTRIBUTE_BOLD, fsBold in Config.Style) then
+    Style := Style + [fsBold];
+  if Ini.ReadBool(StorageName, INI_ATTRIBUTE_ITALIC, fsItalic in Config.Style) then
+    Style := Style + [fsItalic];
+  if Ini.ReadBool(StorageName, INI_ATTRIBUTE_UNDERLINE, fsUnderline in Config.Style) then
+    Style := Style + [fsUnderline];
+  if Ini.ReadBool(StorageName, INI_ATTRIBUTE_STRIKEOUT, fsStrikeOut in Config.Style) then
+    Style := Style + [fsStrikeOut];
+end;
+
+procedure TAttribute.WriteConfig(Ini: TIniFile);
+begin
+  Ini.writeInteger(StorageName, INI_ATTRIBUTE_FOREGROUND, Integer(Foreground));
+  Ini.WriteInteger(StorageName, INI_ATTRIBUTE_BACKGROUND, Integer(Background));
+  Ini.WriteBool(StorageName, INI_ATTRIBUTE_BOLD, fsBold in Style);
+  Ini.WriteBool(StorageName, INI_ATTRIBUTE_ITALIC, fsItalic in Style);
+  Ini.WriteBool(StorageName, INI_ATTRIBUTE_UNDERLINE, fsUnderline in Style);
+  Ini.WriteBool(StorageName, INI_ATTRIBUTE_STRIKEOUT, fsStrikeOut in Style);
+end;
+
+procedure TAttribute.Assign(Source: TAttribute);
+begin
+  if Assigned(Source) then begin
+    FStorageName := Source.StorageName;
+    Foreground := Source.Foreground;
+    Background := Source.Background;
+    Style := Source.Style;
   end;
+end;
 
-  procedure TAttribute.ReadConfig(Ini: TIniFile);
-  var
-    Config: TAttributeConfig;
-  begin
+function TAttribute.Matches(Source: TAttribute): Boolean;
+begin
+  Result := (Foreground = Source.Foreground) and (Background = Source.Background) and (Style = Source.Style);
+end;
+
+{ TAttributes }
+
+constructor TAttributes.Create;
+var
+  Attr: TAttributeType;
+  Config: TAttributeConfig;
+  Attribute: TAttribute;
+begin
+  inherited Create;
+  FList := TList.Create;
+  for Attr := Low(Attr) to High(Attr) do begin
     Config := ATTRIBUTE_CONFIGS[Attr];
-    Foreground := TColor(Ini.ReadInteger(StorageName, INI_ATTRIBUTE_FOREGROUND, Integer(Config.Foreground)));
-    Background := TColor(Ini.ReadInteger(StorageName, INI_ATTRIBUTE_BACKGROUND, Integer(Config.Background)));
-    Style := [];
-    if Ini.ReadBool(StorageName, INI_ATTRIBUTE_BOLD, fsBold in Config.Style) then
-      Style := Style + [fsBold];
-    if Ini.ReadBool(StorageName, INI_ATTRIBUTE_ITALIC, fsItalic in Config.Style) then
-      Style := Style + [fsItalic];
-    if Ini.ReadBool(StorageName, INI_ATTRIBUTE_UNDERLINE, fsUnderline in Config.Style) then
-      Style := Style + [fsUnderline];
-    if Ini.ReadBool(StorageName, INI_ATTRIBUTE_STRIKEOUT, fsStrikeOut in Config.Style) then
-      Style := Style + [fsStrikeOut];
+    Attribute := TAttribute.Create(Attr, Config.StorageName);
+    Attribute.Foreground := Config.Foreground;
+    Attribute.Background := Config.Background;
+    Attribute.Style := Config.Style;
+    FList.Add(Attr, Attribute);
   end;
+end;
 
-  procedure TAttribute.WriteConfig(Ini: TIniFile);
-  begin
-    Ini.writeInteger(StorageName, INI_ATTRIBUTE_FOREGROUND, Integer(Foreground));
-    Ini.WriteInteger(StorageName, INI_ATTRIBUTE_BACKGROUND, Integer(Background));
-    Ini.WriteBool(StorageName, INI_ATTRIBUTE_BOLD, fsBold in Style);
-    Ini.WriteBool(StorageName, INI_ATTRIBUTE_ITALIC, fsItalic in Style);
-    Ini.WriteBool(StorageName, INI_ATTRIBUTE_UNDERLINE, fsUnderline in Style);
-    Ini.WriteBool(StorageName, INI_ATTRIBUTE_STRIKEOUT, fsStrikeOut in Style);
-  end;
+destructor TAttributes.Destroy;
+begin
+  FList.Free;
+  inherited;
+end;
 
-  procedure TAttribute.Assign(Source: TAttribute);
-  begin
-    if Assigned(Source) then begin
-      FStorageName := Source.StorageName;
-      Foreground := Source.Foreground;
-      Background := Source.Background;
-      Style := Source.Style;
-    end;
-  end;
+function TAttributes.GetCount: Integer;
+begin
+  Result := FList.Count;
+end;
 
-  function TAttribute.Matches(Source: TAttribute): Boolean;
-  begin
-    Result := (Foreground = Source.Foreground) and (Background = Source.Background) and (Style = Source.Style);
-  end;
+function TAttributes.GetItems(Attr: TAttributeType): TAttribute;
+begin
+  if not Assigned(FList) then
+    Result := nil
+  else
+    if not FList.TryGetValue(Attr, Result) then
+      Result := nil;
+end;
 
-  { TAttributes }
-
-  constructor TAttributes.Create;
-  var
-    Attr: TAttributeType;
-    Config: TAttributeConfig;
-    Attribute: TAttribute;
-  begin
-    inherited Create;
-    FList := TList.Create;
-    for Attr := Low(Attr) to High(Attr) do begin
-      Config := ATTRIBUTE_CONFIGS[Attr];
-      Attribute := TAttribute.Create(Attr, Config.StorageName);
+procedure TAttributes.Reset;
+var
+  Attr: TAttributeType;
+  Config: TAttributeConfig;
+  Attribute: TAttribute;
+begin
+  for Attr := Low(Attr) to High(Attr) do begin
+    Config := ATTRIBUTE_CONFIGS[Attr];
+    Attribute := Items[Attr];
+    if Assigned(Attribute) then begin
       Attribute.Foreground := Config.Foreground;
       Attribute.Background := Config.Background;
       Attribute.Style := Config.Style;
-      FList.Add(Attr, Attribute);
     end;
   end;
+end;
 
-  destructor TAttributes.Destroy;
-  begin
-    FList.Free;
-    inherited;
+procedure TAttributes.Assign(Source: TAttributes);
+var
+  Attr: TAttributeType;
+  Attribute: TAttribute;
+begin
+  for Attr := Low(Attr) to High(Attr) do begin
+    Attribute := Items[Attr];
+    if Assigned(Attribute) then
+      Attribute.Assign(Source[Attr]);
   end;
+end;
 
-  function TAttributes.GetCount: Integer;
-  begin
-    Result := FList.Count;
-  end;
+procedure TAttributes.ReadConfig(Ini: TIniFile);
+var
+  Attr: TAttributeType;
+begin
+  for Attr := Low(Attr) to High(Attr) do
+    Items[Attr].ReadConfig(Ini);
+end;
 
-  function TAttributes.GetItems(Attr: TAttributeType): TAttribute;
-  begin
-    if not Assigned(FList) then
-      Result := nil
-    else
-      if not FList.TryGetValue(Attr, Result) then
-        Result := nil;
-  end;
+procedure TAttributes.WriteConfig(Ini: TIniFile);
+var
+  Attr: TAttributeType;
+begin
+  for Attr := Low(Attr) to High(Attr) do
+    Items[Attr].WriteConfig(Ini);
+end;
 
-  procedure TAttributes.Reset;
-  var
-    Attr: TAttributeType;
-    Config: TAttributeConfig;
-    Attribute: TAttribute;
-  begin
-    for Attr := Low(Attr) to High(Attr) do begin
-      Config := ATTRIBUTE_CONFIGS[Attr];
-      Attribute := Items[Attr];
-      if Assigned(Attribute) then begin
-        Attribute.Foreground := Config.Foreground;
-        Attribute.Background := Config.Background;
-        Attribute.Style := Config.Style;
-      end;
-    end;
-  end;
-
-  procedure TAttributes.Assign(Source: TAttributes);
-  var
-    Attr: TAttributeType;
-    Attribute: TAttribute;
-  begin
+procedure TAttributes.Populate(List: TStrings);
+var
+  Attr: TAttributeType;
+  Attribute: TAttribute;
+begin
+  List.BeginUpdate;
+  try
+    List.Clear;
     for Attr := Low(Attr) to High(Attr) do begin
       Attribute := Items[Attr];
-      if Assigned(Attribute) then
-        Attribute.Assign(Source[Attr]);
+      List.AddObject(Attribute.StorageName, Attribute);
     end;
+  finally
+    List.EndUpdate;
   end;
+end;
 
-  procedure TAttributes.ReadConfig(Ini: TIniFile);
-  var
-    Attr: TAttributeType;
-  begin
-    for Attr := Low(Attr) to High(Attr) do
-      Items[Attr].ReadConfig(Ini);
-  end;
-
-  procedure TAttributes.WriteConfig(Ini: TIniFile);
-  var
-    Attr: TAttributeType;
-  begin
-    for Attr := Low(Attr) to High(Attr) do
-      Items[Attr].WriteConfig(Ini);
-  end;
-
-  procedure TAttributes.Populate(List: TStrings);
-  var
-    Attr: TAttributeType;
-    Attribute: TAttribute;
-  begin
-    List.BeginUpdate;
-    try
-      List.Clear;
-      for Attr := Low(Attr) to High(Attr) do begin
-        Attribute := Items[Attr];
-        List.AddObject(Attribute.StorageName, Attribute);
-      end;
-    finally
-      List.EndUpdate;
+function TAttributes.Matches(Source: TAttributes): Boolean;
+var
+  Attr: TAttributeType;
+begin
+  Result := True;
+  for Attr := Low(Attr) to High(Attr) do
+    if not Items[Attr].Matches(Source[Attr]) then begin
+      Result := False;
+      Break;
     end;
-  end;
-
-  function TAttributes.Matches(Source: TAttributes): Boolean;
-  var
-    Attr: TAttributeType;
-  begin
-    Result := True;
-    for Attr := Low(Attr) to High(Attr) do
-      if not Items[Attr].Matches(Source[Attr]) then begin
-        Result := False;
-        Break;
-      end;
-  end;
+end;
 
 { TConfig }
 
 constructor TConfig.Create;
 const
-  MASK = '%s\Paleo\Editor.ini';
   DEBUG_BIT         = $01;
   PRE_RELEASE_BIT   = $02;
   PATCHED_BIT       = $04;
@@ -448,7 +508,7 @@ begin
   inherited Create;
   FParams := TParamType.Create;
   FConfigFileName := GetEnvironmentVariable('APPDATA');
-  FConfigFileName := Format(MASK, [FConfigFileName]);
+  FConfigFileName := Format(INI_CONFIG, [FConfigFileName]);
   VersionInfo := TVersionInfo.Create;
   try
     VersionInfo.Load(Application.Handle);
@@ -560,6 +620,7 @@ begin
   try
     FEditFiles := Ini.ReadString(INI_SETTING, INI_EDIT, INI_EDIT_DEF);
     FExecuteFiles := Ini.ReadString(INI_SETTING, INI_EXEC, INI_EXEC_DEF);
+    FAssemblyFiles := Ini.ReadString(INI_SETTING, INI_ASSEMBLE, INI_ASSEMBLE_DEF);
     FSearchFiles := Ini.ReadString(INI_SETTING, INI_SEARCH, INI_SEARCH_DEF);
     FUneditableFiles := Ini.ReadString(INI_SETTING, INI_UNEDITABLE, INI_UNEDITABLE_DEF);
     FSaveWorkspace := Ini.ReadBool(INI_SETTING, INI_SAVE_WORKSPACE, INI_SAVE_WORKSPACE_DEF);
@@ -601,6 +662,7 @@ begin
   try
     Ini.WriteString(INI_SETTING, INI_EDIT, FEditFiles);
     Ini.WriteString(INI_SETTING, INI_EXEC, FExecuteFiles);
+    Ini.WriteString(INI_SETTING, INI_ASSEMBLE, FAssemblyFiles);
     Ini.WriteString(INI_SETTING, INI_SEARCH, FSearchFiles);
     Ini.WriteString(INI_SETTING, INI_UNEDITABLE, FUneditableFiles);
     Ini.WriteBool(INI_SETTING, INI_SAVE_WORKSPACE, FSaveWorkspace);
@@ -753,10 +815,58 @@ begin
   FParams.AddOrSetValue(Command, Param);
 end;
 
+procedure TConfig.AddParam(const Assembly: String; Platform: TAssemblerPlatform;
+      Parameter: String; UpdateSymbols: Boolean);
+const
+  MASK = '%s;%s;%s';
+begin
+  FParams.AddOrSetValue(Assembly, Format(MASK, [GetEnumName(TypeInfo(TAssemblerPlatform),
+    Ord(Platform)), BoolToStr(UpdateSymbols, True), Parameter]));
+end;
+
 function TConfig.GetParam(const Command: String): String;
 begin
   if not FParams.TryGetValue(Command, Result) then
     Result := EmptyStr;
+end;
+
+function TConfig.GetPlatform(const FileName: TFileName): TAssemblerPlatform;
+var
+  Temp: String;
+begin
+  if not FParams.TryGetValue(FileName, Temp) then
+    Result := apZ80
+  else begin
+    Temp := ExtractWord(1, Temp, [DELIMITER]);
+    if Temp.IsEmpty then
+      Result := apZ80
+    else
+      Result := TAssemblerPlatform(GetEnumValue(TypeInfo(TAssemblerPlatform), Temp));
+  end;
+end;
+
+function TConfig.GetParameter(const FileName: TFileName): String;
+var
+  Temp: String;
+begin
+  if not FParams.TryGetValue(FileName, Temp) then
+    Result := EmptyStr
+  else
+    Result := ExtractWord(3, Temp, [DELIMITER]);
+end;
+
+function TConfig.GetUpdateSymbols(const FileName: TFileName): Boolean;
+var
+  Temp: String;
+begin
+  if not FParams.TryGetValue(FileName, Temp) then
+    Result := False
+  else begin
+    Temp := ExtractWord(2, Temp, [DELIMITER]);
+    Result := not Temp.IsEmpty;
+    if Result then
+      Result := StrToBool(Temp);
+  end;
 end;
 
 function TConfig.ReadWorkspace(const FolderName: string): TStringList;
@@ -800,6 +910,11 @@ begin
   Result := IsMatch(FileName, ExecuteFiles);
 end;
 
+function TConfig.IsAssemblyFile(const FileName: TFileName): Boolean;
+begin
+  Result := IsMatch(FileName, AssemblyFiles);
+end;
+
 function TConfig.HasStructure(const FileName: TFileName): Boolean;
 begin
   Result := MatchesMask(FileName, '*.lst');
@@ -827,6 +942,112 @@ begin
   Result := AnsiMatchStr(FolderName, INVALID_FOLDERS);
   if not Result then
     Result := IsMatch(FolderName, ExcludeFolders);
+end;
+
+{ TCustomConfig }
+
+constructor TCustomConfig.Create;
+begin
+  inherited Create;
+  FConfigFileName := GetEnvironmentVariable('APPDATA');
+  FConfigFileName := Format(INI_CONFIG, [FConfigFileName]);
+  FFileName := EmptyStr;
+  FHomeFolder := EmptyStr;
+  FToolFolderName := EmptyStr;
+  FHasTools := False;
+  FAssemblerFolderName := EmptyStr;
+  FHasAssembler := False;
+  FAssemblerFileName := EmptyStr;
+end;
+
+destructor TCustomConfig.Destroy;
+begin
+  inherited;
+end;
+
+procedure TCustomConfig.SetToolFolderName(const Value: TFileName);
+begin
+  FToolFolderName := ExcludeTrailingPathDelimiter(Value);
+  FHasTools := DirectoryExists(FToolFolderName);
+  if FHasTools then begin
+    FAssemblerFolderName := Format(ASSEMBLER_FOLDER_MASK, [FToolFolderName]);
+    FHasAssembler := DirectoryExists(FAssemblerFolderName);
+    if FHasAssembler then begin
+      FAssemblerFileName := Format(ASSEMBLER_FILE_MASK, [FAssemblerFolderName]);
+      FHasAssembler := FileExists(FAssemblerFileName);
+    end;
+  end;
+end;
+
+procedure TCustomConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
+begin
+  // Do nothing
+end;
+
+procedure TCustomConfig.WriteConfig;
+var
+  Ini: TIniFile;
+begin
+  Ini := TIniFile.Create(ConfigFileName);
+  try
+    Ini.WriteString(INI_TOOLS, FFileName, FToolFolderName);
+  finally
+    Ini.Free;
+  end;
+end;
+
+{ TProjectConfig }
+
+constructor TProjectConfig.Create;
+begin
+  inherited;
+end;
+
+destructor TProjectConfig.Destroy;
+begin
+  inherited;
+end;
+
+procedure TProjectConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
+var
+  Ini: TIniFile;
+begin
+  inherited ReadConfig(FolderName, FileName);
+  FFileName := FileName;
+  Ini := TIniFile.Create(ConfigFileName);
+  try
+    FHomeFolder := ExcludeTrailingPathDelimiter(FolderName);
+    ToolFolderName := Ini.ReadString(INI_TOOLS, FFileName, EmptyStr);
+  finally
+    Ini.Free;
+  end;
+end;
+
+{ TFolderConfig }
+
+constructor TFolderConfig.Create;
+begin
+  inherited Create;
+end;
+
+destructor TFolderConfig.Destroy;
+begin
+  inherited;
+end;
+
+procedure TFolderConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
+var
+  Ini: TIniFile;
+begin
+  inherited ReadConfig(FolderName, FileName);
+  FFileName := FolderName;
+  Ini := TIniFile.Create(ConfigFileName);
+  try
+    FHomeFolder := ExcludeTrailingPathDelimiter(FolderName);
+    ToolFolderName := Ini.ReadString(INI_TOOLS, FFileName, Format('%s\Tools', [FHomeFolder]));
+  finally
+    Ini.Free;
+  end;
 end;
 
 end.

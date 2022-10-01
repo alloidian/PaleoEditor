@@ -1,7 +1,7 @@
 object ExecutionForm: TExecutionForm
-  Left = 2531
+  Left = 1170
   Height = 120
-  Top = 280
+  Top = 630
   Width = 300
   ActiveControl = ParameterEdit
   BorderIcons = []

@@ -1,7 +1,7 @@
 object MainForm: TMainForm
-  Left = 2415
+  Left = 10
   Height = 540
-  Top = 219
+  Top = 10
   Width = 819
   Caption = 'Paleo Editor'
   ClientHeight = 520

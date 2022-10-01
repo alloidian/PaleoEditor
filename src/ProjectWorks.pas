@@ -27,6 +27,7 @@ type
     procedure FormCreate(Sender: TObject);
   private
   protected
+    FProjectFolder: TFileName;
     procedure RefreshView; override;
   public
     procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); override;
@@ -79,6 +80,7 @@ type
     constructor Create(const ProjectFolder: TFileName; Node: TTreeNode); virtual;
     destructor Destroy; override;
     procedure Populate(View: TTreeView); overload;
+    property ProjectFolder: TFileName read FProjectFolder;
   end;
 
 implementation
@@ -86,13 +88,14 @@ implementation
 {$R *.lfm}
 
 uses
-  StrUtils, Utils;
+  StrUtils, Utils, ConfigUtils, Configs;
 
 { TProjectWorkForm }
 
 procedure TProjectWorkForm.FormCreate(Sender: TObject);
 begin
   inherited;
+  FConfigs := TProjectConfig.Create;
   NewFileAction.Visible := False;
   NewFolderAction.Visible := False;
   DeleteFolderAction.Visible := False;
@@ -106,7 +109,14 @@ var
 begin
   Parser := TListParser.Create(FFolderName, ParentNode);
   try
-    Parser.Populate(Navigator);
+    Navigator.BeginUpdate;
+    try
+      Navigator.Items.Clear;
+      Parser.Populate(Navigator);
+    finally
+      Navigator.EndUpdate;
+    end;
+    FProjectFolder := Parser.ProjectFolder;
   finally
     Parser.Free;
   end;
@@ -133,6 +143,11 @@ begin
       ParentMenu.Add(WindowMenu);
       Caption := FFolderName;
       RefreshView;
+      FConfigs.ReadConfig(FProjectFolder, FFolderName);
+      if Config.MonitorFolder then begin
+        FDirMonitor.Directory := FProjectFolder;
+        FDirMonitor.Start
+      end;
     end;
   finally
     Screen.Cursor := OldCursor;
@@ -144,7 +159,7 @@ end;
 constructor TListParser.Create(const ProjectFolder: TFileName; Node: TTreeNode);
 begin
   inherited Create;
-  FProjectFolder := ProjectFolder;
+  FProjectFolder := EmptyStr;
   FFileName := ProjectFolder;
   FHomeFolder := ExcludeTrailingPathDelimiter(ExtractFilePath(FFileName));
   FList := TModules.Create;
@@ -222,8 +237,26 @@ var
     Result := HomeFolder + DirectorySeparator + FileName;
   end;
 
+  function GetBaseFolder(const HomeFolder: String; FileName: String): TFileName;
+  begin
+    FileName := ExcludeTrailingPathDelimiter(ExtractFilePath(FileName));
+    if HomeFolder.IsEmpty then
+      Result := FileName
+    else
+      if HomeFolder.Length > FileName.Length then
+        Result := FileName
+      else
+        Result := HomeFolder;
+  end;
+
 begin
   if (FList.Count > 0) and Assigned(View) then begin
+    FProjectFolder := GetBaseFolder(EmptyStr, FFileName);
+    FProjectFolder := GetBaseFolder(FProjectFolder, ExtractDocFileName(FFileName));
+    for I := 0 to FList.Count - 1 do begin
+      Module := FList[I];
+      FProjectFolder := GetBaseFolder(FProjectFolder, FullPath(FHomeFolder, Module.ModuleName));
+    end;
     Stack := TTreeNodeCache.Create;
     try
       Attribute := TFileAttribute.CreateFile(FFileName, FProjectFolder);

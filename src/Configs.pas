@@ -21,9 +21,13 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Menus, ComCtrls,
-  ExtCtrls, ActnList, ConfigUtils, NavigatorConfigs, ColorConfigs, EditorConfigs;
+  ExtCtrls, ActnList, ConfigUtils, NavigatorConfigs, ProjectConfigs, ColorConfigs,
+  EditorConfigs, CustomWorks;
 
 type
+
+  { TConfigForm }
+
   TConfigForm = class(TForm)
     Actions: TActionList;
     SaveAction: TAction;
@@ -34,37 +38,44 @@ type
     ButtonPanel: TPanel;
     OKButton: TButton;
     CancelButton: TButton;
+    ProjectPage: TTabSheet;
     procedure FormCreate(Sender: TObject);
     procedure SaveActionUpdate(Sender: TObject);
     procedure SaveActionExecute(Sender: TObject);
   private
     FConfig: TConfig;
+    FPConfig: TCustomConfig;
     FNavigatorConfig: TNavigatorConfigFrame;
+    FProjectConfig: TProjectConfigFrame;
     FColorConfig: TColorConfigFrame;
     FEditorConfig: TEditorConfigFrame;
     procedure SetConfig(Value: TConfig);
+    procedure SetProjectConfig(Value: TCustomConfig);
     function GetIsModified: Boolean;
   public
     property Config: TConfig read FConfig write SetConfig;
+    property ProjectConfig: TCustomConfig read FPConfig write SetProjectConfig;
     property IsModified: Boolean read GetIsModified;
   end;
 
 var
   Config: TConfig;
 
-function ShowConfig: Boolean;
+function ShowConfig(Work: TCustomWorkForm): Boolean;
 
 implementation
 
 {$R *.lfm}
 
-function ShowConfig: Boolean;
+function ShowConfig(Work: TCustomWorkForm): Boolean;
 var
   Dialog: TConfigForm;
 begin
   Dialog := TConfigForm.Create(Application.MainForm);
   try
     Dialog.Config := Config;
+    if Assigned(Work) then
+      Dialog.ProjectConfig := Work.Configs;
     Result := Dialog.ShowModal = mrOk;
     if Result then
       Config.WriteConfig;
@@ -80,6 +91,9 @@ begin
   FNavigatorConfig := TNavigatorConfigFrame.Create(Self);
   FNavigatorConfig.Parent := NavigatorPage;
   FNavigatorConfig.Align := alClient;
+  FProjectConfig := TProjectConfigFrame.Create(Self);
+  FProjectConfig.Parent := ProjectPage;
+  FProjectConfig.Align := alClient;
   FColorConfig := TColorConfigFrame.Create(Self);
   FColorConfig.Parent := ColorPage;
   FColorConfig.Align := alClient;
@@ -92,6 +106,10 @@ procedure TConfigForm.SaveActionExecute(Sender: TObject);
 begin
   if FNavigatorConfig.IsModified then
     FNavigatorConfig.WriteConfig(FConfig);
+  if FProjectConfig.IsModified then begin
+    FProjectConfig.WriteConfig(FConfig);
+    FprojectConfig.WriteConfig(FPConfig);
+  end;
   if FColorConfig.IsModified then
     FColorConfig.WriteConfig(FConfig);
   if FEditorConfig.IsModified then
@@ -112,9 +130,17 @@ begin
   FEditorConfig.ReadConfig(FConfig);
 end;
 
+procedure TConfigForm.SetProjectConfig(Value: TCustomConfig);
+begin
+  FPConfig := Value;
+  ProjectPage.TabVisible := Assigned(FPConfig);
+  FProjectConfig.ReadConfig(FPConfig);
+end;
+
 function TConfigForm.GetIsModified: Boolean;
 begin
-  Result := FNavigatorConfig.IsModified or FColorConfig.IsModified or FEditorConfig.IsModified;
+  Result := FNavigatorConfig.IsModified or FProjectConfig.IsModified or
+    FColorConfig.IsModified or FEditorConfig.IsModified;
 end;
 
 initialization

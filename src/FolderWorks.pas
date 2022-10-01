@@ -20,7 +20,7 @@ unit FolderWorks;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Dialogs, Menus, CustomWorks, DirMonitors;
+  Classes, SysUtils, Forms, Controls, Dialogs, Menus, CustomWorks, ConfigUtils, DirMonitors;
 
 type
   TFolderWorkForm = class(TCustomWorkForm)
@@ -28,9 +28,6 @@ type
     procedure FormDestroy(Sender: TObject);
   private
   protected
-    FDirMonitor: TDirMonitor;
-    procedure DoFileEvent(Sender: TObject; Action: TDirMonitorAction;
-      const FileName: TFileName); override;
     procedure RefreshView; override;
   public
     procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); override;
@@ -48,34 +45,12 @@ uses
 procedure TFolderWorkForm.FormCreate(Sender: TObject);
 begin
   inherited;
-  FDirMonitor := TDirMonitor.Create;
-  FDirMonitor.Actions := ALL_ACTIONS;
-  FDirMonitor.Subdirectories := True;
-  FDirMonitor.OnChange := DoFileEvent;
+  FConfigs := TFolderConfig.Create;
 end;
 
 procedure TFolderWorkForm.FormDestroy(Sender: TObject);
 begin
-  if FDirMonitor.Active then
-    FDirMonitor.Stop;
-  FDirMonitor.Free;
   inherited;
-end;
-
-procedure TFolderWorkForm.DoFileEvent(Sender: TObject; Action: TDirMonitorAction;
-  const FileName: TFileName);
-const
-  MASK = '%s: %s';
-  EVENTS: array[TDirMonitorAction] of String =
-   ('Unknown',        // daUnknown
-    'Added',          // daFileAdded
-    'Deleted',        // daFileRemoved
-    'Modified',       // daFileModified
-    'Rename (Old)',   // daFileRenamedOldName
-    'Rename (New)');  // daFileRenamedNewName
-begin
-  inherited DoFileEvent(Sender, Action, FileName);
-  Log(MASK, [EVENTS[Action], FileName]);
 end;
 
 procedure TFolderWorkForm.RefreshView;
@@ -158,6 +133,7 @@ begin
       ForceDirectories(FolderName);
     IsImage := AnsiSameText(ExtractFileExt(FolderName), '.lst');
     FFolderName := FolderName;
+    FConfigs.ReadConfig(FFolderName);
     WindowMenu := TMenuItem.Create(Self);
     WindowMenu.Caption := FolderName;
     WindowMenu.Tag := IMAGE_INDEX[IsImage];

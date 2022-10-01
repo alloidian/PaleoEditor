@@ -71,19 +71,20 @@ type
     property Path: TFileName read GetPath write SetPath;
   end;
 
-function EditFileMasks(var Path: TFileName): Boolean;
+function EditFileMasks(const Caption: String; var Path: TFileName): Boolean;
 
 implementation
 
 {$R *.lfm}
 {$WARN SYMBOL_PLATFORM OFF}
 
-function EditFileMasks(var Path: TFileName): Boolean;
+function EditFileMasks(const Caption: String; var Path: TFileName): Boolean;
 var
   Editor: TEditFileMaskForm;
 begin
   Editor := TEditFileMaskForm.Create(nil);
   try
+    Editor.Caption := Caption;
     Editor.Path := Path;
     Result := Editor.ShowModal = mrOk;
     if Result then

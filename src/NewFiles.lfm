@@ -1,7 +1,7 @@
 object NewFileForm: TNewFileForm
-  Left = 2584
+  Left = 870
   Height = 288
-  Top = 320
+  Top = 630
   Width = 256
   ActiveControl = FileNameEdit
   BorderIcons = []

@@ -30,6 +30,7 @@ type
     procedure ConfigEditButtonClick(Sender: TObject; aCol, aRow: Integer);
   private
     FEditFiles: String;
+    FAssemblyFiles: String;
     FExecFiles: String;
     FSearchFiles: String;
     FUneditableFiles: String;
@@ -40,6 +41,8 @@ type
     function GetIsModified: Boolean; override;
     function GetEditFiles: String;
     procedure SetEditFiles(const Value: String);
+    function GetAssemlbyFiles: String;
+    procedure SetAssemblyFiles(const Value: String);
     function GetExecFiles: String;
     procedure SetExecFiles(const Value: String);
     function GetSearchFiles: String;
@@ -57,6 +60,7 @@ type
     procedure ReadConfig(Config: TConfig); override;
     procedure WriteConfig(Config: TConfig); override;
     property EditFiles: String read GetEditFiles write SetEditFiles;
+    property AssemblyFiles: String read GetAssemlbyFiles write SetAssemblyFiles;
     property ExecFiles: String read GetExecFiles write SetExecFiles;
     property SearchFiles: String read GetSearchFiles write SetSearchFiles;
     property UneditableFiles: String read GetUneditableFiles write SetUneditableFiles;
@@ -81,6 +85,7 @@ begin
   inherited Create(AOwner);
   ConfigEdit.Strings.Clear;
   ConfigEdit.Strings.AddPair(ITEM_EDIT, EmptyStr);
+  ConfigEdit.Strings.AddPair(ITEM_ASSEMBLE, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_EXEC, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_SEARCH, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_UNEDITABLE, EmptyStr);
@@ -88,6 +93,7 @@ begin
   ConfigEdit.Strings.AddPair(ITEM_EXCLUDE_FOLDER, EmptyStr);
   for I := 0 to ConfigEdit.RowCount - 2 do
     ConfigEdit.ItemProps[I].EditStyle := esEllipsis;
+  ConfigEdit.DefaultColWidth := 100;
 end;
 
 procedure TNavigatorConfigFrame.ConfigEditButtonClick(Sender: TObject; aCol, aRow: Integer);
@@ -99,13 +105,14 @@ begin
   Editor := Sender as TValueListEditor;
   Row := aRow - 1;
   Temp := Editor.Strings.ValueFromIndex[Row];
-  if EditFileMasks(Temp) then
+  if EditFileMasks(Editor.Strings.Names[Row], Temp) then
     Editor.Strings.ValueFromIndex[Row] := Temp;
 end;
 
 function TNavigatorConfigFrame.GetIsModified: Boolean;
 begin
   Result := not AnsiSameText(EditFiles, FEditFiles) or
+    not AnsiSameText(AssemblyFiles, FAssemblyFiles) or
     not AnsiSameText(ExecFiles, FExecFiles) or
     not AnsiSameText(SearchFiles, FSearchFiles) or
     not AnsiSameText(UneditableFiles, FUneditableFiles) or
@@ -123,6 +130,17 @@ procedure TNavigatorConfigFrame.SetEditFiles(const Value: String);
 begin
   ConfigEdit.Values[ITEM_EDIT] := Value;
   FEditFiles := Value;
+end;
+
+function TNavigatorConfigFrame.GetAssemlbyFiles: String;
+begin
+  Result := ConfigEdit.Values[ITEM_ASSEMBLE];
+end;
+
+procedure TNavigatorConfigFrame.SetAssemblyFiles(const Value: String);
+begin
+  ConfigEdit.Values[ITEM_ASSEMBLE] := Value;
+  FAssemblyFiles := Value;
 end;
 
 function TNavigatorConfigFrame.GetExecFiles: String;
@@ -194,6 +212,7 @@ end;
 procedure TNavigatorConfigFrame.ReadConfig(Config: TConfig);
 begin
   EditFiles := Config.EditFiles;
+  AssemblyFiles := Config.AssemblyFiles;
   ExecFiles := Config.ExecuteFiles;
   SearchFiles := Config.SearchFiles;
   UneditableFiles := Config.UneditableFiles;
@@ -205,6 +224,7 @@ end;
 procedure TNavigatorConfigFrame.WriteConfig(Config: TConfig);
 begin
   Config.EditFiles := EditFiles;
+  Config.AssemblyFiles := AssemblyFiles;
   Config.ExecuteFiles := ExecFiles;
   Config.SearchFiles := SearchFiles;
   Config.UneditableFiles := UneditableFiles;
@@ -212,7 +232,6 @@ begin
   Config.ExcludeFiles := ExcludeFiles;
   Config.ExcludeFolders :=ExcludeFolders ;
 end;
-
 
 end.
 

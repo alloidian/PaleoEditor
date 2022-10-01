@@ -1,7 +1,7 @@
 object ConfigForm: TConfigForm
-  Left = 2508
+  Left = 10
   Height = 281
-  Top = 241
+  Top = 630
   Width = 408
   ActiveControl = Pages
   BorderIcons = []
@@ -26,6 +26,11 @@ object ConfigForm: TConfigForm
     TabOrder = 0
     object NavigatorPage: TTabSheet
       Caption = 'Navigator'
+    end
+    object ProjectPage: TTabSheet
+      Tag = 1
+      Caption = 'Project'
+      TabVisible = False
     end
     object ColorPage: TTabSheet
       Caption = 'Color'
