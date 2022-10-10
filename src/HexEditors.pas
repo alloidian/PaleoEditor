@@ -23,6 +23,9 @@ uses
   Classes, SysUtils, Controls, Dialogs, CustomEditors, MPHexEditorEx, ComCtrls;
 
 type
+
+  { THexEditorFrame }
+
   THexEditorFrame = class(TCustomEditorFrame)
     Editor: TMPHexEditorEx;
     procedure EditorChange(Sender: TObject);

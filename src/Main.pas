@@ -24,6 +24,9 @@ uses
   StdActns, ExtCtrls, Actions, CustomWorks;
 
 type
+
+  { TMainForm }
+
   TMainForm = class(TForm)
     Images: TImageList;
     Actions: TActionList;
@@ -310,6 +313,7 @@ begin
       ProjectOpenRecentMenu.Items[ProjectOpenRecentMenu.Count - 1].Free;
     Item := TMenuItem.Create(ProjectOpenRecentMenu);
     Item.Caption := FolderName;
+    Item.Hint := Format(MRU_MASK, [FolderName]);
     Item.Tag := IMAGE_INDEX[IsImage];
     Item.ImageIndex := Item.Tag;
     Item.OnClick := FileOpenRecentMenuClick;

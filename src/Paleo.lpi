@@ -22,7 +22,7 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MinorVersionNr Value="1"/>
-      <RevisionNr Value="2"/>
+      <RevisionNr Value="3"/>
       <Attributes pvaPreRelease="True"/>
       <StringTable Comments="Developed in Lazarus 2.2.2 with FPC 3.2.2" CompanyName="https://homebrew.computer" FileDescription="Paleo Editor for RomWBW Development" InternalName="PaleoEditor.exe" LegalCopyright="Copyright ©2022 Steve García" LegalTrademarks="Licensed by GNU GPL V3" ProductName="Paleo Editor" ProductVersion="0.1.2 Pre-Release"/>
     </VersionInfo>

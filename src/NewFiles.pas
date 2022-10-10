@@ -23,6 +23,9 @@ uses
   Classes, SysUtils, Forms, Controls, Dialogs, StdCtrls;
 
 type
+
+  { TNewFileForm }
+
   TNewFileForm = class(TForm)
     FolderNameLabel: TLabel;
     FolderNameEdit: TEdit;

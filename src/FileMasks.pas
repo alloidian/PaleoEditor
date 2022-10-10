@@ -23,6 +23,9 @@ uses
   SysUtils, Classes, Controls, Forms, Dialogs, StdCtrls, ActnList, Buttons;
 
 type
+
+  { TEditFileMaskForm }
+
   TEditFileMaskForm = class(TForm)
     Images: TImageList;
     Actions: TActionList;
@@ -33,6 +36,7 @@ type
     DeleteAction: TAction;
     OKAction: TAction;
     CancelAction: TAction;
+    DefaultAction: TAction;
     DirectoryLabel: TLabel;
     DirectoryEdit: TListBox;
     MoveUpButton: TSpeedButton;
@@ -41,6 +45,7 @@ type
     ReplaceButton: TButton;
     AddButton: TButton;
     DeleteButton: TButton;
+    DefaultButton: TButton;
     OKButton: TButton;
     CancelButton: TButton;
     procedure FormCreate(Sender: TObject);
@@ -54,31 +59,36 @@ type
     procedure AddActionUpdate(Sender: TObject);
     procedure DeleteActionExecute(Sender: TObject);
     procedure DeleteActionUpdate(Sender: TObject);
+    procedure DefaultActionExecute(Sender: TObject);
+    procedure DefaultActionUpdate(Sender: TObject);
     procedure OKActionExecute(Sender: TObject);
     procedure CancelActionExecute(Sender: TObject);
     procedure DirectoryEditClick(Sender: TObject);
   private
+    FDefault: String;
     function GetFolder: String;
     procedure SetFolder(const Value: String);
     function GetSelected: String;
     procedure SetSelected(const Value: String);
-    function GetPath: TFileName;
-    procedure SetPath(const Value: TFileName);
+    function GetPath: String;
+    procedure SetPath(const Value: String);
+    procedure SetDefault(const Value: String);
   protected
     property Folder: String read GetFolder write SetFolder;
     property Selected: String read GetSelected write SetSelected;
   public
-    property Path: TFileName read GetPath write SetPath;
+    property Path: String read GetPath write SetPath;
+    property Default: String read FDefault write SetDefault;
   end;
 
-function EditFileMasks(const Caption: String; var Path: TFileName): Boolean;
+function EditFileMasks(const Caption: String; var Path: String; Default: String): Boolean;
 
 implementation
 
 {$R *.lfm}
 {$WARN SYMBOL_PLATFORM OFF}
 
-function EditFileMasks(const Caption: String; var Path: TFileName): Boolean;
+function EditFileMasks(const Caption: String; var Path: String; Default: String): Boolean;
 var
   Editor: TEditFileMaskForm;
 begin
@@ -86,6 +96,7 @@ begin
   try
     Editor.Caption := Caption;
     Editor.Path := Path;
+    Editor.Default := Default;
     Result := Editor.ShowModal = mrOk;
     if Result then
       Path := Editor.Path;
@@ -182,6 +193,25 @@ begin
   (Sender as TAction).Enabled := DirectoryEdit.ItemIndex > -1;
 end;
 
+procedure TEditFileMaskForm.DefaultActionExecute(Sender: TObject);
+const
+  CAPTION = 'Revert to Default';
+  PROMPT  = 'Are you sure you want to revert to default value?';
+begin
+  if not FDefault.IsEmpty then
+    if MessageDlg(CAPTION, PROMPT, mtConfirmation, [mbYes, mbNo], 0, mbNo) = mrYes then
+      DirectoryEdit.Items.DelimitedText := FDefault;
+end;
+
+procedure TEditFileMaskForm.DefaultActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+begin
+  Action := Sender as TAction;
+  Action.Visible := not Default.IsEmpty;
+  Action.Enabled := not AnsiSameText(DirectoryEdit.Items.DelimitedText, FDefault);
+end;
+
 procedure TEditFileMaskForm.OKActionExecute(Sender: TObject);
 begin
   ModalResult := mrOk;
@@ -227,14 +257,19 @@ begin
     DirectoryEdit.Items[I] := Value;
 end;
 
-function TEditFileMaskForm.GetPath: TFileName;
+function TEditFileMaskForm.GetPath: String;
 begin
   Result := DirectoryEdit.Items.DelimitedText;
 end;
 
-procedure TEditFileMaskForm.SetPath(const Value: TFileName);
+procedure TEditFileMaskForm.SetPath(const Value: String);
 begin
   DirectoryEdit.Items.DelimitedText := Value;
+end;
+
+procedure TEditFileMaskForm.SetDefault(const Value: String);
+begin
+  FDefault := Value;
 end;
 
 end.

@@ -50,6 +50,8 @@ type
       ForFile: Boolean): Boolean;
   end;
 
+  { TSearchFrame }
+
   TSearchFrame = class(TFrame)
     Actions: TActionList;
     EditCutAction: TEditCut;

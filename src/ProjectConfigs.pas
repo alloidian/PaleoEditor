@@ -28,15 +28,13 @@ type
   { TProjectConfigFrame }
 
   TProjectConfigFrame = class(TCustomConfigFrame)
-    AssemblerFileNameEdit: TEdit;
-    AssemblerFolderNameEdit: TEdit;
-    DirectoryEdit1: TDirectoryEdit;
     ToolFolderNameLabel: TLabel;
-    ToolFolderNameEdit: TEditButton;
+    ToolFolderNameEdit: TDirectoryEdit;
     AssemblerFolderNameLabel: TLabel;
-    AssemblerFileNameLabel2: TLabel;
+    AssemblerFolderNameEdit: TEdit;
+    AssemblerFileNameEdit: TEdit;
+    AssemblerFileNameLabel: TLabel;
     procedure AssemblerFolderNameEditChange(Sender: TObject);
-    procedure ToolFolderNameEditButtonClick(Sender: TObject);
     procedure ToolFolderNameEditChange(Sender: TObject);
   private
     FToolFolderName: TFileName;
@@ -75,29 +73,11 @@ begin
   AssemblerFileNameEdit.Text := Format(ASSEMBLER_FILE_MASK, [ExcludeTrailingPathDelimiter(Edit.Text)]);
 end;
 
-procedure TProjectConfigFrame.ToolFolderNameEditButtonClick(Sender: TObject);
-var
-  Edit: TEditButton;
-  Dialog: TSelectDirectoryDialog;
-begin
-  Edit := Sender as TEditButton;
-  Dialog := TSelectDirectoryDialog .Create(Self);
-  try
-    Dialog.Title := 'Open Workspace Folder';
-    if DirectoryExists(Edit.Text) then
-      Dialog.InitialDir := Edit.Text;
-    if Dialog.Execute then
-      Edit.Text := Dialog.FileName;
-  finally
-    Dialog.Free;
-  end;
-end;
-
 procedure TProjectConfigFrame.ToolFolderNameEditChange(Sender: TObject);
 var
-  Edit: TEditButton;
+  Edit: TCustomEditButton;
 begin
-  Edit := Sender as TEditButton;
+  Edit := Sender as TCustomEditButton;
   AssemblerFolderNameEdit.Text := Format(ASSEMBLER_FOLDER_MASK, [ExcludeTrailingPathDelimiter(Edit.Text)]);
 end;
 
@@ -112,10 +92,15 @@ begin
 end;
 
 function TProjectConfigFrame.GetIsModified: Boolean;
+const
+  COLORS: array[Boolean] of TColor = (clRed, clDefault);
 var
   Temp: String;
 begin
   Temp := ToolFolderName;
+  ToolFolderNameEdit.Font.Color := COLORS[DirectoryExists(Temp)];
+  AssemblerFolderNameEdit.Font.Color:= COLORS[DirectoryExists(AssemblerFolderNameEdit.Text)];
+  AssemblerFileNameEdit.Font.Color := COLORS[FileExists(AssemblerFileNameEdit.Text)];
   Result := not AnsiSameText(FToolFolderName, Temp) and DirectoryExists(Temp);
 end;
 

@@ -24,6 +24,9 @@ uses
   Buttons, SynEdit, CustomConfigFrames, ConfigUtils;
 
 type
+
+  { TColorConfigFrame }
+
   TColorConfigFrame = class(TCustomConfigFrame)
     AttributeLabel: TLabel;
     AttributeEdit: TComboBox;

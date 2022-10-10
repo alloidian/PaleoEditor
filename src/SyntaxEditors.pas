@@ -24,6 +24,9 @@ uses
   CustomEditors, SynEdit, SynEditHighlighter, SynExportHTML, SynCompletion, SynMacroRecorder, SynEditKeyCmds;
 
 type
+
+  { TSyntaxEditorFrame }
+
   TSyntaxEditorFrame = class(TCustomEditorFrame)
     BookmarkImages: TImageList;
     EditorActions: TActionList;

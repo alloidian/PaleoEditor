@@ -23,6 +23,9 @@ uses
   Classes, SysUtils, Forms, Controls, ComCtrls, Dialogs, Menus, CustomWorks;
 
 type
+
+  { TProjectWorkForm }
+
   TProjectWorkForm = class(TCustomWorkForm)
     procedure FormCreate(Sender: TObject);
   private
@@ -136,6 +139,7 @@ begin
       FFolderName := FolderName;
       WindowMenu := TMenuItem.Create(Self);
       WindowMenu.Caption := FolderName;
+      WindowMenu.Hint := Format(JUMP_MASK, [FolderName]);
       WindowMenu.Tag := IMAGE_INDEX[IsImage];
       WindowMenu.ImageIndex := WindowMenu.Tag;
       WindowMenu.GroupIndex := 5;

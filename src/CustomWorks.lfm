@@ -214,10 +214,10 @@ object CustomWorkForm: TCustomWorkForm
         Action = ExecuteCommandAction
       end
       object FileLaunchExplorerMenu: TMenuItem
-        Action = LaunchExplorerFolderAction
+        Action = LaunchExplorerAction
       end
       object FileLaunchConsoleMenu: TMenuItem
-        Action = LaunchConsoleFolderAction
+        Action = LaunchConsoleAction
       end
       object FileLaunchExecuteMenu: TMenuItem
         Action = LaunchExecuteAction
@@ -336,21 +336,21 @@ object CustomWorkForm: TCustomWorkForm
       ShortCut = 46
     end
     object NewFileAction: TAction
-      Caption = '&New File...'
+      Caption = '&New File…'
       Hint = 'Create a new file.'
       OnExecute = NewFileActionExecute
       OnUpdate = IsFolderUpdate
       ShortCut = 16462
     end
     object NewFolderAction: TAction
-      Caption = 'New &Folder...'
+      Caption = 'New &Folder…'
       Hint = 'Create a new folder.'
       OnExecute = NewFolderActionExecute
       OnUpdate = IsFolderUpdate
       ShortCut = 24654
     end
     object OpenFileAction: TAction
-      Caption = '&Open...'
+      Caption = '&Open…'
       Hint = 'Open a file.'
       OnExecute = OpenFileActionExecute
       OnUpdate = OpenFileActionUpdate
@@ -363,13 +363,18 @@ object CustomWorkForm: TCustomWorkForm
       ShortCut = 16467
     end
     object SaveAsFileAction: TAction
-      Caption = 'Save &As...'
+      Caption = 'Save &As…'
       Hint = 'Save the selected file with a new filename.'
+      OnExecute = SaveAsFileActionExecute
+      OnUpdate = SaveAsFileActionUpdate
       ShortCut = 24659
+      Visible = False
     end
     object RenameFileAction: TAction
-      Caption = '&Rename...'
+      Caption = '&Rename…'
       Hint = 'Rename the selected file.'
+      OnExecute = RenameFileActionExecute
+      OnUpdate = RenameFileActionUpdate
       ShortCut = 113
     end
     object CloseFileAction: TAction
@@ -377,14 +382,13 @@ object CustomWorkForm: TCustomWorkForm
       Hint = 'Close the selected file.'
       OnExecute = CloseFileActionExecute
       OnUpdate = CloseFileActionUpdate
-      ShortCut = 16499
+      ShortCut = 8307
     end
     object CloseAllFileAction: TAction
       Caption = 'Close &All'
       Hint = 'Close all opened files.'
       OnExecute = CloseAllFilesActionExecute
       OnUpdate = CloseAllFilesActionUpdate
-      ShortCut = 24691
     end
     object CloseAllOtherFilesAction: TAction
       Caption = 'Close All &Other'
@@ -406,7 +410,7 @@ object CustomWorkForm: TCustomWorkForm
       ShortCut = 16500
     end
     object DeleteFolderAction: TAction
-      Caption = '&Delete...'
+      Caption = '&Delete…'
       Hint = 'Delete the selected folder and all of its contents.'
       OnExecute = DeleteFolderActionExecute
       OnUpdate = DeleteFolderActionUpdate
@@ -423,7 +427,7 @@ object CustomWorkForm: TCustomWorkForm
     end
     object FindAction: TAction
       Tag = 1
-      Caption = '&Find...'
+      Caption = '&Find…'
       Hint = 'Find a specified word or file.'
       OnExecute = FindActionExecute
       OnUpdate = FindActionUpdate
@@ -431,7 +435,7 @@ object CustomWorkForm: TCustomWorkForm
     end
     object ReplaceAction: TAction
       Tag = 2
-      Caption = 'R&eplace...'
+      Caption = 'R&eplace…'
       Hint = 'Replace text of next match.'
       OnExecute = FindActionExecute
       OnUpdate = FindActionUpdate
@@ -440,7 +444,7 @@ object CustomWorkForm: TCustomWorkForm
     end
     object FindAllAction: TAction
       Tag = 3
-      Caption = 'Fin&d in Files...'
+      Caption = 'Fin&d in Files…'
       Hint = 'Replace text of all matches.'
       OnExecute = FindActionExecute
       OnUpdate = FindActionUpdate
@@ -448,7 +452,7 @@ object CustomWorkForm: TCustomWorkForm
     end
     object LabelLookupAction: TAction
       Tag = 4
-      Caption = '&Labels...'
+      Caption = '&Labels…'
       Hint = 'Search for label declaration.'
       OnExecute = FindActionExecute
       OnUpdate = FindActionUpdate
@@ -456,26 +460,26 @@ object CustomWorkForm: TCustomWorkForm
     end
     object GotoAction: TAction
       Tag = 5
-      Caption = '&Go To...'
+      Caption = '&Go To…'
       Hint = 'Go to specific line number.'
       OnExecute = FindActionExecute
       OnUpdate = FindActionUpdate
       ShortCut = 16455
     end
     object AssembleAction: TAction
-      Caption = '&Assemble...'
+      Caption = '&Assemble…'
       Hint = 'Assemble selected assembly file within utility.'
       OnExecute = AssembleActionExecute
       OnUpdate = AssembleActionUpdate
     end
     object ExecuteCommandAction: TAction
-      Caption = 'E&xecute Command...'
+      Caption = 'E&xecute Command…'
       Hint = 'Execute selected command file within utility.'
       OnExecute = ExecuteCommandActionExecute
       OnUpdate = ExecuteCommandActionUpdate
     end
     object RefreshAction: TAction
-      Caption = '&Refresh...'
+      Caption = '&Refresh…'
       Hint = 'Refresh the Navigator.'
       OnExecute = RefreshActionExecute
       ShortCut = 116
@@ -505,43 +509,43 @@ object CustomWorkForm: TCustomWorkForm
       OnExecute = ViewStatusActionExecute
       OnUpdate = ViewStatusActionUpdate
     end
-    object LaunchExplorerFolderAction: TAction
+    object LaunchExplorerAction: TAction
       Caption = 'Launch &Explorer'
       Hint = 'Open selected folder in Windows Explorer.'
-      OnExecute = LaunchExplorerFolderActionExecute
-      OnUpdate = LaunchActionUpdate
+      OnExecute = LaunchExplorerActionExecute
+      OnUpdate = LaunchExplorerActionUpdate
     end
-    object LaunchExplorerFileAction: TAction
-      Caption = 'Launch &Explorer'
-      Hint = 'Open containing folder of selected file in Windows Explorer.'
-      OnExecute = LaunchExplorerFileActionExecute
-      OnUpdate = LaunchExplorerFileActionUpdate
-    end
-    object LaunchConsoleFolderAction: TAction
+    object LaunchConsoleAction: TAction
       Caption = 'Launch &Console'
       Hint = 'Open selected folder in console.'
-      OnExecute = LaunchConsoleFolderActionExecute
-      OnUpdate = LaunchActionUpdate
+      OnExecute = LaunchConsoleActionExecute
+      OnUpdate = LaunchConsoleActionUpdate
     end
-    object LaunchConsoleFileAction: TAction
+    object LaunchExplorerEditorAction: TAction
+      Caption = 'Launch &Explorer'
+      Hint = 'Open selected editor in Windows Explorer.'
+      OnExecute = LaunchExplorerEditorActionExecute
+      OnUpdate = LaunchExplorerEditorActionUpdate
+    end
+    object LaunchConsoleEditorAction: TAction
       Caption = 'Launch &Console'
-      Hint = 'Open containing folder of selected file in console.'
-      OnExecute = LaunchConsoleFileActionExecute
-      OnUpdate = LaunchConsoleFileActionUpdate
+      Hint = 'Open selected editor in console.'
+      OnExecute = LaunchConsoleEditorActionExecute
+      OnUpdate = LaunchConsoleEditorActionUpdate
     end
     object LaunchExecuteAction: TAction
-      Caption = 'Launch Execute...'
+      Caption = 'Launch Execute…'
       Hint = 'Execute selected command file within console.'
       OnExecute = LaunchExecuteActionExecute
       OnUpdate = LaunchExecuteActionUpdate
     end
     object FilePrintAction: TAction
-      Caption = '&Print...'
+      Caption = '&Print…'
       Hint = 'Print the selected file.'
       OnExecute = FilePrintActionExecute
     end
     object FilePrintSetupAction: TAction
-      Caption = 'P&rint Setup...'
+      Caption = 'P&rint Setup…'
       Hint = 'Setup the printer configuration.'
       OnExecute = FilePrintSetupActionExecute
     end
@@ -623,10 +627,10 @@ object CustomWorkForm: TCustomWorkForm
       Action = AssembleAction
     end
     object LaunchExplorerMenu: TMenuItem
-      Action = LaunchExplorerFolderAction
+      Action = LaunchExplorerAction
     end
     object LaunchConsoleMenu: TMenuItem
-      Action = LaunchConsoleFolderAction
+      Action = LaunchConsoleAction
     end
     object LaunchExecuteMenu: TMenuItem
       Action = LaunchExecuteAction
@@ -673,10 +677,10 @@ object CustomWorkForm: TCustomWorkForm
       Caption = '-'
     end
     object EditorOpenExmplorerMenu: TMenuItem
-      Action = LaunchExplorerFileAction
+      Action = LaunchExplorerEditorAction
     end
     object EditorOpenConsoleMenu: TMenuItem
-      Action = LaunchConsoleFileAction
+      Action = LaunchConsoleEditorAction
     end
   end
 end

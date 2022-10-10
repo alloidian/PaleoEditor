@@ -25,6 +25,8 @@ uses
 const
   IMAGE_INDEX: array[Boolean] of Integer = (0, 1);
   UNIMPLEMENTED_PROMPT = 'This feature has not been implemented.';
+  MRU_MASK = 'Reopen the ''%s'' project.';
+  JUMP_MASK = 'Jump to the ''%s'' project.';
 
 type
   TFileAttribute = class(TObject)
@@ -32,6 +34,7 @@ type
     TPropertyKind = (pkUnknown, pkFolder, pkFile);
   private
     FKind: TPropertyKind;
+    FProjectName: TFileName;
     FShortName: TFileName;
     FLogicalName: TFileName;
     FFullName: TFileName;
@@ -42,6 +45,8 @@ type
   public
     constructor CreateFolder(const Name: TFileName); virtual;
     constructor CreateFile(const Name: TFileName; const ProjectName: TFileName); virtual;
+    procedure RenameFolder(const Name: TFileName);
+    procedure RenameFile(const Name: TFileName);
     property Kind: TPropertyKind read FKind;
     property ShortName: TFileName read FShortName;
     property LogicalName: TFileName read FLogicalName;
@@ -123,6 +128,8 @@ type
     function GetIsAssemblable: Boolean;
     function GetHasStructure: Boolean;
   public
+    procedure RenameFolder(const Name: TFileName);
+    procedure RenameFile(const Name: TFileName);
     property Kind: TFileAttribute.TPropertyKind read GetKind;
     property ShortName: TFileName read GetShortName;
     property LogicalName: TFileName read GetLogicalName;
@@ -208,6 +215,7 @@ end;
 constructor TFileAttribute.CreateFolder(const Name: TFileName);
 begin
   FKind := pkFolder;
+  FProjectName := EmptyStr;
   FShortName := DirectorySeparator + ExtractFileName(Name);
   FLogicalName := FShortName;
   FFullName := Name;
@@ -218,6 +226,7 @@ end;
 constructor TFileAttribute.CreateFile(const Name: TFileName; const ProjectName: TFileName);
 begin
   FKind := pkFile;
+  FProjectName := ProjectName;
   FShortName := ExtractFileName(Name);
   if ProjectName = EmptyStr then
     FLogicalName := FShortName
@@ -226,6 +235,27 @@ begin
   FFullName := Name;
   FIsFileModified := False;
   FPage := nil;
+end;
+
+procedure TFileAttribute.RenameFolder(const Name: TFileName);
+begin
+  if FKind = pkFolder then begin
+    FShortName := DirectorySeparator + ExtractFileName(Name);
+    FLogicalName := FShortName;
+    FFullName := Name;
+  end;
+end;
+
+procedure TFileAttribute.RenameFile(const Name: TFileName);
+begin
+  if FKind = pkFile then begin
+    FShortName := ExtractFileName(Name);
+    if FProjectName = EmptyStr then
+      FLogicalName := FShortName
+    else
+      FLogicalName := AnsiReplaceStr(Name, FProjectName + DirectorySeparator, EmptyStr);
+    FFullName := Name;
+  end;
 end;
 
 { TTreeNodeCache }
@@ -455,6 +485,26 @@ begin
   if Result then begin
     Attribute := TFileAttribute(Data);
     Result := (Attribute.Kind = pkFile) and  Config.HasStructure(Attribute.ShortName);
+  end;
+end;
+
+procedure TTreeNodeHelper.RenameFolder(const Name: TFileName);
+var
+  Attribute: TFileAttribute;
+begin
+  if Assigned(Data) then begin
+    Attribute := TFileAttribute(Data);
+    Attribute.RenameFolder(Name);
+  end;
+end;
+
+procedure TTreeNodeHelper.RenameFile(const Name: TFileName);
+var
+  Attribute: TFileAttribute;
+begin
+  if Assigned(Data) then begin
+    Attribute := TFileAttribute(Data);
+    Attribute.RenameFile(Name);
   end;
 end;
 

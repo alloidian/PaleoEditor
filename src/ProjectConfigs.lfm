@@ -4,22 +4,22 @@ inherited ProjectConfigFrame: TProjectConfigFrame
     Height = 15
     Top = 5
     Width = 98
-    Caption = 'Tool Folder Name:'
+    Caption = 'Tools Folder Name:'
     FocusControl = ToolFolderNameEdit
     ParentColor = False
   end
-  object ToolFolderNameEdit: TEditButton[1]
+  object ToolFolderNameEdit: TDirectoryEdit[1]
     Left = 10
     Height = 23
     Top = 20
     Width = 380
+    DialogTitle = 'Select Tools Folder'
+    ShowHidden = False
     ButtonWidth = 23
-    MaxLength = 0
     NumGlyphs = 1
-    OnButtonClick = ToolFolderNameEditButtonClick
-    OnChange = ToolFolderNameEditChange
-    PasswordChar = #0
+    MaxLength = 0
     TabOrder = 0
+    OnChange = ToolFolderNameEditChange
   end
   object AssemblerFolderNameLabel: TLabel[2]
     Left = 10
@@ -30,7 +30,7 @@ inherited ProjectConfigFrame: TProjectConfigFrame
     FocusControl = AssemblerFolderNameEdit
     ParentColor = False
   end
-  object AssemblerFileNameLabel2: TLabel[3]
+  object AssemblerFileNameLabel: TLabel[3]
     Left = 10
     Height = 15
     Top = 85
@@ -57,18 +57,5 @@ inherited ProjectConfigFrame: TProjectConfigFrame
     Color = clBtnFace
     ReadOnly = True
     TabOrder = 2
-  end
-  object DirectoryEdit1: TDirectoryEdit[6]
-    Left = 10
-    Height = 23
-    Top = 139
-    Width = 380
-    Directory = 'DirectoryEdit1'
-    ShowHidden = False
-    ButtonWidth = 23
-    NumGlyphs = 1
-    MaxLength = 0
-    TabOrder = 3
-    Text = 'DirectoryEdit1'
   end
 end

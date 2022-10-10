@@ -52,7 +52,7 @@ object EditFileMaskForm: TEditFileMaskForm
     Width = 75
     Action = OKAction
     Anchors = [akRight, akBottom]
-    TabOrder = 5
+    TabOrder = 6
   end
   object CancelButton: TButton
     Left = 246
@@ -62,7 +62,7 @@ object EditFileMaskForm: TEditFileMaskForm
     Action = CancelAction
     Anchors = [akRight, akBottom]
     Cancel = True
-    TabOrder = 6
+    TabOrder = 7
   end
   object ReplaceButton: TButton
     Left = 84
@@ -110,10 +110,18 @@ object EditFileMaskForm: TEditFileMaskForm
     Anchors = [akLeft, akRight, akBottom]
     TabOrder = 1
   end
+  object DefaultButton: TButton
+    Left = 10
+    Height = 25
+    Top = 289
+    Width = 75
+    Action = DefaultAction
+    TabOrder = 5
+  end
   object Actions: TActionList
     Images = Images
-    Left = 40
-    Top = 270
+    Left = 32
+    Top = 144
     object MoveUpAction: TAction
       Hint = 'Move selected file extension mask up the list.'
       ImageIndex = 0
@@ -144,6 +152,12 @@ object EditFileMaskForm: TEditFileMaskForm
       OnExecute = DeleteActionExecute
       OnUpdate = DeleteActionUpdate
     end
+    object DefaultAction: TAction
+      Caption = 'Default'
+      Hint = 'Revert the list of file extension masks to the default.'
+      OnExecute = DefaultActionExecute
+      OnUpdate = DefaultActionUpdate
+    end
     object OKAction: TAction
       Caption = 'OK'
       Hint = 'Save changes.'
@@ -156,8 +170,8 @@ object EditFileMaskForm: TEditFileMaskForm
     end
   end
   object Images: TImageList
-    Left = 96
-    Top = 270
+    Left = 112
+    Top = 144
     Bitmap = {
       4C7A020000001000000010000000560000000000000078DA6360C00BFE335006
       FE53A6F7FF7F0ACCA0443F54EF7F72CDA0443F9A5E92CDA0443F0EBD449BF11F

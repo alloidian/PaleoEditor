@@ -28,6 +28,8 @@ type
   TLogMessageEvent = procedure(Sender: TObject; const Text: String) of object;
   TSearchBy = (sbNone, sbSearch, sbReplace, sbGlobal, sbGoto);
 
+  { TCustomEditorFrame }
+
   TCustomEditorFrame = class(TFrame)
     StatusBar: TStatusBar;
   private
@@ -46,8 +48,8 @@ type
     procedure FindIdentifier(const Token: String);
     function GetIsModified: Boolean; virtual; abstract;
     procedure SetIsModified(Value: Boolean); virtual;
-    function GetLogicalFileName: TFileName;
-    procedure SetLogicalFileName(const Value: TFileName);
+    function GetLogicalName: TFileName;
+    procedure SetLogicalName(const Value: TFileName);
     function GetInsertMode: Boolean; virtual; abstract;
     procedure SetInsertMode(Value: Boolean); virtual;
     function GetReadOnly: Boolean; virtual; abstract;
@@ -73,7 +75,7 @@ type
     procedure RefreshConfig; virtual; abstract;
     property IsModified: Boolean read GetIsModified write SetIsModified;
     property Node: TTreeNode read FNode write FNode;
-    property LogicalFileName: TFileName read GetLogicalFileName write SetLogicalFileName;
+    property LogicalName: TFileName read GetLogicalName write SetLogicalName;
     property InsertMode: Boolean read GetInsertMode write SetInsertMode;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property ValidActions: TValidActions read FValidActions;
@@ -161,12 +163,12 @@ begin
         FPage.Caption := TOKEN + FPage.Caption;
 end;
 
-function TCustomEditorFrame.GetLogicalFileName: TFileName;
+function TCustomEditorFrame.GetLogicalName: TFileName;
 begin
   Result := StatusBar.Panels[FILE_NAME_PANEL].Text;
 end;
 
-procedure TCustomEditorFrame.SetLogicalFileName(const Value: TFileName);
+procedure TCustomEditorFrame.SetLogicalName(const Value: TFileName);
 begin
   StatusBar.Panels[FILE_NAME_PANEL].Text := Value;
 end;
@@ -195,7 +197,7 @@ begin
   FFileName := Node.FullName;
   FPage := Page;
   FNode := Node;
-  LogicalFileName := Node.LogicalName;
+  LogicalName := Node.LogicalName;
 end;
 
 procedure TCustomEditorFrame.RetrieveLabels(List: TStrings);
