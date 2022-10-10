@@ -23,6 +23,9 @@ uses
   Classes, SysUtils, Forms, Controls, ConfigUtils;
 
 type
+
+  { TCustomConfigFrame }
+
   TCustomConfigFrame = class(TFrame)
   private
   protected

@@ -23,6 +23,9 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, ExtCtrls;
 
 type
+
+  { TAboutForm }
+
   TAboutForm = class(TForm)
     LicenseLabel: TLabel;
     ToolLabel: TLabel;

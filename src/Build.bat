@@ -13,7 +13,7 @@
 @REM  You should have received a copy of the GNU General Public License along with the Paleo
 @REM  Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-@SET VER=0.1.2
+@SET VER=0.1.3
 
 @CALL :BUILD 32
 @CALL :BUILD 64

@@ -27,6 +27,8 @@ uses
 type
   TIterateTreeNodeProc = procedure(Node: TTreeNode; var Continue: Boolean);
 
+  { TCustomWorkForm }
+
   TCustomWorkForm = class(TForm)
     Images: TImageList;
     Actions: TActionList;
@@ -44,8 +46,6 @@ type
     DeleteFolderAction: TAction;
     AssembleAction: TAction;
     ExecuteCommandAction: TAction;
-    LaunchExplorerFileAction: TAction;
-    LaunchConsoleFileAction: TAction;
     LaunchExecuteAction: TAction;
     ExportHtmlAction: TAction;
     FilePrintSetupAction: TAction;
@@ -72,8 +72,10 @@ type
     RefreshAction: TAction;
     CollapseAllAction: TAction;
     ExpandAllAction: TAction;
-    LaunchExplorerFolderAction: TAction;
-    LaunchConsoleFolderAction: TAction;
+    LaunchExplorerAction: TAction;
+    LaunchConsoleAction: TAction;
+    LaunchConsoleEditorAction: TAction;
+    LaunchExplorerEditorAction: TAction;
     CloseStatusAction: TAction;
     ClearStatusAction: TAction;
     MainMenu: TMainMenu;
@@ -164,13 +166,16 @@ type
     procedure IsFolderUpdate(Sender: TObject);
     procedure IsFileUpdate(Sender: TObject);
     procedure NavigatorActionUpdate(Sender: TObject);
-    procedure LaunchActionUpdate(Sender: TObject);
     procedure NewFolderActionExecute(Sender: TObject);
     procedure NewFileActionExecute(Sender: TObject);
     procedure OpenFileActionExecute(Sender: TObject);
     procedure OpenFileActionUpdate(Sender: TObject);
     procedure SaveFileActionExecute(Sender: TObject);
     procedure SaveFileActionUpdate(Sender: TObject);
+    procedure SaveAsFileActionExecute(Sender: TObject);
+    procedure SaveAsFileActionUpdate(Sender: TObject);
+    procedure RenameFileActionExecute(Sender: TObject);
+    procedure RenameFileActionUpdate(Sender: TObject);
     procedure CloseFileActionExecute(Sender: TObject);
     procedure CloseFileActionUpdate(Sender: TObject);
     procedure CloseAllFilesActionExecute(Sender: TObject);
@@ -187,10 +192,14 @@ type
     procedure AssembleActionUpdate(Sender: TObject);
     procedure ExecuteCommandActionExecute(Sender: TObject);
     procedure ExecuteCommandActionUpdate(Sender: TObject);
-    procedure LaunchExplorerFileActionExecute(Sender: TObject);
-    procedure LaunchExplorerFileActionUpdate(Sender: TObject);
-    procedure LaunchConsoleFileActionExecute(Sender: TObject);
-    procedure LaunchConsoleFileActionUpdate(Sender: TObject);
+    procedure LaunchExplorerActionExecute(Sender: TObject);
+    procedure LaunchExplorerActionUpdate(Sender: TObject);
+    procedure LaunchConsoleActionExecute(Sender: TObject);
+    procedure LaunchConsoleActionUpdate(Sender: TObject);
+    procedure LaunchExplorerEditorActionExecute(Sender: TObject);
+    procedure LaunchExplorerEditorActionUpdate(Sender: TObject);
+    procedure LaunchConsoleEditorActionExecute(Sender: TObject);
+    procedure LaunchConsoleEditorActionUpdate(Sender: TObject);
     procedure LaunchExecuteActionExecute(Sender: TObject);
     procedure LaunchExecuteActionUpdate(Sender: TObject);
     procedure ExportHtmlActionExecute(Sender: TObject);
@@ -218,8 +227,6 @@ type
     procedure RefreshActionExecute(Sender: TObject);
     procedure CollapseAllActionExecute(Sender: TObject);
     procedure ExpandAllActionExecute(Sender: TObject);
-    procedure LaunchExplorerFolderActionExecute(Sender: TObject);
-    procedure LaunchConsoleFolderActionExecute(Sender: TObject);
     procedure ClearStatusActionExecute(Sender: TObject);
     procedure ClearStatusActionUpdate(Sender: TObject);
     procedure CloseStatusActionExecute(Sender: TObject);
@@ -391,7 +398,7 @@ implementation
 {$R *.lfm}
 
 uses
-  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf, Generics.Collections, AsyncProcess,
+  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf, Generics.Collections,
   SyntaxEditors, HexEditors, Configs, NewFiles, Assemblers;
 
 var
@@ -505,26 +512,24 @@ begin
 end;
 
 procedure TCustomWorkForm.IsFolderUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := Assigned(Navigator.Selected) and (Navigator.Selected.Kind = pkFolder);
-end;
-
-procedure TCustomWorkForm.IsFileUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := Assigned(Navigator.Selected) and (Navigator.Selected.Kind = pkFile);
-end;
-
-procedure TCustomWorkForm.NavigatorActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := Navigator.Items.Count > 0;
-end;
-
-procedure TCustomWorkForm.LaunchActionUpdate(Sender: TObject);
 var
   Node: TTreeNode;
 begin
   Node := Navigator.Selected;
   (Sender as TAction).Enabled := Assigned(Node) and (Node.Kind = pkFolder);
+end;
+
+procedure TCustomWorkForm.IsFileUpdate(Sender: TObject);
+var
+  Node: TTreeNode;
+begin
+  Node := Navigator.Selected;
+  (Sender as TAction).Enabled := Assigned(Node) and (Node.Kind = pkFile);
+end;
+
+procedure TCustomWorkForm.NavigatorActionUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := Navigator.Items.Count > 0;
 end;
 
 procedure TCustomWorkForm.NewFolderActionExecute(Sender: TObject);
@@ -534,8 +539,8 @@ var
   Attribute: TFileAttribute;
   Child: TTreeNode;
 begin
-  if Assigned(Navigator.Selected) then begin
-    Node := Navigator.Selected;
+  Node := Navigator.Selected;
+  if Assigned(Node) then begin
     if Node.Kind  = pkFolder then begin
       FolderName := EmptyStr;
       if CreateNewFolder(Node.FullName, FolderName) then begin
@@ -559,21 +564,19 @@ var
   Attribute: TFileAttribute;
   Child: TTreeNode;
 begin
-  if Assigned(Navigator.Selected) then begin
-    Node := Navigator.Selected;
-    if Node.Kind  = pkFolder then begin
-      FileName := EmptyStr;
-      if CreateNewFile(Node.FullName, FileName) then begin
-        if not FileExists(FileName) then
-          CloseHandle(FileCreate(FileName));
-        Attribute := TFileAttribute.CreateFile(FileName, FFolderName);
-        Child := Navigator.Items.AddChildFirst(Node, Attribute.ShortName);
-        Child.ImageIndex := 2;
-        Child.SelectedIndex := 5;
-        Child.Data := Attribute;
-      end;
-      Node.Expand(False);
+  Node := Navigator.Selected;
+  if Assigned(Node) and (Node.Kind = pkFolder) then begin
+    FileName := EmptyStr;
+    if CreateNewFile(Node.FullName, FileName) then begin
+      if not FileExists(FileName) then
+        CloseHandle(FileCreate(FileName));
+      Attribute := TFileAttribute.CreateFile(FileName, FFolderName);
+      Child := Navigator.Items.AddChildFirst(Node, Attribute.ShortName);
+      Child.ImageIndex := 2;
+      Child.SelectedIndex := 5;
+      Child.Data := Attribute;
     end;
+    Node.Expand(False);
   end;
 end;
 
@@ -599,8 +602,25 @@ begin
 end;
 
 procedure TCustomWorkForm.OpenFileActionUpdate(Sender: TObject);
+var
+  Node: TTreeNode;
+  Action: TAction;
 begin
-  (Sender as TAction).Enabled := Assigned(Navigator.Selected)
+  Node := Navigator.Selected;
+  Action := Sender as TAction;
+  Action.Enabled := Assigned(Node);
+  if Action.Enabled then
+    case Node.Kind of
+      pkFolder:
+        Action.Hint := Format('Open the ''%s'' folder.', [Node.LogicalName]);
+      pkFile:
+        if Assigned(Node.Page) then
+          Action.Hint := Format('Select the ''%s'' file.', [Node.LogicalName])
+        else
+          Action.Hint := Format('Open the ''%s'' file.', [Node.LogicalName]);
+    end
+  else
+    Action.Hint := 'Cannot open an invalid node';
 end;
 
 procedure TCustomWorkForm.SaveFileActionExecute(Sender: TObject);
@@ -619,8 +639,119 @@ begin
 end;
 
 procedure TCustomWorkForm.SaveFileActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
 begin
-  (Sender as TAction).Enabled := IsModified;
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  Action.Enabled := Assigned(Node) and Assigned(Node.Page) and Assigned(Node.Page.Editor);
+  if Action.Enabled then
+    Action.Enabled := Node.Page.Editor.IsModified;
+  if not Assigned(Node) then
+    Action.Hint := 'Cannot save an invalid file.'
+  else
+    if Action.Enabled then
+      Action.Hint := Format('Save the ''%s'' file.', [Node.LogicalName])
+    else
+      Action.Hint := Format('Save the ''%s'' file has not been modified.', [Node.LogicalName])
+end;
+
+procedure TCustomWorkForm.SaveAsFileActionExecute(Sender: TObject);
+var
+  Node: TTreeNode;
+  Dialog: TSaveDialog;
+begin
+  Node := Navigator.Selected;
+  if Assigned(Node) then begin
+    Dialog := TSaveDialog.Create(nil);
+    try
+      Dialog.DefaultExt := ExtractFileExt(Node.ShortName);
+      Dialog.InitialDir := ExtractFilePath(Node.FullName);
+      Dialog.Filter := 'Listing File (*.lst)|*.lst';
+      Dialog.Title := 'Save File As';
+      if Dialog.Execute then
+        ActiveEditor.SaveAs(Dialog.FileName);
+    finally
+      Dialog.Free;
+    end;
+  end;
+end;
+
+procedure TCustomWorkForm.SaveAsFileActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
+begin
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  Action.Enabled := Assigned(Node);
+  if Action.Enabled then
+      Action.Hint := Format('Save the ''%s'' file with a new filename.', [Node.LogicalName])
+  else
+    Action.Hint := 'Cannot save an invalid file.';
+end;
+
+procedure TCustomWorkForm.RenameFileActionExecute(Sender: TObject);
+const
+  PROMPT = 'Rename the file ''%s'' to:';
+  CAPTION = 'Rename File';
+  FAILURE = 'Cannot rename ''%s'' to ''%s''.';
+var
+  Node: TTreeNode;
+  OldFileName: String;
+  NewFileName: String;
+  Temp: String;
+
+  function Rename(const OldFileName, NewFileName: TFileName): Boolean;
+  begin
+    FDirMonitor.Pause;
+    try
+      Result := RenameFile(OldFileName, NewFileName);
+    finally
+      FDirMonitor.Resume;
+    end;
+  end;
+
+begin
+  Node := Navigator.Selected;
+  if Assigned(Node) then begin
+    OldFileName := Node.FullName;
+    Temp := Node.ShortName;
+    NewFileName := Format(PROMPT, [Temp]);
+    if InputQuery(CAPTION, NewFileName, Temp) then begin
+      NewFileName := ExtractFilePath(OldFileName);
+      NewFileName := IncludeTrailingPathDelimiter(NewFileName);
+      NewFileName := NewFileName + Temp;
+      if not Rename(OldFileName, NewFileName) then
+        ShowMessage(Format(FAILURE, [OldFileName, NewFileName]))
+      else begin
+        Node.RenameFile(NewFileName);
+        Node.Text := Node.ShortName;
+        if Assigned(Node.Page) then begin
+          Node.Page.Caption := Node.ShortName;
+          Node.Page.Editor.LogicalName := Node.LogicalName;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TCustomWorkForm.RenameFileActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
+begin
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  Action.Enabled := Assigned(Node) and (Node.Kind = pkFile);
+  if not Assigned(Node) then
+    Action.Hint := 'Cannot rename an invalid file.'
+  else
+    if Action.Enabled then
+      Action.Hint := Format('Rename the ''%s'' file.', [Node.LogicalName])
+    else
+      Action.Hint := 'Cannot rename folders.';
 end;
 
 procedure TCustomWorkForm.CloseFileActionExecute(Sender: TObject);
@@ -629,8 +760,20 @@ begin
 end;
 
 procedure TCustomWorkForm.CloseFileActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
 begin
-  (Sender as TAction).Enabled := Assigned(WorkPages.ActivePage);
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  Action.Enabled := Assigned(WorkPages.ActivePage);
+  if Assigned(Node) then
+    if Action.Enabled then
+      Action.Hint := Format('Close the ''%s'' file.', [Node.LogicalName])
+    else
+      Action.Hint := Format('The ''%s'' file is not opened.', [Node.LogicalName])
+  else
+    Action.Hint := 'The selected file is not opened.';
 end;
 
 procedure TCustomWorkForm.CloseAllFilesActionExecute(Sender: TObject);
@@ -728,8 +871,21 @@ begin
 end;
 
 procedure TCustomWorkForm.RevertActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
 begin
-  (Sender as TAction).Enabled := IsModified;
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  Action.Enabled := IsModified;
+  if Assigned(Node) then
+    if Action.Enabled then
+      Action.Hint := Format('Revert the ''%s'' file.', [Node.LogicalName])
+    else
+      Action.Hint := Format('The ''%s'' file is not modified.', [Node.LogicalName])
+  else
+    Action.Hint := 'Cannot revert an invalid file.';
+
 end;
 
 procedure TCustomWorkForm.DeleteFolderActionExecute(Sender: TObject);
@@ -746,8 +902,22 @@ begin
 end;
 
 procedure TCustomWorkForm.DeleteFolderActionUpdate(Sender: TObject);
+const
+  NAMES: array[TFileAttribute.TPropertyKind] of String =
+   ('node',    // pkUnknown
+    'folder',  // pkFolder
+    'file');   // pkFile
+var
+  Action: TAction;
+  Node: TTreeNode;
 begin
-  (Sender as TAction).Enabled := Assigned(Navigator.Selected);
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  Action.Enabled := Assigned(Node);
+  if Action.Enabled then
+    Action.Hint := Format('Delete the ''%s'' %s.', [Node.LogicalName, NAMES[Node.Kind]])
+  else
+    Action.Hint := 'Cannot delete an invalid node.';
 end;
 
 procedure TCustomWorkForm.AssembleActionExecute(Sender: TObject);
@@ -791,18 +961,31 @@ begin
 end;
 
 procedure TCustomWorkForm.AssembleActionUpdate(Sender: TObject);
+const
+  NO_ASSEMBLER = 'The ''TASM32'' assembler is not found. ';
+  NO_ASSEMBLE  = 'Cannot assemble the ''%s'' file within the editor. ';
+  YES_ASSEMBLE = 'Assemble the ''%s'' assembly file within the editor.';
+  NO_FILE      = 'Cannot assemble.';
 var
   Action: TAction;
   Node: TTreeNode;
 begin
   Action := Sender as TAction;
   Action.Enabled := FConfigs.HasAssembler;
-  if Action.Enabled then begin
+  if not Action.Enabled then
+    Action.Hint := NO_ASSEMBLER
+  else begin
     Node := Navigator.Selected;
-    if Assigned(Node) then
-      Action.Enabled := Node.IsAssemblable
-    else
+    if not Assigned(Node) then begin
       Action.Enabled := False;
+      Action.Hint := NO_FILE; end
+    else begin
+      Action.Enabled := Node.IsAssemblable;
+      if Action.Enabled then
+        Action.Hint := Format(YES_ASSEMBLE, [Node.LogicalName])
+      else
+        Action.Hint := Format(NO_ASSEMBLE, [Node.LogicalName]);
+    end;
   end;
 end;
 
@@ -832,33 +1015,135 @@ end;
 
 procedure TCustomWorkForm.ExecuteCommandActionUpdate(Sender: TObject);
 var
+  Action: TAction;
+  Node: TTreeNode;
+begin
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  if Assigned(Node) then
+    Action.Enabled := Node.IsExecutable
+  else
+    Action.Enabled := False;
+  if Action.Enabled then
+    Action.Hint := Format('Execute the ''%s'' command file within the editor.', [Node.LogicalName])
+  else
+    Action.Hint := 'Execute the selected command file within the editor.';
+end;
+
+procedure TCustomWorkForm.LaunchExplorerActionExecute(Sender: TObject);
+var
   Node: TTreeNode;
 begin
   Node := Navigator.Selected;
   if Assigned(Node) then
-    (Sender as TAction).Enabled := Node.IsExecutable
+    OpenExplorer(Node);
+end;
+
+procedure TCustomWorkForm.LaunchExplorerActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
+begin
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkFile]);
+  if Action.Enabled then
+    case Node.Kind of
+      pkFolder: Action.Hint := Format('Open the ''%s'' folder in Windows Explorer.', [Node.LogicalName]);
+      pkFile: Action.Hint := Format('Open the folder containing the ''%s'' file in Windows Explorer.', [Node.LogicalName]);
+    end
   else
-    (Sender as TAction).Enabled := False;
+    Action.Hint := 'Cannot open Windows Explorer.';
 end;
 
-procedure TCustomWorkForm.LaunchExplorerFileActionExecute(Sender: TObject);
+procedure TCustomWorkForm.LaunchConsoleActionExecute(Sender: TObject);
+var
+  Node: TTreeNode;
 begin
-  OpenExplorer(ActiveEditor.Node.Parent);
+  Node := Navigator.Selected;
+  if Assigned(Node) then begin
+    case Node.Kind of
+      pkFolder: OpenConsole(Node);
+      pkFile: OpenConsole(Node);
+    end;
+  end;
 end;
 
-procedure TCustomWorkForm.LaunchExplorerFileActionUpdate(Sender: TObject);
+procedure TCustomWorkForm.LaunchConsoleActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
 begin
-  (Sender as TAction).Enabled := Assigned(ActiveEditor);
+  Action := Sender as TAction;
+  Node := Navigator.Selected;
+  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkFile]);
+  if Action.Enabled then
+    case Node.Kind of
+      pkFolder: Action.Hint := Format('Open the ''%s'' folder in console.', [Node.LogicalName]);
+      pkFile: Action.Hint := Format('Open the folder containing the ''%s'' file in console.', [Node.LogicalName]);
+    end
+  else
+    Action.Hint := 'Cannot open the console.';
 end;
 
-procedure TCustomWorkForm.LaunchConsoleFileActionExecute(Sender: TObject);
+procedure TCustomWorkForm.LaunchExplorerEditorActionExecute(Sender: TObject);
+var
+  Node: TTreeNode;
 begin
-  OpenConsole(ActiveEditor.Node.Parent);
+  if Assigned(ActiveEditor) then begin
+    Node := ActiveEditor.Node;
+    if Assigned(Node) and (Node.Kind = pkFile) then
+      OpenExplorer(Node);
+  end;
 end;
 
-procedure TCustomWorkForm.LaunchConsoleFileActionUpdate(Sender: TObject);
+procedure TCustomWorkForm.LaunchExplorerEditorActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
 begin
-  (Sender as TAction).Enabled := Assigned(ActiveEditor);
+  if Assigned(ActiveEditor) then begin
+    Action := Sender as TAction;
+    Node := ActiveEditor.Node;
+    Action.Enabled := Assigned(Node) and (Node.Kind in [pkFile]);
+    if Action.Enabled then
+      case Node.Kind of
+        pkFolder: Action.Hint := Format('Open the ''%s'' editro in Windows Explorer.', [Node.LogicalName]);
+        pkFile: Action.Hint := Format('Open the folder containing the ''%s'' editor in Windows Explorer.', [Node.LogicalName]);
+      end
+    else
+      Action.Hint := 'Cannot open Windows Explorer.';
+  end;
+end;
+
+procedure TCustomWorkForm.LaunchConsoleEditorActionExecute(Sender: TObject);
+var
+  Node: TTreeNode;
+begin
+  if Assigned(ActiveEditor) then begin
+    Node := ActiveEditor.Node;
+    if Assigned(Node) and (Node.Kind = pkFile) then
+      OpenConsole(Node);
+  end;
+end;
+
+procedure TCustomWorkForm.LaunchConsoleEditorActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+  Node: TTreeNode;
+begin
+  if Assigned(ActiveEditor) then begin
+    Action := Sender as TAction;
+    Node := ActiveEditor.Node;
+    Action.Enabled := Assigned(Node) and (Node.Kind in [pkFile]);
+    if Action.Enabled then
+      case Node.Kind of
+        pkFolder: Action.Hint := Format('Open the ''%s'' editor in console.', [Node.LogicalName]);
+        pkFile: Action.Hint := Format('Open the folder containing the ''%s'' editor in console.', [Node.LogicalName]);
+      end
+    else
+      Action.Hint := 'Cannot open the console.';
+  end;
 end;
 
 procedure TCustomWorkForm.LaunchExecuteActionExecute(Sender: TObject);
@@ -869,17 +1154,29 @@ begin
   Node := Navigator.Selected;
   if Assigned(Node) then begin
     Parameters := EmptyStr;
-    if ExecuteFile(Node, Parameters) then
-      ExecuteCommand(Node, Parameters);
+    if ExecuteFile(Node, Parameters) then begin
+      FDirMonitor.Pause;
+      try
+        ExecuteCommand(Node, Parameters);
+      finally
+        FDirMonitor.Resume;
+      end;
+    end;
   end;
 end;
 
 procedure TCustomWorkForm.LaunchExecuteActionUpdate(Sender: TObject);
 var
+  Action: TAction;
   Node: TTreeNode;
 begin
+  Action := Sender as TAction;
   Node := Navigator.Selected;
-  (Sender as TAction).Enabled := Assigned(Node) and Node.IsExecutable;
+  Action.Enabled := Assigned(Node) and Node.IsExecutable;
+  if Action.Enabled then
+    Action.Hint := Format('Execute the ''%s'' command file within console.', [Node.LogicalName])
+  else
+    Action.Hint := 'Execute selected command file within console.';
 end;
 
 procedure TCustomWorkForm.ExportHtmlActionExecute(Sender: TObject);
@@ -1061,16 +1358,6 @@ end;
 procedure TCustomWorkForm.ExpandAllActionExecute(Sender: TObject);
 begin
   Navigator.FullExpand;
-end;
-
-procedure TCustomWorkForm.LaunchExplorerFolderActionExecute(Sender: TObject);
-begin
-  OpenExplorer(Navigator.Selected);
-end;
-
-procedure TCustomWorkForm.LaunchConsoleFolderActionExecute(Sender: TObject);
-begin
-  OpenConsole(Navigator.Selected);
 end;
 
 procedure TCustomWorkForm.ClearStatusActionExecute(Sender: TObject);
@@ -1440,7 +1727,7 @@ begin
     Editor := Page.Editor;
     if Assigned(Editor) then
       if Editor.IsModified then
-        if MessageDlg(Format(PROMPT, [Editor.LogicalFileName]), mtWarning, [mbYes, mbNo], 0) = mrYes then
+        if MessageDlg(Format(PROMPT, [Editor.LogicalName]), mtWarning, [mbYes, mbNo], 0) = mrYes then
           Editor.Save;
       Editor.Node.Page := nil;
     Page.Free;
@@ -1492,24 +1779,43 @@ begin
 end;
 
 procedure TCustomWorkForm.OpenExplorer(Node: TTreeNode);
+const
+  SHELL = 'explorer.exe';
+  PARAM = '/select,"%s"';
 var
   FolderName: TFileName;
+  Parameters: String;
 begin
-  if Assigned(Node) and (Node.Kind = pkFolder) then begin
-    FolderName := ExtractFilePath(Node.FullName);
-    ShellExecute(0, nil, PChar('explorer.exe'), PChar(Node.Fullname), PChar(FolderName), SW_NORMAL);
+  if Assigned(Node) and (Node.Kind in [pkFolder, pkFile]) then begin
+    case Node.Kind of
+      pkFolder: begin
+        FolderName := Node.FullName;
+        Parameters := Node.FullName;
+        end;
+      pkFile: begin
+        FolderName := ExtractFilePath(Node.FullName);
+        Parameters := Format(PARAM, [Node.FullName]);
+        end;
+    end;
+    ShellExecute(0, nil, PChar(SHELL), PChar(Parameters), PChar(FolderName), SW_NORMAL);
   end;
 end;
 
 procedure TCustomWorkForm.OpenConsole(Node: TTreeNode);
 const
+  SHELL = 'cmd.exe';
   MASK = '/K "cd /d "%s""';
 var
   FolderName: TFileName;
 begin
-  if Assigned(Node) and (Node.Kind = pkFolder) then begin
-    FolderName := ExtractFilePath(Node.FullName);
-    ShellExecute(0, nil, PChar('cmd.exe'), PChar(Format(MASK, [Node.FullName])), PChar(FolderName), SW_NORMAL);
+  if Assigned(Node) and (Node.Kind in [pkFolder, pkFile]) then begin
+    case Node.Kind of
+      pkFolder:
+        FolderName := Node.FullName;
+      pkFile:
+        FolderName := ExtractFilePath(Node.FullName);
+    end;
+    ShellExecute(0, nil, PChar(SHELL), PChar(Format(MASK, [FolderName])), PChar(FolderName), SW_NORMAL);
   end;
 end;
 
@@ -2037,7 +2343,8 @@ end;
 
 procedure TFileRefreshEngine.Execute;
 begin
-  FEngine.Execute;
+  if not (FAction in [daFileRenamedOldName, daFileRenamedNewName]) then
+    FEngine.Execute;
 end;
 
 initialization

@@ -111,6 +111,8 @@ type
     property OnLog: TCustomExecutionEngine.TExecutionLogEvent read FOnLog write FOnLog;
   end;
 
+  { TExecutionForm }
+
   TExecutionForm = class(TForm)
     ExecutableNameLabel: TLabel;
     ExecutableNameEdit: TEdit;

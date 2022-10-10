@@ -24,6 +24,9 @@ uses
   CustomConfigFrames, ConfigUtils;
 
 type
+
+  { TNavigatorConfigFrame }
+
   TNavigatorConfigFrame = class(TCustomConfigFrame)
     ConfigEdit: TValueListEditor;
     SaveWorkspaceEdit: TCheckBox;
@@ -97,6 +100,15 @@ begin
 end;
 
 procedure TNavigatorConfigFrame.ConfigEditButtonClick(Sender: TObject; aCol, aRow: Integer);
+const
+  DEFAULTS: array[0..6] of String =
+   (INI_EDIT_DEF,
+    INI_ASSEMBLE_DEF,
+    INI_EXEC_DEF,
+    INI_SEARCH_DEF,
+    INI_UNEDITABLE_DEF,
+    INI_EXCLUDE_FILE_DEF,
+    INI_EXCLUDE_FOLDER_DEF);
 var
   Editor: TValueListEditor;
   Row: Integer;
@@ -105,7 +117,7 @@ begin
   Editor := Sender as TValueListEditor;
   Row := aRow - 1;
   Temp := Editor.Strings.ValueFromIndex[Row];
-  if EditFileMasks(Editor.Strings.Names[Row], Temp) then
+  if EditFileMasks(Editor.Strings.Names[Row], Temp, DEFAULTS[Row]) then
     Editor.Strings.ValueFromIndex[Row] := Temp;
 end;
 

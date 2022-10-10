@@ -23,9 +23,11 @@ uses
   Classes, SysUtils, Forms, Controls, Dialogs, Menus, CustomWorks, ConfigUtils, DirMonitors;
 
 type
+
+  { TFolderWorkForm }
+
   TFolderWorkForm = class(TCustomWorkForm)
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
   private
   protected
     procedure RefreshView; override;
@@ -48,11 +50,6 @@ begin
   FConfigs := TFolderConfig.Create;
 end;
 
-procedure TFolderWorkForm.FormDestroy(Sender: TObject);
-begin
-  inherited;
-end;
-
 procedure TFolderWorkForm.RefreshView;
 
   procedure LinkPage(Node: TTreeNode);
@@ -65,7 +62,7 @@ procedure TFolderWorkForm.RefreshView;
       Page := WorkPages.Pages[I];
       Editor := Page.Editor;
       if Assigned(Editor) then
-        if AnsiSameText(Node.LogicalName, Editor.LogicalFileName) then begin
+        if AnsiSameText(Node.LogicalName, Editor.LogicalName) then begin
           Node.Page := Page;
           Editor.Node := Node;
           Break;
@@ -136,6 +133,7 @@ begin
     FConfigs.ReadConfig(FFolderName);
     WindowMenu := TMenuItem.Create(Self);
     WindowMenu.Caption := FolderName;
+    WindowMenu.Hint := Format(JUMP_MASK, [FolderName]);
     WindowMenu.Tag := IMAGE_INDEX[IsImage];
     WindowMenu.ImageIndex := WindowMenu.Tag;
     WindowMenu.GroupIndex := 5;

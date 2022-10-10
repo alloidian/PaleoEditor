@@ -9,6 +9,9 @@ uses
   CustomConfigFrames, ConfigUtils, Types;
 
 type
+
+  { TEditorConfigFrame }
+
   TEditorConfigFrame = class(TCustomConfigFrame)
     SampleGroup: TGroupBox;
     RightMarginLabel: TLabel;

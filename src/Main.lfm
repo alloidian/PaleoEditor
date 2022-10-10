@@ -28,7 +28,7 @@ object MainForm: TMainForm
         Width = 150
       end    
       item
-        Width = 40
+        Width = 1000
       end>
     SimplePanel = False
   end
@@ -131,13 +131,13 @@ object MainForm: TMainForm
     Left = 128
     Top = 55
     object OpenFolderAction: TAction
-      Caption = '&Folder...'
+      Caption = '&Folder…'
       Hint = 'Open a project folder.'
       OnExecute = OpenFolderActionExecute
       ShortCut = 16463
     end
     object OpenListingAction: TAction
-      Caption = '&Listing...'
+      Caption = '&Listing…'
       Hint = 'Open a listing file.'
       OnExecute = OpenListingActionExecute
       ShortCut = 24655
@@ -155,7 +155,7 @@ object MainForm: TMainForm
       OnUpdate = CloseAllProjectActionUpdate
     end
     object ConfigAction: TAction
-      Caption = 'Con&figuration...'
+      Caption = 'Con&figuration…'
       Hint = 'Application user configuration.'
       OnExecute = ConfigActionExecute
     end
@@ -165,7 +165,7 @@ object MainForm: TMainForm
       Hint = 'Exit the application.'
     end
     object ShowAboutAction: TAction
-      Caption = '&About Paleo Editor...'
+      Caption = '&About Paleo Editor…'
       Hint = 'Show the About Paleo Editor dialog.'
       OnExecute = ShowAboutActionExecute
     end

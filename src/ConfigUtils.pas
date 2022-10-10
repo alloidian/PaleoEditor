@@ -33,6 +33,24 @@ const
   INI_EDITOR_FONT_NAME_DEF    = 'Courier New';
   INI_EDITOR_FONT_SIZE_DEF    = 10;
   INI_EDITOR_RIGHT_MARGIN_DEF = 90;
+  INI_EDIT_DEF                = '*.asm;*.z80;*.azm;*.inc;*.lib;*.ins;*.mac;*.lst;*.bat;'    +
+                                '*.sh;*.cmd;*.pas;*.dpr;*.bas;*.zex;*.txt;*.doc;*.for;'     +
+                                '*.sub;*.md;*.h;*.hlp;*.not;*.inf;*.new;*.ps1;*.spin;'      +
+                                '*.msg;*.hex;Makefile;ReadMe;-readme;diskdefs;readme.1st;'  +
+                                'copying;read.me;.gitattributes;.gitignore;readme.unix;'    +
+                                '*.log;*.sym;*.kvset';
+  INI_EXEC_DEF                = '*.cmd;*.bat';
+  INI_ASSEMBLE_DEF            = 'Assign.asm;bcd.asm;BDOS.ASM;BDOS22.ASM;cbios.asm;cls.asm;' +
+                                'cpmldr.asm;Decode.asm;Encode.asm;FDU.asm;Format.asm;'      +
+                                'Halt.asm;hbios.asm;IntTest.asm;loader.asm;Mode.asm;'       +
+                                'Reboot.asm;RTC.asm;Startup.asm;Survey.asm;SysCopy.asm;'    +
+                                'Talk.asm;TESTZ80.asm;Time.asm;Timer.asm;TimeUtil.asm;'     +
+                                'tune.asm;zcpr.asm';
+  INI_SEARCH_DEF              = '*.asm;*.z80;*.azm;*.inc;*.lib;*.lst';
+  INI_UNEDITABLE_DEF          = '*.list;*.lst;*.log;*.sym';
+  INI_EXCLUDE_FILE_DEF        = '*.pdf;*.docx;*.com;*.exe;*.dll;*.zip;*.lbr;*.png;*.jpg;'   +
+                                '*.jpeg;*.bin;Makefile';
+  INI_EXCLUDE_FOLDER_DEF      = '.github;Tools;Tunes';
   ASSEMBLER_FOLDER_MASK       = '%s\tasm32';
   ASSEMBLER_FILE_MASK         = '%s\TASM.EXE';
 
@@ -198,7 +216,6 @@ type
     property ConfigFileName: TFileName read FConfigFileName;
   public
     constructor Create; virtual;
-    destructor Destroy; override;
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); virtual;
     procedure WriteConfig;
     property ToolFolderName: TFileName read FToolFolderName write SetToolFolderName;
@@ -210,16 +227,12 @@ type
   TProjectConfig = class(TCustomConfig)
   private
   public
-    constructor Create; override;
-    destructor Destroy; override;
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
   end;
 
   TFolderConfig = class(TCustomConfig)
   private
   public
-    constructor Create; override;
-    destructor Destroy; override;
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
   end;
 
@@ -228,7 +241,7 @@ implementation
 {$WARN 05044 OFF}{$WARN 06058 OFF}
 
 uses
-  StrUtils, Types, Masks, FileInfo, VersionTypes, TypInfo, SynEditStrConst, Dialogs;
+  StrUtils, Types, Masks, FileInfo, VersionTypes, TypInfo, SynEditStrConst, Dialogs, Utils;
 
 type
   TAttributeConfig = record
@@ -261,32 +274,15 @@ const
   INI_CONFIG               = '%s\Paleo\Editor.ini';
   INI_SETTING              = 'Setting';
   INI_EDIT                 = 'EditFiles';
-  INI_EDIT_DEF             = '*.asm;*.z80;*.azm;*.inc;*.lib;*.ins;*.mac;*.lst;*.bat;*.sh;'  +
-                             '*.cmd;*.pas;*.dpr;*.bas;*.zex;*.txt;*.doc;*.for;*.sub;*.md;'  +
-                             '*.h;*.hlp;*.not;*.inf;*.new;*.ps1;*.spin;*.msg;*.hex;'        +
-                             'Makefile;ReadMe;-readme;diskdefs;readme.1st;copying;read.me;' +
-                             '.gitattributes;.gitignore;readme.unix;*.log';
   INI_EXEC                 = 'ExecuteFiles';
-  INI_EXEC_DEF             = '*.cmd;*.bat';
   INI_ASSEMBLE             = 'AssemblyFiles';
-  INI_ASSEMBLE_DEF         = 'Assign.asm;bcd.asm;BDOS.ASM;BDOS22.ASM;cbios.asm;cls.asm;' +
-                             'cpmldr.asm;Decode.asm;Encode.asm;FDU.asm;Format.asm;' +
-                             'Halt.asm;hbios.asm;IntTest.asm;loader.asm;Mode.asm;' +
-                             'Reboot.asm;RTC.asm;Startup.asm;Survey.asm;SysCopy.asm;' +
-                             'Talk.asm;TESTZ80.asm;Time.asm;Timer.asm;TimeUtil.asm;' +
-                             'tune.asm;zcpr.asm';
   INI_SEARCH               = 'SearchFiles';
-  INI_SEARCH_DEF           = '*.asm;*.z80;*.azm;*.inc;*.lib;*.lst';
   INI_UNEDITABLE           = 'Uneditable';
-  INI_UNEDITABLE_DEF       = '*.list;*.lst;*.log';
   INI_SAVE_WORKSPACE       = 'SaveWorkspace';
   INI_SAVE_WORKSPACE_DEF   = False;
   INI_EXCLUDE              = 'Exclude';
   INI_EXCLUDE_FILE         = 'Files';
-  INI_EXCLUDE_FILE_DEF     = '*.pdf;*.docx;*.com;*.exe;*.dll;*.zip;*.lbr;*.png;*.jpg;' +
-                             '*.jpeg;*.bin;Makefile';
   INI_EXCLUDE_FOLDER       = 'Folders';
-  INI_EXCLUDE_FOLDER_DEF   = '.github;Tools;Tunes';
   INI_PARAMS               = 'Params';
   INI_TOOLS                = 'Tools';
   INI_ATTRIBUTE_FOREGROUND = 'Foreground';
@@ -734,6 +730,7 @@ begin
         ImageIndex := Ini.ReadInteger(INI_MRU, Project, -1);
         Item := TMenuItem.Create(ParentMenu);
         Item.Caption := Project;
+        Item.Hint := Format(MRU_MASK, [Project]);
         Item.Tag := ImageIndex;
         Item.ImageIndex := Item.Tag;
         Item.OnClick := EventHandler;
@@ -960,11 +957,6 @@ begin
   FAssemblerFileName := EmptyStr;
 end;
 
-destructor TCustomConfig.Destroy;
-begin
-  inherited;
-end;
-
 procedure TCustomConfig.SetToolFolderName(const Value: TFileName);
 begin
   FToolFolderName := ExcludeTrailingPathDelimiter(Value);
@@ -998,16 +990,6 @@ end;
 
 { TProjectConfig }
 
-constructor TProjectConfig.Create;
-begin
-  inherited;
-end;
-
-destructor TProjectConfig.Destroy;
-begin
-  inherited;
-end;
-
 procedure TProjectConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
 var
   Ini: TIniFile;
@@ -1024,16 +1006,6 @@ begin
 end;
 
 { TFolderConfig }
-
-constructor TFolderConfig.Create;
-begin
-  inherited Create;
-end;
-
-destructor TFolderConfig.Destroy;
-begin
-  inherited;
-end;
 
 procedure TFolderConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
 var
