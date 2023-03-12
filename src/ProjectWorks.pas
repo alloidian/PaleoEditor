@@ -1,6 +1,6 @@
 unit ProjectWorks;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit ProjectWorks;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -128,7 +128,7 @@ end;
 procedure TProjectWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
 var
   OldCursor: TCursor;
-  IsImage: Boolean;
+  IsImage: Boolean = False;
   WindowMenu: TMenuItem;
 begin
   OldCursor := Screen.Cursor;
@@ -181,8 +181,8 @@ const
   TOKEN = '#INCLUDE';
 var
   List: TStringList;
-  I: Integer;
-  Line: String;
+  I: Integer = 0;
+  Line: String = '';
 begin
   if FileExists(FileName) then begin
     List := TStringList.Create;
@@ -212,7 +212,7 @@ var
   Stack: TTreeNodeCache;
   Child: TTreeNode;
   Attribute: TFileAttribute;
-  I: Integer;
+  I: Integer = 0;
   Module: TModules.TModule;
 
   function ExtractDocFileName(const PathName: String): String;
@@ -220,8 +220,8 @@ var
     ASM_EXTENSION = '.asm';
     DELIMITER = '_';
   var
-    FolderName: TFileName;
-    FileName: TFileName;
+    FolderName: TFileName = '';
+    FileName: TFileName = '';
   begin
     FolderName := ExtractFilePath(PathName);
     FileName := ExtractFileName(PathName);
@@ -325,7 +325,7 @@ end;
 
 procedure TListParser.TModules.Resolve;
 var
-  I: Integer;
+  I: Integer = 0;
   Mod1: TModule;
   Mod2: TModule;
 begin
@@ -341,7 +341,7 @@ const
   MASK = '%s'#9'%d'#9'%s';
 var
   Temp: TStringList;
-  I: Integer;
+  I: Integer = 0;
   Module: TModule;
 begin
   Temp := TStringList.Create;
@@ -378,9 +378,9 @@ procedure TListParser.TModules.TModule.TExtract.Populate(const Text: String);
 const
   QUOTE = '"';
 var
-  Temp: String;
-  P1: Integer;
-  P2: Integer;
+  Temp: String = '';
+  P1: Integer = 0;
+  P2: Integer = 0;
 begin
   Temp := Trim(Copy(Text, 5, 3));
   Level := Temp.Length;

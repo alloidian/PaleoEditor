@@ -1,6 +1,6 @@
 unit ColorConfigs;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit ColorConfigs;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -185,7 +185,7 @@ end;
 
 function TColorConfigFrame.GetSelected: TAttribute;
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := AttributeEdit.ItemIndex;
   if I < 0 then
@@ -207,7 +207,7 @@ end;
 
 procedure TColorConfigFrame.SetAttr(Value: TAttributeType);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   AttributeEdit.ItemIndex := -1;
   for I := 0 to AttributeEdit.Items.Count - 1 do begin

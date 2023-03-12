@@ -1,6 +1,6 @@
 unit CustomWorks;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit CustomWorks;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -444,7 +444,7 @@ end;
 procedure TCustomWorkForm.FormDestroy(Sender: TObject);
 var
   Temp: TStringList;
-  I: Integer;
+  I: Integer = 0;
   Page: TTabSheet;
   Editor: TCustomEditorFrame;
   Node: TTreeNode;
@@ -478,8 +478,8 @@ end;
 procedure TCustomWorkForm.FormShow(Sender: TObject);
 var
   Temp: TStringList;
-  I: Integer;
-  ProjectName: String;
+  I: Integer = 0;
+  ProjectName: String = '';
   Node: TTreeNode = nil;
 begin
   Config.ReadConfig(Navigator, FFolderName);
@@ -535,7 +535,7 @@ end;
 procedure TCustomWorkForm.NewFolderActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
-  FolderName: TFileName;
+  FolderName: TFileName = '';
   Attribute: TFileAttribute;
   Child: TTreeNode;
 begin
@@ -560,7 +560,7 @@ end;
 procedure TCustomWorkForm.NewFileActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
-  FileName: TFileName;
+  FileName: TFileName = '';
   Attribute: TFileAttribute;
   Child: TTreeNode;
 begin
@@ -699,9 +699,9 @@ const
   FAILURE = 'Cannot rename ''%s'' to ''%s''.';
 var
   Node: TTreeNode;
-  OldFileName: String;
-  NewFileName: String;
-  Temp: String;
+  OldFileName: String = '';
+  NewFileName: String = '';
+  Temp: String = '';
 
   function Rename(const OldFileName, NewFileName: TFileName): Boolean;
   begin
@@ -778,7 +778,7 @@ end;
 
 procedure TCustomWorkForm.CloseAllFilesActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   for I := WorkPages.PageCount - 1 downto 0 do
     CloseFile(WorkPages.Pages[I]);
@@ -795,7 +795,7 @@ type
   TIntList = TList<Integer>;
 var
   List: TIntList;
-  I: Integer;
+  I: Integer = 0;
 begin
   List := TIntList.Create;
   try
@@ -820,7 +820,7 @@ type
   TIntList = TList<Integer>;
 var
   List: TIntList;
-  I: Integer;
+  I: Integer = 0;
 begin
   List := TIntList.Create;
   try
@@ -839,8 +839,8 @@ end;
 
 procedure TCustomWorkForm.CloseUnmodifiedFilesActionUpdate(Sender: TObject);
 var
-  Temp: Boolean;
-  I: Integer;
+  Temp: Boolean = False;
+  I: Integer = 0;
 begin
   Temp := False;
   for I := 0 to WorkPages.PageCount - 1 do
@@ -856,7 +856,7 @@ const
   PROMPT = 'Are you sure you want to revert your changes?';
 var
   Editor: TCustomEditorFrame;
-  CurrentLine: Integer;
+  CurrentLine: Integer = 0;
 begin
   Editor := ActiveEditor;
   if Assigned(Editor) then
@@ -925,9 +925,9 @@ const
   MASK = 'TASMTABS=%s';
 var
   Node: TTreeNode;
-  Parameters: String;
+  Parameters: String = '';
   Platform: TAssemblerPlatform;
-  UpdateSymbols: Boolean;
+  UpdateSymbols: Boolean = False;
   Engine: TExecutionThread;
 begin
   if FConfigs.HasAssembler then begin
@@ -992,7 +992,7 @@ end;
 procedure TCustomWorkForm.ExecuteCommandActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
-  Parameters: String;
+  Parameters: String = '';
   Engine: TExecutionThread;
 begin
   Node := Navigator.Selected;
@@ -1149,7 +1149,7 @@ end;
 procedure TCustomWorkForm.LaunchExecuteActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
-  Parameters: String;
+  Parameters: String = '';
 begin
   Node := Navigator.Selected;
   if Assigned(Node) then begin
@@ -1182,8 +1182,7 @@ end;
 procedure TCustomWorkForm.ExportHtmlActionExecute(Sender: TObject);
 var
   Editor: TCustomEditorFrame;
-  FileName: TFileName;
-
+  FileName: TFileName = '';
 begin
   Editor := ActiveEditor;
   if Assigned(Editor) then begin
@@ -1411,7 +1410,7 @@ const
   STYLES: array[Boolean] of TFontStyles = ([], [fsBold]);
 var
   Font: TFont;
-  IsFolder: Boolean;
+  IsFolder: Boolean = False;
 begin
   Font := Sender.Canvas.Font;
   IsFolder := Node.Kind = pkFolder;
@@ -1434,7 +1433,7 @@ var
   View: TListView;
   Item: TListItem;
   Node: TTreeNode;
-  LineNumber: Integer;
+  LineNumber: Integer = 0;
 begin
   Page := StatusPages.ActivePage;
   if Assigned(Page) and (Page.Tag > 0) then begin
@@ -1558,8 +1557,8 @@ end;
 procedure TCustomWorkForm.AdjustSymbolFile(Sender: TObject);
 var
   Temp: TStringList;
-  I: Integer;
-  L: String;
+  I: Integer = 0;
+  L: String = '';
 begin
   FDirMonitor.Resume;
   Temp := TStringList.Create;
@@ -1592,8 +1591,8 @@ var
 
   procedure DoTabDragDrop(Sender, Source: TPageControl; X, Y: Integer);
   var
-    SourceIndex: Integer;
-    TargetIndex: Integer;
+    SourceIndex: Integer = 0;
+    TargetIndex: Integer = 0;
     ATabSheet: TTabSheet;
   begin
      if Sender = Source then begin
@@ -1729,14 +1728,14 @@ begin
       if Editor.IsModified then
         if MessageDlg(Format(PROMPT, [Editor.LogicalName]), mtWarning, [mbYes, mbNo], 0) = mrYes then
           Editor.Save;
-      Editor.Node.Page := nil;
+    Editor.Node.Page := nil;
     Page.Free;
   end;
 end;
 
 procedure TCustomWorkForm.DeleteFolderNode(Node: TTreeNode);
 var
-  I: Integer;
+  I: Integer = 0;
   Child: TTreeNode;
 begin
   for I := Node.Count - 1 downto 0 do begin
@@ -1783,8 +1782,8 @@ const
   SHELL = 'explorer.exe';
   PARAM = '/select,"%s"';
 var
-  FolderName: TFileName;
-  Parameters: String;
+  FolderName: TFileName = '';
+  Parameters: String = '';
 begin
   if Assigned(Node) and (Node.Kind in [pkFolder, pkFile]) then begin
     case Node.Kind of
@@ -1806,7 +1805,7 @@ const
   SHELL = 'cmd.exe';
   MASK = '/K "cd /d "%s""';
 var
-  FolderName: TFileName;
+  FolderName: TFileName = '';
 begin
   if Assigned(Node) and (Node.Kind in [pkFolder, pkFile]) then begin
     case Node.Kind of
@@ -1874,7 +1873,7 @@ function TCustomWorkForm.FindNextFile(Backwards: Boolean): Boolean;
 var
   OldColor: TColor;
 begin
-  Result := false;
+  Result := False;
   repeat
     if Backwards then
       FFindNode := FFindNode.GetPrev
@@ -2023,7 +2022,7 @@ end;
 
 procedure TCustomWorkForm.RefreshConfig;
 var
-  I: Integer;
+  I: Integer = 0;
   Page: TTabSheet;
 begin
   for I := 0 to WorkPages.PageCount - 1 do begin
@@ -2053,7 +2052,7 @@ end;
 
 procedure TNavigatorIterator.Execute;
 var
-  MayContinue: Boolean;
+  MayContinue: Boolean = True;
   Node: TTreeNode;
 begin
   MayContinue := True;
@@ -2088,13 +2087,13 @@ end;
 
 procedure TGlobalSearchEngine.DoIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
 var
-  I: Integer;
-  L: String;
+  I: Integer = 0;
+  L: String = '';
   Item: TListItem;
 
   function IsValidNode(const FileName: TFileName): Boolean;
   var
-    Extention: String;
+    Extention: String = '';
   begin
     Result := False;
     for Extention in FExtensions do
@@ -2107,7 +2106,7 @@ var
   function WordExists(const Value: String; const Criteria:string; Options: TStringSearchOptions): Boolean;
   var
     Buffer: PChar;
-    Size : Integer;
+    Size : Integer = 0;
   begin
     Result := not Value.IsEmpty;
     if Result then begin
@@ -2221,8 +2220,8 @@ end;
 
 procedure TGlobalOriginateEngine.DoIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
 var
-  I: Integer;
-  L: String;
+  I: Integer = 0;
+  L: String = '';
   Item: TListItem;
 
   function IsValidNode(const FileName: TFileName): Boolean;

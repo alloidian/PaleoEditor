@@ -14,13 +14,13 @@
 ; Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
 #define PaleoAppName "Paleo Editor"
-#define PaleoAppVersion "0.1.3"
+#define PaleoAppVersion "0.1.4"
 #define PaleoAppPublisher "Steve García"
-#define PaleoAppURL "https://homebrew.computer/"
+#define PaleoAppURL "https://dynocomputer.com/"
 #define PaleoAppExeName "..\bin\PaleoEditor32.exe"
 #define PaleoReadMeName "..\doc\Readme.txt"
 #define PaleoLocalName "PaleoEditor.exe"
-#define PaleoAppFolder "Paleo"
+#define PaleoAppFolder "Paleo\Editor"
 
 [Setup]
 AppId={{078001C3-E7FC-4157-A87A-DD61373CAC04}

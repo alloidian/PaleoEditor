@@ -1,6 +1,6 @@
 unit HexEditors;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit HexEditors;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -53,9 +53,6 @@ type
     procedure Idle; override;
     procedure RefreshConfig; override;
   end;
-
-var
-  HexEditorFrame: THexEditorFrame;
 
 implementation
 
@@ -153,9 +150,9 @@ end;
 function THexEditorFrame.Search(const Criteria: String; First, Backwards, MatchCase,
   MatchWholeWordOnly: Boolean): Boolean;
 var
-  Position: Integer;
-  Found: Integer;
-  Text: String;
+  Position: Integer = 0;
+  Found: Integer = 0;
+  Text: String = '';
 begin
   Result := False;
   if First then begin
@@ -188,8 +185,8 @@ end;
 procedure THexEditorFrame.Replace(Criteria, Replacement: String; All, MatchCase,
   MatchWholeWordOnly: Boolean);
 var
-  Position: Integer;
-  Count: Integer;
+  Position: Integer = 0;
+  Count: Integer = 0;
 begin
   Criteria := Editor.PrepareFindReplaceData(Criteria, not MatchCase, True);
   Replacement := Editor.PrepareFindReplaceData(Replacement, False, True);
@@ -238,7 +235,7 @@ end;
 
 procedure THexEditorFrame.Idle;
 var
-  Pos: Integer;
+  Pos: Integer = 0;
 begin
   InsertMode := Editor.InsertMode;
   Pos := Editor.GetCursorPos;

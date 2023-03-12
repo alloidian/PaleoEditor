@@ -1,6 +1,6 @@
 unit FolderWorks;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit FolderWorks;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -54,7 +54,7 @@ procedure TFolderWorkForm.RefreshView;
 
   procedure LinkPage(Node: TTreeNode);
   var
-    I: Integer;
+    I: Integer = 0;
     Page: TTabSheet;
     Editor: TCustomEditorFrame;
   begin
@@ -73,7 +73,7 @@ procedure TFolderWorkForm.RefreshView;
   procedure PopulateFolder(Parent: TTreeNode; const FolderName: TFileName);
   var
     Files: TStringList;
-    Name: String;
+    Name: String = '';
     Attribute: TFileAttribute;
     Node: TTreeNode;
   begin
@@ -120,7 +120,7 @@ end;
 procedure TFolderWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
 var
   OldCursor: TCursor;
-  IsImage: Boolean;
+  IsImage: Boolean = False;
   WindowMenu: TMenuItem;
 begin
   OldCursor := Screen.Cursor;

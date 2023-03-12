@@ -1,6 +1,6 @@
 unit CustomEditors;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit CustomEditors;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -209,7 +209,7 @@ end;
 
 function TTabSheetHelper.GetEditor: TCustomEditorFrame;
 var
-  I: Integer;
+  I: Integer = 0;
   Control: TControl;
 begin
   Result := nil;

@@ -12,7 +12,6 @@ object AboutForm: TAboutForm
   OnCreate = FormCreate
   Position = poMainFormCenter
   ShowHint = True
-  LCLVersion = '2.2.2.0'
   object CloseButton: TButton
     Left = 192
     Height = 25
@@ -607,7 +606,7 @@ object AboutForm: TAboutForm
     Top = 232
     Width = 158
     AutoSize = False
-    Caption = 'Copyright ©2022 Steve García'
+    Caption = 'Copyright ©2023 Steve García'
     ParentColor = False
     OnClick = CopyrightLabelClick
   end

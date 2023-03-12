@@ -1,6 +1,6 @@
 unit Searches;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit Searches;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -208,11 +208,11 @@ end;
 function TCache.IsFirst(const Criteria: String; Backwards, MatchCase, MatchWholeWordOnly,
   ForFile: Boolean): Boolean;
 var
-  CriteriaMatches: Boolean;
-  BackwardsMatches: Boolean;
-  CaseMatches: Boolean;
-  WholeWordMatches: Boolean;
-  ForFileMatches: Boolean;
+  CriteriaMatches: Boolean = False;
+  BackwardsMatches: Boolean = False;
+  CaseMatches: Boolean = False;
+  WholeWordMatches: Boolean = False;
+  ForFileMatches: Boolean = False;
 begin
   CriteriaMatches := AnsiSameText(Self.Criteria, Criteria);
   BackwardsMatches := Self.Backwards = Backwards;
@@ -247,7 +247,7 @@ end;
 
 procedure TSearchFrame.SearchPrevActionExecute(Sender: TObject);
 var
-  IsFirst: Boolean;
+  IsFirst: Boolean = False;
 begin
   IsFirst := FCache.IsFirst(Criteria, True, MatchByCase, MatchWholeWordOnly, ForFile);
   DoSearch(Criteria, IsFirst, True, MatchByCase, MatchWholeWordOnly, ForFile);
@@ -261,7 +261,7 @@ end;
 
 procedure TSearchFrame.SearchNextActionExecute(Sender: TObject);
 var
-  IsFirst: Boolean;
+  IsFirst: Boolean = False;
 begin
   IsFirst := FCache.IsFirst(Criteria, False, MatchByCase, MatchWholeWordOnly, ForFile);
   DoSearch(Criteria, IsFirst, False, MatchByCase, MatchWholeWordOnly, ForFile)
@@ -366,13 +366,13 @@ end;
 
 procedure TSearchFrame.UpdateHistory;
 var
-  I: Integer;
+  I: Integer = 0;
   Control: TControl;
 
   procedure UpdateHistory(Edit: TComboBox);
   var
-    Text: String;
-    I: Integer;
+    Text: String = '';
+    I: Integer = 0;
   begin
     Text := Edit.Text;
     I := Edit.Items.IndexOf(Text);
@@ -680,7 +680,7 @@ end;
 
 function TSearchFrame.GetLabelNumber: Integer;
 var
-  I: Integer;
+  I: Integer = 0;
   Temp: TIntegerObject;
 begin
   I := LabelListEdit.ItemIndex;

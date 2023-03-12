@@ -1,6 +1,6 @@
 unit Main;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit Main;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -209,8 +209,8 @@ procedure TMainForm.FileOpenRecentMenuClick(Sender: TObject);
 var
   Item: TMenuItem;
   FolderName: TFileName;
-  Found: Boolean;
-  I: Integer;
+  Found: Boolean = False;
+  I: Integer = 0;
   Form: TCustomForm;
 begin
   Item := Sender as TMenuItem;
@@ -247,7 +247,7 @@ end;
 
 procedure TMainForm.CloseAllProjectActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
  for I := MDIChildCount - 1 downto 0 do
    MDIChildren[I].Free;
@@ -296,8 +296,8 @@ end;
 
 procedure TMainForm.AddProject(const FolderName: TFileName);
 var
-  Found: Boolean;
-  IsImage: Boolean;
+  Found: Boolean = False;
+  IsImage: Boolean = False;
   Item: TMenuItem;
 begin
   Found := False;
@@ -331,7 +331,7 @@ end;
 
 procedure TMainForm.RefreshConfig;
 var
-  I: Integer;
+  I: Integer = 0;
   Form: TCustomForm;
 begin
   for I := 0 to MDIChildCount - 1 do begin

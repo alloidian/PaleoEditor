@@ -1,4 +1,4 @@
-@REM  Copyright ©2022 by Steve Garcia. All rights reserved.
+﻿@REM  Copyright ©2022 by Steve Garcia. All rights reserved.
 @REM
 @REM  This file is part of the Paleo Editor project.
 @REM
@@ -13,7 +13,7 @@
 @REM  You should have received a copy of the GNU General Public License along with the Paleo
 @REM  Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-@SET VER=0.1.3
+@SET VER=0.1.4
 
 @CALL :BUILD 32
 @CALL :BUILD 64

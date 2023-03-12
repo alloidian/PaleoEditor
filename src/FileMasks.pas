@@ -1,6 +1,6 @@
 unit FileMasks;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit FileMasks;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -116,7 +116,7 @@ end;
 
 procedure TEditFileMaskForm.MoveUpActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if I > 0 then begin
@@ -132,7 +132,7 @@ end;
 
 procedure TEditFileMaskForm.MoveDownActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if (I > -1) and (I + 1 < DirectoryEdit.Items.Count) then begin
@@ -143,7 +143,7 @@ end;
 
 procedure TEditFileMaskForm.MoveDownActionUpdate(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   (Sender as TAction).Enabled := (I > -1) and (I + 1 < DirectoryEdit.Items.Count);
@@ -173,7 +173,7 @@ end;
 
 procedure TEditFileMaskForm.DeleteActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if I > -1 then begin
@@ -239,7 +239,7 @@ end;
 
 function TEditFileMaskForm.GetSelected: String;
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if I > -1 then
@@ -250,7 +250,7 @@ end;
 
 procedure TEditFileMaskForm.SetSelected(const Value: String);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if I > -1 then

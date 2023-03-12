@@ -1,6 +1,6 @@
 unit Utils;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit Utils;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -168,7 +168,7 @@ const
   MASK = '%s\*.*';
 var
   Rec: TSearchRec;
-  Temp: String;
+  Temp: String = '';
 begin
   Result := TStringList.Create;
   if FindFirst(Format(MASK, [Path]), faAnyFile, Rec) = 0 then begin
@@ -187,7 +187,7 @@ const
   MASK = '%s\*.*';
 var
   Rec: TSearchRec;
-  Temp: String;
+  Temp: String = '';
 begin
   Result := TStringList.Create;
   if FindFirst(Format(MASK, [Path]), faDirectory, Rec) = 0 then begin
@@ -292,7 +292,7 @@ end;
 
 class procedure TIntegerObject.FreeList(List: TStrings);
 var
-  I: Integer;
+  I: Integer = 0;
   Temp: TObject;
 begin
   for I := List.Count - 1 downto 0 do begin
@@ -358,7 +358,7 @@ end;
 
 function TItinerary.Post(Node: TTreeNode; LineNumber: Integer): Boolean;
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   Result := FIndex < FList.Count - 2;
   if Result then
@@ -381,7 +381,7 @@ end;
 
 function TItinerary.GoForward: TStop;
 var
-  Last: Integer;
+  Last: Integer = 0;
 begin
   Last := FList.Count - 1;
   IF FIndex < Last then begin
@@ -522,7 +522,7 @@ end;
 
 function TSynCustomHighlighterHelper.RetrieveAttribute(const StorageName: String): TSynHighlighterAttributes;
 var
-  I: Integer;
+  I: Integer = 0;
   Attr: TSynHighlighterAttributes;
 begin
   Result := nil;

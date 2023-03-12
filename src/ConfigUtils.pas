@@ -1,6 +1,6 @@
 unit ConfigUtils;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit ConfigUtils;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -486,8 +486,8 @@ var
   function SearchValue(Info: TVersionStringFileInfo; const Value: string): string;
   var
     S: TVersionStringTable;
-    I: integer;
-    J: integer;
+    I: integer = 0;
+    J: integer = 0;
   begin
     Result := EmptyStr;
     for I := 0 to Info.Count - 1 do begin
@@ -538,7 +538,7 @@ end;
 function TConfig.IsMatch(const Value: String; const Masks: String): Boolean;
 var
   List: TStringDynArray;
-  Mask: String;
+  Mask: String = '';
 begin
   Result := False;
   List := SplitString(Masks, DELIMITER);
@@ -608,9 +608,9 @@ procedure TConfig.ReadConfig;
 var
   Ini: TIniFile;
   Temp: TStringList;
-  I: Integer;
-  Command: String;
-  Param: String;
+  I: Integer = 0;
+  Command: String = '';
+  Param: String = '';
 begin
   Ini := TIniFile.Create(ConfigFileName);
   try
@@ -651,8 +651,8 @@ end;
 procedure TConfig.WriteConfig;
 var
   Ini: TIniFile;
-  Command: String;
-  Param: String;
+  Command: String = '';
+  Param: String = '';
 begin
   Ini := TIniFile.Create(ConfigFileName);
   try
@@ -682,7 +682,7 @@ end;
 procedure TConfig.ReadConfig(Form: TForm);
 var
   Ini: TIniFile;
-  Temp: String;
+  Temp: String = '';
 begin
   Ini := TIniFile.Create(ConfigFileName);
   try
@@ -717,8 +717,8 @@ procedure TConfig.ReadConfig(ParentMenu: TMenuItem; EventHandler: TNotifyEvent);
 var
   Ini: TIniFile;
   Projects: TStringList;
-  Project: String;
-  ImageIndex: Integer;
+  Project: String = '';
+  ImageIndex: Integer = 0;
   Item: TMenuItem;
 begin
   Ini := TIniFile.Create(ConfigFileName);
@@ -829,7 +829,7 @@ end;
 
 function TConfig.GetPlatform(const FileName: TFileName): TAssemblerPlatform;
 var
-  Temp: String;
+  Temp: String = '';
 begin
   if not FParams.TryGetValue(FileName, Temp) then
     Result := apZ80
@@ -844,7 +844,7 @@ end;
 
 function TConfig.GetParameter(const FileName: TFileName): String;
 var
-  Temp: String;
+  Temp: String = '';
 begin
   if not FParams.TryGetValue(FileName, Temp) then
     Result := EmptyStr
@@ -854,7 +854,7 @@ end;
 
 function TConfig.GetUpdateSymbols(const FileName: TFileName): Boolean;
 var
-  Temp: String;
+  Temp: String = '';
 begin
   if not FParams.TryGetValue(FileName, Temp) then
     Result := False
@@ -884,7 +884,7 @@ end;
 procedure TConfig.WriteWorkspace(const FolderName: string; List: TStringList);
 var
   Ini: TIniFile;
-  I: Integer;
+  I: Integer = 0;
 begin
   Ini := TIniFile.Create(ConfigFileName);
   try

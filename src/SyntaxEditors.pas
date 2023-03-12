@@ -1,6 +1,6 @@
 unit SyntaxEditors;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit SyntaxEditors;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -82,9 +82,6 @@ type
     procedure Idle; override;
     procedure RefreshConfig; override;
   end;
-
-var
-  SyntaxEditorFrame: TSyntaxEditorFrame;
 
 implementation
 
@@ -188,8 +185,8 @@ end;
 
 procedure TSyntaxEditorFrame.UpdateItems(Tokens: array of String);
 var
-  Candidate: String;
-  Token: String;
+  Candidate: String = '';
+  Token: String = '';
 begin
   Completion.ItemList.Clear;
   Candidate := Completion.CurrentString;
@@ -258,7 +255,7 @@ const
     '.lpr');
 var
   OldHandler: TStatusChangeEvent;
-  Ext: TFileName;
+  Ext: TFileName = '';
 begin
   inherited Open(Page, Node);
   if FileExists(Node.FullName) then begin
@@ -388,8 +385,8 @@ end;
 
 procedure TSyntaxEditorFrame.RetrieveLabels(List: TStrings);
 var
-  I: Integer;
-  Line: String;
+  I: Integer = 0;
+  Line: String = '';
   Token: String = '';
 
   function IsMethod(const Line: String; var Token: String): Boolean;
@@ -397,9 +394,9 @@ var
     ALPHAS = ['A'..'Z','a'..'z'];
     NUMERALS = ['_', '0'..'9'];
   var
-    Ch: Char;
-    I: Integer;
-    Width: Integer;
+    Ch: Char = #0;
+    I: Integer = 1;
+    Width: Integer = 0;
   begin
     Token := EmptyStr;
     Result := Line.Trim.Length > 0;

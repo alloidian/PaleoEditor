@@ -1,6 +1,6 @@
 unit Abouts;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit Abouts;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -77,7 +77,7 @@ const
   DESC_CAPTION = 'for RomWBW Development';
   TOOL_CAPTION = 'Built with Lazarus';
   VERSION_CAPTION = 'Version: %s %s'#13#10'%s';
-  COPYRIGHT_CAPTION = 'Copyright ©2022 Steve García';
+  COPYRIGHT_CAPTION = 'Copyright ©2023 Steve García';
   LICENSE_CAPTION = 'Licensed by GNU GPL V3';
   HEXEDIT_CAPTION =
     'TMPHexEditor by Marcus Stephany,'#13#10 +
@@ -118,7 +118,7 @@ end;
 
 procedure TAboutForm.CopyrightLabelClick(Sender: TObject);
 begin
-  ShellExecute(handle, 'open', PChar('https://homebrew.computer/'), nil,nil, SW_SHOW);
+  ShellExecute(handle, 'open', PChar('https://dynocomputer.com'), nil,nil, SW_SHOW);
 end;
 
 procedure TAboutForm.LicenseLabelClick(Sender: TObject);

@@ -1,6 +1,6 @@
 unit NavigatorConfigs;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit NavigatorConfigs;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -83,7 +83,7 @@ uses
 
 constructor TNavigatorConfigFrame.Create(AOwner: TComponent);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   inherited Create(AOwner);
   ConfigEdit.Strings.Clear;
@@ -111,8 +111,8 @@ const
     INI_EXCLUDE_FOLDER_DEF);
 var
   Editor: TValueListEditor;
-  Row: Integer;
-  Temp: String;
+  Row: Integer = 0;
+  Temp: String = '';
 begin
   Editor := Sender as TValueListEditor;
   Row := aRow - 1;

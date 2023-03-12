@@ -1,6 +1,6 @@
 unit SynHighlighterZ80;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -208,7 +208,7 @@ end;
 
 function TSynZ80Syn.KeyComp(const aKey: String): Boolean;
 var
-  I: Integer;
+  I: Integer = 0;
   pKey1: PChar;
   pKey2: PChar;
 begin
@@ -354,7 +354,7 @@ end;
 
 procedure TSynZ80Syn.DoAddKeyword(AKeyword: string; AKind: Integer);
 var
-  HashValue: Integer;
+  HashValue: Integer = 0;
 begin
   HashValue := KeyHash(PChar(AKeyword));
   FKeywords[HashValue] := TSynHashEntry.Create(AKeyword, AKind);
@@ -463,7 +463,7 @@ end;
 
 function TSynZ80Syn.GetToken: String;
 var
-  Len: LongInt;
+  Len: LongInt = 0;
 begin
   Len := Run - FTokenPos;
   SetString(Result, (FLine + FTokenPos), Len);

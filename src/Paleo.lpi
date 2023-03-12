@@ -22,9 +22,9 @@
     <VersionInfo>
       <UseVersionInfo Value="True"/>
       <MinorVersionNr Value="1"/>
-      <RevisionNr Value="3"/>
+      <RevisionNr Value="4"/>
       <Attributes pvaPreRelease="True"/>
-      <StringTable Comments="Developed in Lazarus 2.2.2 with FPC 3.2.2" CompanyName="https://homebrew.computer" FileDescription="Paleo Editor for RomWBW Development" InternalName="PaleoEditor.exe" LegalCopyright="Copyright ©2022 Steve García" LegalTrademarks="Licensed by GNU GPL V3" ProductName="Paleo Editor" ProductVersion="0.1.2 Pre-Release"/>
+      <StringTable Comments="Developed in Lazarus 2.2.2 with FPC 3.2.2" CompanyName="https://homebrew.computer" FileDescription="Paleo Editor for RomWBW Development" InternalName="PaleoEditor.exe" LegalCopyright="Copyright ©2022 Steve García" LegalTrademarks="Licensed by GNU GPL V3" ProductName="Paleo Editor" ProductVersion="0.1.4 Pre-Release"/>
     </VersionInfo>
     <BuildModes>
       <Item Name="Default" Default="True"/>
@@ -53,10 +53,15 @@
               <StackChecks Value="True"/>
             </Checks>
             <VerifyObjMethodCallValidity Value="True"/>
+            <TargetCPU Value="i386"/>
+            <TargetOS Value="win32"/>
+            <Optimizations>
+              <OptimizationLevel Value="0"/>
+            </Optimizations>
           </CodeGeneration>
           <Linking>
             <Debugging>
-              <DebugInfoType Value="dsDwarf3"/>
+              <DebugInfoType Value="dsDwarf2"/>
               <UseHeaptrc Value="True"/>
               <TrashVariables Value="True"/>
               <UseExternalDbgSyms Value="True"/>
@@ -124,6 +129,8 @@
           </Parsing>
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
+            <TargetCPU Value="x86_64"/>
+            <TargetOS Value="win64"/>
             <Optimizations>
               <OptimizationLevel Value="3"/>
             </Optimizations>
@@ -139,6 +146,11 @@
               </Win32>
             </Options>
           </Linking>
+          <Other>
+            <CompilerMessages>
+              <IgnoredMessages idx11031="True" idx11030="True" idx6058="True"/>
+            </CompilerMessages>
+          </Other>
         </CompilerOptions>
       </Item>
     </BuildModes>
@@ -345,6 +357,10 @@
         <SyntaxMode Value="Delphi"/>
       </SyntaxOptions>
     </Parsing>
+    <CodeGeneration>
+      <TargetCPU Value="i386"/>
+      <TargetOS Value="win32"/>
+    </CodeGeneration>
     <Linking>
       <Debugging>
         <DebugInfoType Value="dsDwarf3"/>
@@ -356,6 +372,11 @@
         </Win32>
       </Options>
     </Linking>
+    <Other>
+      <CompilerMessages>
+        <IgnoredMessages idx11031="True" idx11030="True" idx6058="True"/>
+      </CompilerMessages>
+    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions>

@@ -1,6 +1,6 @@
 unit DirMonitors;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit DirMonitors;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -307,14 +307,14 @@ type
 const
   BUFFER_SIZE = 65536;
 var
-  WaitResult: DWORD;
-  BytesRead: DWORD;
+  WaitResult: DWORD = 0;
+  BytesRead: DWORD = 0;
   Info: PFileNotifyInformation;
   Buffer: array [0 .. BUFFER_SIZE - 1] of byte;
   Events: array [0 .. 1] of THandle;
   Overlap: TOverlapped;
   Action: TDirMonitorAction;
-  FileName: TFileName;
+  FileName: TFileName = '';
 
   function IsDuplicate(Action: TDirMonitorAction; const FileNam: TFileName): Boolean;
   var

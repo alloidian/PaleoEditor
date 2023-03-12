@@ -1,6 +1,6 @@
 unit ProjectConfigs;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit ProjectConfigs;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -95,7 +95,7 @@ function TProjectConfigFrame.GetIsModified: Boolean;
 const
   COLORS: array[Boolean] of TColor = (clRed, clDefault);
 var
-  Temp: String;
+  Temp: String = '';
 begin
   Temp := ToolFolderName;
   ToolFolderNameEdit.Font.Color := COLORS[DirectoryExists(Temp)];
