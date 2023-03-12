@@ -44,6 +44,7 @@ type
     CloseUnmodifiedFilesAction: TAction;
     RevertFileAction: TAction;
     DeleteFolderAction: TAction;
+    CopyFileAction: TAction;
     AssembleAction: TAction;
     ExecuteCommandAction: TAction;
     LaunchExecuteAction: TAction;
@@ -92,6 +93,7 @@ type
     FileCloseUnmodifiedMenu: TMenuItem;
     FileRevertMenu: TMenuItem;
     FileDeleteFileMenu: TMenuItem;
+    CopyFileMenu: TMenuItem;
     ExecuteSeparator: TMenuItem;
     FileAssembleMenu: TMenuItem;
     FileExecuteMenu: TMenuItem;
@@ -192,6 +194,8 @@ type
     procedure RevertActionUpdate(Sender: TObject);
     procedure DeleteFolderActionExecute(Sender: TObject);
     procedure DeleteFolderActionUpdate(Sender: TObject);
+    procedure CopyFileActionExecute(Sender: TObject);
+    procedure CopyFileActionUpdate(Sender: TObject);
     procedure AssembleActionExecute(Sender: TObject);
     procedure AssembleActionUpdate(Sender: TObject);
     procedure ExecuteCommandActionExecute(Sender: TObject);
@@ -312,6 +316,7 @@ type
     procedure CheckIfModified(Node: TTreeNode);
   public
     procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); virtual; abstract;
+    procedure CloseAll;
     procedure Idle;
     procedure RefreshConfig;
     property Filter: String read GetFilter write SetFilter;
@@ -1030,6 +1035,48 @@ begin
     Action.Hint := Format('Delete the ''%s'' %s.', [Node.LogicalName, NAMES[Node.Kind]])
   else
     Action.Hint := 'Cannot delete an invalid node.';
+end;
+
+procedure TCustomWorkForm.CopyFileActionExecute(Sender: TObject);
+const
+  MASK = 'A:\%s';
+var
+  OldCursor: TCursor;
+  Node: TTreeNode;
+  FileName: TFileName = '';
+begin
+  OldCursor := Screen.Cursor;
+  Screen.Cursor := crHourglass;
+  try
+    Node := Navigator.Selected;
+    FileName := Format(MASK, [ExtractFileName(Node.FullName)]);
+    if FileExists(FileName) then
+      SysUtils.DeleteFile(FileName);
+    CopyFile(Node.FullName, FileName);
+  finally
+    Screen.Cursor := OldCursor;
+  end;
+end;
+
+procedure TCustomWorkForm.CopyFileActionUpdate(Sender: TObject);
+const
+  DRIVE_A = 1;
+var
+  Action: TAction;
+  OldErrorMode: Word = 0;
+  DriveList: DWORD = 0;
+begin
+  Action := Sender as TAction;
+  DriveList := GetLogicalDrives;
+  Action.Enabled := DriveList and DRIVE_A > 0;
+  if Action.Enabled then begin
+    OldErrorMode := SetErrorMode(SEM_FailCriticalErrors);
+    try
+      Action.Enabled := DirectoryExists('A:\');
+    finally
+      SetErrorMode(OldErrorMode);
+    end;
+  end;
 end;
 
 procedure TCustomWorkForm.AssembleActionExecute(Sender: TObject);
@@ -2176,6 +2223,11 @@ begin
       end;
     Node.IsFileModified := False;
   end;
+end;
+
+procedure TCustomWorkForm.CloseAll;
+begin
+  CloseAllFileAction.Execute;
 end;
 
 procedure TCustomWorkForm.Idle;

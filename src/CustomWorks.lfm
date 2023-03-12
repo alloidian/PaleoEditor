@@ -480,6 +480,11 @@ object CustomWorkForm: TCustomWorkForm
       OnExecute = DeleteFolderActionExecute
       OnUpdate = DeleteFolderActionUpdate
     end
+    object CopyFileAction: TAction
+      Caption = 'Copy File to A:'
+      OnExecute = CopyFileActionExecute
+      OnUpdate = CopyFileActionUpdate
+    end
     object ExpandAllAction: TAction
       Caption = '&Expand All'
       Hint = 'Expand all branches.'
@@ -688,6 +693,12 @@ object CustomWorkForm: TCustomWorkForm
     end
     object NavigatorDeleteMenu: TMenuItem
       Action = DeleteFolderAction
+    end
+    object UploadSeparator: TMenuItem
+      Caption = '-'
+    end
+    object CopyFileMenu: TMenuItem
+      Action = CopyFileAction
     end
     object LaunchSeparator: TMenuItem
       Caption = '-'
