@@ -20,8 +20,9 @@ unit SyntaxEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, Graphics, Dialogs, Menus, ActnList, StdActns,
-  CustomEditors, SynEdit, SynEditHighlighter, SynExportHTML, SynCompletion, SynMacroRecorder, SynEditKeyCmds;
+  Classes, SysUtils, Forms, Controls, ComCtrls, Graphics, Dialogs, Menus, ActnList,
+  StdActns, PrintersDlgs, CustomEditors, SynEdit, SynEditHighlighter, SynExportHTML,
+  SynCompletion, SynMacroRecorder, SynEditKeyCmds;
 
 type
 
@@ -71,6 +72,7 @@ type
     procedure Save; override;
     procedure SaveAs(const FileName: TFileName); override;
     procedure ExportFile(const FileName: TFileName); override;
+    procedure PrintFile(Dialog: TPrintDialog); override;
     procedure Revert; override;
     function Search(const Criteria: String; First, Backwards, MatchCase,
       MatchWholeWordOnly: Boolean): Boolean; override;
@@ -88,7 +90,7 @@ implementation
 {$R *.lfm}
 
 uses
-  StrUtils, SynEditTypes, SynHighlighterBat, SynHighlighterZ80, SynHighlighterSpin,
+  StrUtils, Printers, SynEditTypes, SynHighlighterBat, SynHighlighterZ80, SynHighlighterSpin,
   SynHighlighterVB, SynHighlighterPas, Utils, Configs;
 
 { TSyntaxEditorFrame }
@@ -334,6 +336,36 @@ begin
   ExporterHTML.SaveToFile(FileName);
 end;
 
+procedure TSyntaxEditorFrame.PrintFile(Dialog: TPrintDialog);
+var
+  YPos: Integer;
+  LineHeight: Integer;
+  HorizontalMargin: Integer;
+  VerticalMargin: Integer;
+  Line: string;
+begin
+  Printer.BeginDoc;
+  try
+    Printer.Canvas.Font.Name := 'Courier New';
+    Printer.Canvas.Font.Size := 10;
+    Printer.Canvas.Font.Color := clBlack;
+    LineHeight := Round(1.2 * Abs(Printer.Canvas.TextHeight('I')));
+    VerticalMargin:= 4 * LineHeight;
+    HorizontalMargin := VerticalMargin;
+    YPos := VerticalMargin;
+    for Line in Editor.Lines do begin
+      Printer.Canvas.TextOut(HorizontalMargin, YPos, Line);
+      Inc(YPos, LineHeight);
+      if YPos > Printer.PageHeight - VerticalMargin then begin
+        YPos := VerticalMargin;
+        Printer.NewPage;
+      end;
+    end;
+  finally
+    Printer.EndDoc;
+  end;
+end;
+
 procedure TSyntaxEditorFrame.Revert;
 begin
   Editor.Lines.LoadFromFile(FFileName);
@@ -376,6 +408,8 @@ procedure TSyntaxEditorFrame.GotoLine(LineNumber: Integer);
 begin
   Editor.CaretX := 1;
   Editor.CaretY := LineNumber;
+  if Editor.CanFocus then
+    Editor.SetFocus;
 end;
 
 function TSyntaxEditorFrame.LineNumber: Integer;
@@ -401,7 +435,6 @@ var
     Token := EmptyStr;
     Result := Line.Trim.Length > 0;
     if Result then begin
-      I := 1;
       Ch := Line[I];
       Result := Ch in ALPHAS;
       if Result then begin

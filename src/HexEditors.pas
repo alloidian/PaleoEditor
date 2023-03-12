@@ -20,7 +20,8 @@ unit HexEditors;
 interface
 
 uses
-  Classes, SysUtils, Controls, Dialogs, CustomEditors, MPHexEditorEx, ComCtrls;
+  Classes, SysUtils, Controls, Dialogs, PrintersDlgs, CustomEditors, MPHexEditorEx,
+  ComCtrls;
 
 type
 
@@ -43,6 +44,7 @@ type
     procedure Save; override;
     procedure SaveAs(const FileName: TFileName); override;
     procedure ExportFile(const FileName: TFileName); override;
+    procedure PrintFile(Dialog: TPrintDialog); override;
     procedure Revert; override;
     function Search(const Criteria: String; First, Backwards, MatchCase,
       MatchWholeWordOnly: Boolean): Boolean; override;
@@ -141,6 +143,11 @@ begin
   ShowMessage(UNIMPLEMENTED_PROMPT);
 end;
 
+procedure THexEditorFrame.PrintFile(Dialog: TPrintDialog);
+begin
+  ShowMessage(UNIMPLEMENTED_PROMPT);
+end;
+
 procedure THexEditorFrame.Revert;
 begin
   Editor.LoadFromFile(FFileName);
@@ -190,11 +197,8 @@ var
 begin
   Criteria := Editor.PrepareFindReplaceData(Criteria, not MatchCase, True);
   Replacement := Editor.PrepareFindReplaceData(Replacement, False, True);
-  if All then
-    Position := 0
-  else
+  if not All then
     Position := Max(0, Editor.GetCursorPos);
-  Count := 0;
   if (Length(Criteria) mod Editor.BytesPerUnit) <> 0 then begin
     Log('Size of data to search for must be a multiple of Bytes per unit');
     Exit;
@@ -226,6 +230,8 @@ end;
 procedure THexEditorFrame.GotoLine(LineNumber: Integer);
 begin
   Editor.Row := LineNumber + 1;
+  if Editor.CanFocus then
+    Editor.SetFocus;
 end;
 
 function THexEditorFrame.LineNumber: Integer;

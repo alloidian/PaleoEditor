@@ -298,7 +298,6 @@ var
   IsImage: Boolean = False;
   Item: TMenuItem;
 begin
-  Found := False;
   for Item in ProjectOpenRecentMenu do
     if AnsiSameText(Item.Caption, FolderName) then begin
       Found := True;

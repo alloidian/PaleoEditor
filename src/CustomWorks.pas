@@ -959,7 +959,6 @@ var
   Temp: Boolean = False;
   I: Integer = 0;
 begin
-  Temp := False;
   for I := 0 to WorkPages.PageCount - 1 do
     if not WorkPages.Pages[I].Editor.IsModified then begin
       Temp := True;
@@ -1092,9 +1091,7 @@ begin
   if FConfigs.HasAssembler then begin
     Node := Navigator.Selected;
     if Assigned(Node) then begin
-      Parameters := EmptyStr;
       Platform := apZ80;
-      UpdateSymbols := False;
       if AssembleFile(Node, Parameters, Platform, UpdateSymbols) then begin
         if not StatusPages.Visible then
           SetStatusVisible(True);
@@ -1156,7 +1153,6 @@ var
 begin
   Node := Navigator.Selected;
   if Assigned(Node) then
-    Parameters := EmptyStr;
     if ExecuteFile(Node, Parameters) then begin
       if not StatusPages.Visible then
         SetStatusVisible(True);
@@ -1396,15 +1392,20 @@ end;
 
 procedure TCustomWorkForm.FilePrintActionExecute(Sender: TObject);
 var
+  Editor: TCustomEditorFrame;
   Dialog: TPrintDialog;
 begin
-  Dialog := TPrintDialog.Create(nil);
-  try
-    Dialog.Title := 'Print File';
-    if Dialog.Execute then
-      ShowMessage(UNIMPLEMENTED_PROMPT);
-  finally
-    Dialog.Free;
+  Editor := ActiveEditor;
+  if Assigned(Editor) then begin
+    Dialog := TPrintDialog.Create(nil);
+    try
+      Dialog.Title := 'Print File';
+      Dialog.Options := [poPageNums, poSelection, poDisablePrintToFile];
+      if Dialog.Execute then
+        Editor.PrintFile(Dialog);
+    finally
+      Dialog.Free;
+    end;
   end;
 end;
 
@@ -2271,7 +2272,6 @@ var
   MayContinue: Boolean = True;
   Node: TTreeNode;
 begin
-  MayContinue := True;
   Node := Navigator.TopItem;
   while Assigned(Node) and MayContinue do begin
     if Node.Kind = pkFile then

@@ -20,7 +20,7 @@ unit CustomEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, Utils, Searches;
+  Classes, SysUtils, Forms, Controls, ComCtrls, PrintersDlgs, Utils, Searches;
 
 type
   TGlobalSearchEvent = procedure(Sender: TObject; const Criteria, Filter: String;
@@ -63,6 +63,7 @@ type
     procedure Save; virtual; abstract;
     procedure SaveAs(const FileName: TFileName); virtual; abstract;
     procedure ExportFile(const FileName: TFileName); virtual; abstract;
+    procedure PrintFile(Dialog: TPrintDialog); virtual; abstract;
     procedure Revert; virtual; abstract;
     function Search(const Criteria: String; First, Backwards, MatchCase,
       MatchWholeWordOnly: Boolean): Boolean; virtual; abstract;
