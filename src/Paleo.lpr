@@ -25,6 +25,7 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
+  {$IFDEF DEBUG} SysUtils, {$ENDIF}
   Forms, printer4lazarus, lazcontrols, Main, Configs, CustomWorks, Searches,
   CustomEditors, Utils, SyntaxEditors, Executions, HexEditors, Actions, Abouts,
   SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
@@ -33,7 +34,17 @@ uses
 
 {$R *.res}
 
+{$IFDEF DEBUG}
+const
+  MEMORY_LOG_FILENAME = 'heap.trc';
+{$ENDIF}
+
 begin
+{$IFDEF DEBUG}
+  if FileExists(MEMORY_LOG_FILENAME) then
+    DeleteFile(MEMORY_LOG_FILENAME);
+  SetHeapTraceOutput(MEMORY_LOG_FILENAME);
+{$ENDIF}
   RequireDerivedFormResource := True;
   Application.Title:='Paleo Editor';
   Application.Scaled:=True;

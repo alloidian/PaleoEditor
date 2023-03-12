@@ -57,8 +57,10 @@ type
   end;
 
   TTreeNodeCache = class(TObject)
+  private type
+    TTreeNodeList = TObjectList<TTreeNode>;
   private
-    FList: TList;
+    FList: TTreeNodeList;
   protected
     function GetNode(Level: Integer): TTreeNode;
   public
@@ -89,7 +91,7 @@ type
 
   TItinerary = class(TObject)
   private type
-    TStopOvers = TList<TStop>;
+    TStopOvers = TObjectList<TStop>;
   private
     FList: TStopOvers;
     FIndex: Integer;
@@ -263,7 +265,7 @@ end;
 constructor TTreeNodeCache.Create;
 begin
   inherited Create;
-  FList := TList.Create;
+  FList := TTreeNodeList.Create(False);
 end;
 
 destructor TTreeNodeCache.Destroy;
@@ -274,12 +276,12 @@ end;
 
 function TTreeNodeCache.GetNode(Level: Integer): TTreeNode;
 begin
-  Result := TTreeNode(FList[Level]);
+  Result := FList[Level];
 end;
 
 procedure TTreeNodeCache.Add(Node: TTreeNode);
 begin
-  FList.Add(Pointer(Node));
+  FList.Add(Node);
 end;
 
 { TIntegerObject }
@@ -317,7 +319,7 @@ end;
 constructor TItinerary.Create;
 begin
   inherited Create;
-  FList := TStopOvers.Create;
+  FList := TStopOvers.Create(True);
   FIndex := -1;
 end;
 

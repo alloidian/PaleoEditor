@@ -83,9 +83,9 @@ type
 
   TAttributes = class(TObject)
   private type
-    TList = TDictionary<TAttributeType, TAttribute>;
+    TAttributeList = TObjectDictionary<TAttributeType, TAttribute>;
   private
-    FList: TList;
+    FList: TAttributeList;
   protected
     function GetCount: Integer;
     function GetItems(Attr: TAttributeType): TAttribute;
@@ -366,7 +366,7 @@ var
   Attribute: TAttribute;
 begin
   inherited Create;
-  FList := TList.Create;
+  FList := TAttributeList.Create([doOwnsValues]);
   for Attr := Low(Attr) to High(Attr) do begin
     Config := ATTRIBUTE_CONFIGS[Attr];
     Attribute := TAttribute.Create(Attr, Config.StorageName);

@@ -20,7 +20,7 @@ unit ProjectWorks;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, Dialogs, Menus, CustomWorks;
+  Classes, SysUtils, Forms, Controls, ComCtrls, Contnrs, Dialogs, Menus, CustomWorks;
 
 type
 
@@ -60,7 +60,7 @@ type
         property MayInsert: Boolean read FMayInsert write FMayInsert;
       end;
     private
-      FList: TList;
+      FList: TObjectList;
     protected
       function GetCount: Integer;
       function GetItems(I: Integer): TModule;
@@ -296,7 +296,7 @@ end;
 constructor TListParser.TModules.Create;
 begin
   inherited Create;
-  FList := TList.Create;
+  FList := TObjectList.Create;
 end;
 
 destructor TListParser.TModules.Destroy;
@@ -320,7 +320,7 @@ end;
 
 procedure TListParser.TModules.Add(const Text: String);
 begin
-  FList.Add(Pointer(TModule.Create(Text)));
+  FList.Add(TModule.Create(Text));
 end;
 
 procedure TListParser.TModules.Resolve;
@@ -347,7 +347,7 @@ begin
   Temp := TStringList.Create;
   try
     for I := 0 to FList.Count - 1 do begin
-      Module := FList[I];
+      Module := TModule(FList[I]);
       Temp.Add(Format(MASK, [Module.ModuleName, Module.Level, BoolToStr(Module.MayInsert, True)]));
     end;
     Temp.SaveToFile(FileName);

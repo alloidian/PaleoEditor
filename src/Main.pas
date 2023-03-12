@@ -87,6 +87,7 @@ type
     procedure OpenWorkspace(const FolderName: TFileName);
     procedure OpenListing(const FolderName: TFileName);
     procedure AddProject(const FolderName: TFileName);
+    procedure CloseAllProjects;
     function GetActiveProject: TCustomWorkForm;
   protected
     procedure RefreshConfig;
@@ -151,7 +152,7 @@ end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
-  CloseAllProjectAction.Execute;
+  CloseAllProjects;
 end;
 
 procedure TMainForm.AppIdle(Sender: TObject; var Done: Boolean);
@@ -246,11 +247,8 @@ begin
 end;
 
 procedure TMainForm.CloseAllProjectActionExecute(Sender: TObject);
-var
-  I: Integer = 0;
 begin
- for I := MDIChildCount - 1 downto 0 do
-   MDIChildren[I].Free;
+  CloseAllProjects;
 end;
 
 procedure TMainForm.CloseAllProjectActionUpdate(Sender: TObject);
@@ -319,6 +317,20 @@ begin
     Item.OnClick := FileOpenRecentMenuClick;
     ProjectOpenRecentMenu.Insert(0, Item);
   end;
+end;
+
+procedure TMainForm.CloseAllProjects;
+var
+  I: Integer = 0;
+  Form: TCustomForm;
+begin
+ for I := MDIChildCount - 1 downto 0 do begin
+   Form := MDIChildren[I];
+   if Form is TCustomWorkForm then
+     TCustomWorkForm(Form).CloseAllFileAction.Execute;
+   Form.Close;
+   Form.Free;
+ end;
 end;
 
 function TMainForm.GetActiveProject: TCustomWorkForm;
