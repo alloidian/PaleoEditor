@@ -20,7 +20,7 @@ unit CustomEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, Searches;
+  Classes, SysUtils, Forms, Controls, ComCtrls, Utils, Searches;
 
 type
   TGlobalSearchEvent = procedure(Sender: TObject; const Criteria, Filter: String;
@@ -87,8 +87,10 @@ type
   TTabSheetHelper = class helper for TTabSheet
   private
     function GetEditor: TCustomEditorFrame;
+    function GetStatus: TTreeNodeStatus;
   public
     property Editor: TCustomEditorFrame read GetEditor;
+    property Status: TTreeNodeStatus read GetStatus;
   end;
 
 implementation
@@ -96,7 +98,7 @@ implementation
 {$R *.lfm}
 
 uses
-  StrUtils, Utils, Configs;
+  StrUtils, Configs;
 
 const
   OVERWRITE_PANEL = 0;
@@ -156,11 +158,13 @@ const
 begin
   StatusBar.Panels[MODIFIED_PANEL].Text := CAPTIONS[Value];
   if Assigned(FPage) then
-    if not Value then
-      FPage.Caption := AnsiReplaceText(FPage.Caption, TOKEN, EmptyStr)
-    else
-      if not AnsiStartsText(TOKEN, FPage.Caption) then
-        FPage.Caption := TOKEN + FPage.Caption;
+    if Value then begin
+      FPage.ImageIndex := STATUS_MODIFIED_INDEX;
+      FPage.Editor.Node.Status := tnsModified; end
+    else begin
+      FPage.ImageIndex := FPage.Editor.Node.ImageIndex;
+      FPage.Editor.Node.Status := tnsUnmodified;
+    end;
 end;
 
 function TCustomEditorFrame.GetLogicalName: TFileName;
@@ -220,6 +224,20 @@ begin
       Break;
     end;
   end;
+end;
+
+function TTabSheetHelper.GetStatus: TTreeNodeStatus;
+var
+  Temp: TCustomEditorFrame;
+begin
+  Temp := Self.Editor;
+  if not Assigned(Temp) then
+    Result := tnsUnattached
+  else
+    if Temp.IsModified then
+      Result := tnsModified
+    else
+      Result := tnsUnmodified;
 end;
 
 end.

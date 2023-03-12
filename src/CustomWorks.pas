@@ -530,8 +530,10 @@ begin
     for I := 0 to Temp.Count - 1 do begin
       ProjectName := Temp.Names[I];
       Node := SearchNode(ProjectName);
-      if Assigned(Node) then
+      if Assigned(Node) then begin
         Node.Page := OpenFile(Node);
+        Node.Status := Node.Page.Status;
+      end;
     end;
   finally
     Temp.Free;
@@ -704,6 +706,7 @@ begin
           WorkPages.ActivePage := Node.Page
         else begin
           Node.Page := OpenFile(Node);
+          Node.Status := Node.Page.Status;
           FItinerary.Post(Node, 1);
         end;
     end;
@@ -1832,6 +1835,7 @@ begin
         end
         else begin
           Node.Page := OpenFile(Node);
+          Node.Status := Node.Page.Status;
           FItinerary.Post(Node, 1);
         end;
     end;
@@ -1844,7 +1848,7 @@ begin
   Result := TTabSheet.Create(WorkPages);
   Result.Caption := Node.ShortName;
   Result.PageControl := WorkPages;
-  Result.ImageIndex := 2;
+  Result.ImageIndex := Node.ImageIndex;
   if Config.IsEditableFile(Node.ShortName) then
     Editor := TSyntaxEditorFrame.Create(Result)
   else

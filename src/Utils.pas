@@ -20,7 +20,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, ComCtrls, Generics.Collections, SynEditHighlighter, ConfigUtils;
+  Classes, SysUtils, ComCtrls, StdCtrls, Generics.Collections, SynEditHighlighter, ConfigUtils;
 
 const
   IMAGE_INDEX: array[Boolean] of Integer = (0, 1);
@@ -129,9 +129,12 @@ type
 { TTreeNodeHelper }
 
 type
+  TTreeNodeStatus = (tnsUnattached, tnsUnmodified, tnsModified);
   TTreeNodeHelper = class helper for TTreeNode
   private
     function GetKind: TFileAttribute.TPropertyKind;
+    function GetStatus: TTreeNodeStatus;
+    procedure SetStatus(Value: TTreeNodeStatus);
     function GetShortName: TFileName;
     function GetLogicalName: TFileName;
     function GetFullName: TFileName;
@@ -146,6 +149,7 @@ type
     procedure RenameFolder(const Name: TFileName);
     procedure RenameFile(const Name: TFileName);
     property Kind: TFileAttribute.TPropertyKind read GetKind;
+    property Status: TTreeNodeStatus read GetStatus write SetStatus;
     property ShortName: TFileName read GetShortName;
     property LogicalName: TFileName read GetLogicalName;
     property FullName: TFileName read GetFullName;
@@ -154,6 +158,16 @@ type
     property IsExecutable: Boolean read GetIsExecutable;
     property IsAssemblable: Boolean read GetIsAssemblable;
     property HasStructure: Boolean read GetHasStructure;
+  end;
+
+{ TComboBoxHelper }
+
+  TComboBoxHelper = class helper for TComboBox
+  private
+    function GetAsInteger(I: Integer): Integer;
+    procedure SetAsInteger(I: Integer; Value: Integer);
+  public
+    property AsInteger[I: Integer]: Integer read GetAsInteger write SetAsInteger;
   end;
 
 { TSynCustomHighlighterHelper}
@@ -418,6 +432,36 @@ begin
     Result := pkUnknown;
 end;
 
+function TTreeNodeHelper.GetStatus: TTreeNodeStatus;
+begin
+  if not Assigned(self.Page) then
+    Result := tnsUnattached
+  else
+    case Self.StateIndex of
+      STATUS_UNMODIFIED_INDEX:
+        Result := tnsUnmodified;
+      STATUS_MODIFIED_INDEX:
+        Result := tnsModified;
+    else
+      Result := tnsUnattached;
+    end;
+end;
+
+procedure TTreeNodeHelper.SetStatus(Value: TTreeNodeStatus);
+begin
+  if not Assigned(Page) then
+    Self.StateIndex := STATUS_UNATTACHED_INDEX
+  else
+    case Value of
+      tnsUnattached:
+        Self.StateIndex := STATUS_UNATTACHED_INDEX;
+      tnsUnmodified:
+        Self.StateIndex := STATUS_UNMODIFIED_INDEX;
+      tnsModified:
+        Self.StateIndex := STATUS_MODIFIED_INDEX;
+    end;
+end;
+
 function TTreeNodeHelper.GetShortName: TFileName;
 begin
   if Assigned(Data) then
@@ -466,8 +510,11 @@ end;
 
 procedure TTreeNodeHelper.SetPage(Value: TTabSheet);
 begin
-  if Assigned(Data) then
+  if Assigned(Data) then begin
     TFileAttribute(Data).Page := Value;
+    if not Assigned(Value) then
+      Status := tnsUnattached;
+  end;
 end;
 
 function TTreeNodeHelper.GetIsExecutable: Boolean;
@@ -521,6 +568,22 @@ begin
     Attribute := TFileAttribute(Data);
     Attribute.RenameFile(Name);
   end;
+end;
+
+{ TComboBoxHelper }
+
+function TComboBoxHelper.GetAsInteger(I: Integer): Integer;
+begin
+  if (I > -1) and (I < Items.Count) then
+    Result := Integer(Items.Objects[I])
+  else
+    Result := -1;
+end;
+
+procedure TComboBoxHelper.SetAsInteger(I: Integer; Value: Integer);
+begin
+  if (I > -1) and (I < Items.Count) then
+    Items.Objects[I] := TObject(Value);
 end;
 
 { TSynPaleoHighligher }

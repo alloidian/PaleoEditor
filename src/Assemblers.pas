@@ -54,9 +54,6 @@ type
     property SupportDebugZ: Boolean read GetSupportDebugZ write SetSupportDebugZ;
   end;
 
-var
-  AssemblerForm: TAssemblerForm;
-
 function AssembleFile(Node: TTreeNode; var Parameters: String; var Platform: TAssemblerPlatform;
   var UpdateSymbols: Boolean): Boolean;
 

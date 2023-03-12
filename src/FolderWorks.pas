@@ -96,8 +96,9 @@ procedure TFolderWorkForm.RefreshView;
         for Name in Files do begin
           Attribute := TFileAttribute.CreateFile(Name, FFolderName);
           Node := Navigator.Items.AddChild(Parent, Attribute.ShortName);
-              Node.ImageIndex := WHITE_DOCUMENT_INDEX;
-              Node.SelectedIndex := BLACK_DOCUMENT_INDEX;
+          Node.ImageIndex := WHITE_DOCUMENT_INDEX;
+          Node.SelectedIndex := BLACK_DOCUMENT_INDEX;
+          Node.StateIndex := STATUS_UNATTACHED_INDEX;
           Node.Data := Attribute;
           LinkPage(Node);
         end;
