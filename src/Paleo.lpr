@@ -30,7 +30,7 @@ uses
   CustomEditors, Utils, SyntaxEditors, Executions, HexEditors, Actions, Abouts,
   SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
   NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
-  DirMonitors, EditorConfigs, Assemblers, ProjectConfigs;
+  DirMonitors, EditorConfigs, Assemblers, ProjectConfigs, UnTerminal;
 
 {$R *.res}
 
