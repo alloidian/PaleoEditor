@@ -24,9 +24,22 @@ uses
 
 const
   IMAGE_INDEX: array[Boolean] of Integer = (0, 1);
-  UNIMPLEMENTED_PROMPT = 'This feature has not been implemented.';
-  MRU_MASK = 'Reopen the ''%s'' project.';
-  JUMP_MASK = 'Jump to the ''%s'' project.';
+  UNIMPLEMENTED_PROMPT      = 'This feature has not been implemented.';
+  MRU_MASK                  = 'Reopen the ''%s'' project.';
+  JUMP_MASK                 = 'Jump to the ''%s'' project.';
+  WHITE_CLOSED_FOLDER_INDEX = 0;
+  WHITE_OPENED_FOLDER_INDEX = 1;
+  WHITE_DOCUMENT_INDEX      = 2;
+  WHITE_FILE_INDEX          = 3;
+  BLACK_CLOSED_FOLDER_INDEX = 4;
+  BLACK_OPENED_FOLDER_INDEX = 5;
+  BLACK_DOCUMENT_INDEX      = 6;
+  BLACK_FILE_INDEX          = 7;
+  LEFT_ARROW_INDEX          = 8;
+  RIGHT_ARROW_INDEX         = 9;
+  STATUS_UNATTACHED_INDEX   = -1;
+  STATUS_UNMODIFIED_INDEX   = 10;
+  STATUS_MODIFIED_INDEX     = 11;
 
 type
   TFileAttribute = class(TObject)

@@ -83,8 +83,8 @@ procedure TFolderWorkForm.RefreshView;
         for Name in Files do begin
           Attribute := TFileAttribute.CreateFolder(Name);
           Node := Navigator.Items.AddChild(Parent, Attribute.ShortName);
-          Node.ImageIndex := 0;
-          Node.SelectedIndex := 4;
+          Node.ImageIndex := WHITE_CLOSED_FOLDER_INDEX;
+          Node.SelectedIndex := BLACK_OPENED_FOLDER_INDEX;
           Node.Data := Attribute;
           PopulateFolder(Node, Name);
         end;
@@ -96,8 +96,8 @@ procedure TFolderWorkForm.RefreshView;
         for Name in Files do begin
           Attribute := TFileAttribute.CreateFile(Name, FFolderName);
           Node := Navigator.Items.AddChild(Parent, Attribute.ShortName);
-          Node.ImageIndex := 2;
-          Node.SelectedIndex := 5;
+              Node.ImageIndex := WHITE_DOCUMENT_INDEX;
+              Node.SelectedIndex := BLACK_DOCUMENT_INDEX;
           Node.Data := Attribute;
           LinkPage(Node);
         end;

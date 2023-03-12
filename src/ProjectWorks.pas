@@ -265,22 +265,22 @@ begin
     try
       Attribute := TFileAttribute.CreateFile(FFileName, FProjectFolder);
       Child := View.Items.AddChild(nil, Attribute.ShortName);
-      Child.ImageIndex := 2;
-      Child.SelectedIndex := 5;
+      Child.ImageIndex := WHITE_DOCUMENT_INDEX;
+      Child.SelectedIndex := BLACK_DOCUMENT_INDEX ;
       Child.Data := Attribute;
       Stack.Add(Child);
       Attribute := TFileAttribute.CreateFile(ExtractDocFileName(FFileName), FProjectFolder);
       Child := View.Items.AddChild(nil, Attribute.ShortName);
-      Child.ImageIndex := 2;
-      Child.SelectedIndex := 5;
+      Child.ImageIndex := WHITE_DOCUMENT_INDEX;
+      Child.SelectedIndex := BLACK_DOCUMENT_INDEX;
       Child.Data := Attribute;
       Stack.Add(Child);
       for I := 0 to FList.Count - 1 do begin
         Module := FList[I];
         Attribute := TFileAttribute.CreateFile(FullPath(FHomeFolder, Module.ModuleName), FProjectFolder);
         Child := View.Items.AddChild(Stack.Node[Module.Level + 1], Attribute.ShortName);
-        Child.ImageIndex := 2;
-        Child.SelectedIndex := 5;
+        Child.ImageIndex := WHITE_DOCUMENT_INDEX;
+        Child.SelectedIndex := BLACK_DOCUMENT_INDEX ;
         Child.Data := Attribute;
         if Module.MayInsert then
           Stack.Add(Child);

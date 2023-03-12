@@ -657,8 +657,8 @@ begin
           ForceDirectories(FolderName);
         Attribute := TFileAttribute.CreateFolder(FolderName);
         Child := Navigator.Items.AddChildFirst(Node, Attribute.ShortName);
-        Child.ImageIndex := 0;
-        Child.SelectedIndex := 4;
+        Child.ImageIndex := WHITE_CLOSED_FOLDER_INDEX;
+        Child.SelectedIndex := BLACK_CLOSED_FOLDER_INDEX;
         Child.Data := Attribute;
       end;
       Node.Expand(False);
@@ -681,8 +681,8 @@ begin
         CloseHandle(FileCreate(FileName));
       Attribute := TFileAttribute.CreateFile(FileName, FFolderName);
       Child := Navigator.Items.AddChildFirst(Node, Attribute.ShortName);
-      Child.ImageIndex := 2;
-      Child.SelectedIndex := 5;
+      Child.ImageIndex := WHITE_DOCUMENT_INDEX;
+      Child.SelectedIndex := BLACK_DOCUMENT_INDEX;
       Child.Data := Attribute;
     end;
     Node.Expand(False);
