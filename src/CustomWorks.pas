@@ -149,6 +149,9 @@ type
     StatusPopupMenu: TPopupMenu;
     CloseStatusMenu: TMenuItem;
     ClearStatusMenu: TMenuItem;
+    NavigatorPanel: TPanel;
+    NavigatorFilterPanel: TPanel;
+    NavigatorFilterEdit: TEdit;
     Navigator: TTreeView;
     NavigatorSplitter: TSplitter;
     WorkPanel: TPanel;
@@ -166,6 +169,7 @@ type
     procedure IsFolderUpdate(Sender: TObject);
     procedure IsFileUpdate(Sender: TObject);
     procedure NavigatorActionUpdate(Sender: TObject);
+    procedure NavigatorFilterEditChange(Sender: TObject);
     procedure NewFolderActionExecute(Sender: TObject);
     procedure NewFileActionExecute(Sender: TObject);
     procedure OpenFileActionExecute(Sender: TObject);
@@ -258,11 +262,15 @@ type
   private
     FSearchFrame: TSearchFrame;
     FFindFileName: TFileName;
+    FFindWordCase: Boolean;
+    FFindWholeWord: Boolean;
     FFindNode: TTreeNode;
     FItinerary: TItinerary;
     FSymbolFileName: TFileName;
     function GetIsModified: Boolean;
     function GetIsAllModified: Boolean;
+    function GetFilter: String;
+    procedure SetFilter(const Value: String);
     function GetActiveEditor: TCustomEditorFrame;
     procedure SetSearchMethod(Method: TSearchBy);
     procedure SelectNode(Node: TTreeNode; LineNumber: Integer = 0);
@@ -278,7 +286,8 @@ type
     function FullPath(HomeFolder: String; FileName: String): String;
     function SearchNode(const FileName: TFileName): TTreeNode; overload;
     function SearchNode(Node: TTreeNode; const FileName: TFileName): TTreeNode; overload;
-    function FindFirstFile(const FileName: TFileName; Backwards: Boolean): Boolean;
+    function DoesFileMatch(Node: TTreeNode; const FileName: TFileName): Boolean;
+    function FindFirstFile(const FileName: TFileName; MatchCase: Boolean; WholeWord: Boolean; Backwards: Boolean): Boolean;
     function FindNextFile(Backwards: Boolean): Boolean;
     procedure SetNavigatorVisible(Value: Boolean);
     procedure SetStatusVisible(Value: Boolean);
@@ -305,6 +314,7 @@ type
     procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); virtual; abstract;
     procedure Idle;
     procedure RefreshConfig;
+    property Filter: String read GetFilter write SetFilter;
     property ActiveEditor: TCustomEditorFrame read GetActiveEditor;
     property Configs: TCustomConfig read FConfigs;
     property IsModified: Boolean read GetIsModified;
@@ -561,6 +571,74 @@ end;
 procedure TCustomWorkForm.NavigatorActionUpdate(Sender: TObject);
 begin
   (Sender as TAction).Enabled := Navigator.Items.Count > 0;
+end;
+
+procedure TCustomWorkForm.NavigatorFilterEditChange(Sender: TObject);
+var
+  Edit: TEdit;
+
+  procedure ClearFilter;
+  var
+    I: Integer;
+    Child: TTreeNode;
+  begin
+    for I := Navigator.Items.Count - 1 downto 0 do begin
+      Child := Navigator.Items[I];
+      Child.Visible := True;
+      if Assigned(Child.Page) then
+        Child.Page.TabVisible := True;
+    end;
+  end;
+
+  function HasVisibleChildren(Node: TTreeNode): Boolean;
+  var
+    I: Integer;
+    Child: TTreeNode;
+  begin
+    Result := False;
+    for I := 0 to Node.Count - 1 do begin
+      Child := Node.Items[I];
+      Result := Child.Visible;
+      if not Result then
+        Result := HasVisibleChildren(Child);
+      if Result then
+        Break;
+    end;
+  end;
+
+  procedure SetFilter(const Filter: String);
+  var
+    I: Integer;
+    Node: TTreeNode;
+    J: Integer;
+  begin
+    for I := Navigator.Items.Count - 1 downto 0 do begin
+      Node := Navigator.Items[I];
+      if Node.Kind in [pkUnknown, pkFolder] then begin
+        Node.Visible := HasVisibleChildren(Node);
+        if Node.Visible then
+          Node.Expand(True); end
+      else
+        if AnsiContainsText(Node.Text, Filter) then
+          Node.Visible := True
+        else
+          Node.Visible := HasVisibleChildren(Node);
+      if Assigned(Node.Page) then
+        Node.Page.TabVisible := Node.Visible;
+    end;
+  end;
+
+begin
+  Edit := Sender as TEdit;
+  Edit.ReadOnly := True;
+  try
+    if Filter.IsEmpty then
+      ClearFilter
+    else
+      SetFilter(Filter);
+  finally
+    Edit.ReadOnly := False;
+  end;
 end;
 
 procedure TCustomWorkForm.NewFolderActionExecute(Sender: TObject);
@@ -1536,7 +1614,7 @@ var
 begin
   if ForFile then
     if First then
-      WasFound := FindFirstFile(Criteria, Backwards)
+      WasFound := FindFirstFile(Criteria, MatchCase, MatchWholeWordOnly, Backwards)
     else
       WasFound := FindNextFile(Backwards)
   else begin
@@ -1713,6 +1791,16 @@ end;
 function TCustomWorkForm.GetIsAllModified: Boolean;
 begin
   Result := False;
+end;
+
+function TCustomWorkForm.GetFilter: String;
+begin
+  Result := NavigatorFilterEdit.Text;
+end;
+
+procedure TCustomWorkForm.SetFilter(const Value: String);
+begin
+  NavigatorFilterEdit.Text := Value;
 end;
 
 function TCustomWorkForm.GetActiveEditor: TCustomEditorFrame;
@@ -1912,11 +2000,27 @@ begin
       Result := SearchNode(Node.GetNext, FileName);
 end;
 
-function TCustomWorkForm.FindFirstFile(const FileName: TFileName; Backwards: Boolean): Boolean;
+function TCustomWorkForm.DoesFileMatch(Node: TTreeNode; const FileName: TFileName): Boolean;
+begin
+  if FFindWordCase then
+    if FFindWholeWord then
+      Result := AnsiSameStr(Node.ShortName, FileName)
+    else
+      Result := AnsiContainsStr(Node.ShortName, FileName)
+  else
+    if FFindWholeWord then
+      Result := AnsiSameText(Node.ShortName, FileName)
+    else
+      Result := AnsiContainsText(Node.ShortName, FileName);
+end;
+
+function TCustomWorkForm.FindFirstFile(const FileName: TFileName; MatchCase: Boolean; WholeWord: Boolean; Backwards: Boolean): Boolean;
 begin
   FFindFileName := FileName;
+  FFindWordCase := MatchCase;
+  FFindWholeWord := WholeWord;
   FFindNode := Navigator.TopItem;
-  Result := AnsiSameText(FFindNode.ShortName, FileName);
+  Result := DoesFileMatch(FFindNode, FileName);
   if Result then
     Navigator.Selected := FFindNode
   else
@@ -1935,6 +2039,8 @@ begin
       FFindNode := FFindNode.GetNext;
     if not Assigned(FFindNode) then begin
       FFindFileName :=  EmptyStr;
+      FFindWordCase := False;
+      FFindWholeWord := False;
       OldColor := Navigator.Color;
       Navigator.Color := clRed;
       try
@@ -1945,7 +2051,7 @@ begin
       end;
       Break;
     end;
-    Result := AnsiSameText(FFindNode.ShortName, FFindFileName);
+    Result := DoesFileMatch(FFindNode, FFindFileName);
     if Result then
       Navigator.Selected := FFindNode
   until Result or not Assigned(FFindNode);

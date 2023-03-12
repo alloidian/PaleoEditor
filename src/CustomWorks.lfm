@@ -22,7 +22,7 @@ object CustomWorkForm: TCustomWorkForm
   object StatusPages: TPageControl
     Left = 0
     Height = 104
-    Top = 358
+    Top = 378
     Width = 864
     ActivePage = MessagePage
     Align = alBottom
@@ -56,51 +56,84 @@ object CustomWorkForm: TCustomWorkForm
     Cursor = crVSplit
     Left = 0
     Height = 8
-    Top = 350
+    Top = 370
     Width = 864
     Align = alBottom
     ResizeAnchor = akBottom
     Visible = False
   end
-  object Navigator: TTreeView
+  object NavigatorPanel: TPanel
     Left = 0
-    Height = 350
+    Height = 370
     Top = 0
     Width = 160
     Align = alLeft
-    BorderStyle = bsNone
-    Constraints.MaxWidth = 500
-    Constraints.MinWidth = 160
-    Images = Images
-    PopupMenu = NavigatorPopupMenu
-    ReadOnly = True
-    RightClickSelect = True
+    BevelOuter = bvNone
+    ClientHeight = 370
+    ClientWidth = 160
     TabOrder = 2
-    OnAdvancedCustomDrawItem = NavigatorAdvancedCustomDrawItem
-    OnDblClick = NavigatorDblClick
-    OnDeletion = NavigatorDeletion
-    OnKeyPress = NavigatorKeyPress
-    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
+    object NavigatorFilterPanel: TPanel
+      Left = 0
+      Height = 32
+      Top = 0
+      Width = 160
+      Align = alTop
+      BevelOuter = bvNone
+      ClientHeight = 32
+      ClientWidth = 160
+      TabOrder = 0
+      object NavigatorFilterEdit: TEdit
+        Left = 5
+        Height = 23
+        Top = 4
+        Width = 140
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = NavigatorFilterEditChange
+        TabOrder = 0
+        TextHint = 'Enter Filter'
+      end
+    end
+    object Navigator: TTreeView
+      Left = 0
+      Height = 338
+      Top = 32
+      Width = 160
+      Align = alClient
+      BorderStyle = bsNone
+      Constraints.MaxWidth = 500
+      Constraints.MinWidth = 160
+      Images = Images
+      PopupMenu = NavigatorPopupMenu
+      ReadOnly = True
+      RightClickSelect = True
+      StateImages = Images
+      TabOrder = 1
+      OnAdvancedCustomDrawItem = NavigatorAdvancedCustomDrawItem
+      OnDblClick = NavigatorDblClick
+      OnDeletion = NavigatorDeletion
+      OnKeyPress = NavigatorKeyPress
+      Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
+    end
   end
   object NavigatorSplitter: TSplitter
     Left = 160
-    Height = 350
+    Height = 370
     Top = 0
     Width = 8
   end
   object WorkPanel: TPanel
     Left = 168
-    Height = 350
+    Height = 370
     Top = 0
     Width = 696
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 350
+    ClientHeight = 370
     ClientWidth = 696
     TabOrder = 4
     object SearchPanel: TPanel
       Left = 440
-      Height = 350
+      Height = 370
       Top = 0
       Width = 256
       Align = alRight
@@ -109,7 +142,7 @@ object CustomWorkForm: TCustomWorkForm
     end
     object WorkPages: TPageControl
       Left = 0
-      Height = 350
+      Height = 370
       Top = 0
       Width = 440
       Align = alClient
@@ -576,24 +609,28 @@ object CustomWorkForm: TCustomWorkForm
       Hint = 'Move the selected tab place position to the left.'
       OnExecute = MoveLeftActionExecute
       OnUpdate = MoveLeftActionUpdate
+      ShortCut = 32805
     end
     object MoveRightAction: TAction
       Caption = 'Move Tab Right'
       Hint = 'Move the selected file one position to the right.'
       OnExecute = MoveRightActionExecute
       OnUpdate = MoveRightActionUpdate
+      ShortCut = 32807
     end
     object MoveFarLeftAction: TAction
       Caption = 'Move Tab Far Left'
       Hint = 'Move the selected file to the extreme left.'
       OnExecute = MoveFarLeftActionExecute
       OnUpdate = MoveFarLeftActionUpdate
+      ShortCut = 40997
     end
     object MoveFarRightAction: TAction
       Caption = 'Move Tab Far Right'
       Hint = 'Move the selected file to the extreme right.'
       OnExecute = MoveFarRightActionExecute
       OnUpdate = MoveFarRightActionUpdate
+      ShortCut = 40999
     end
   end
   object NavigatorPopupMenu: TPopupMenu
