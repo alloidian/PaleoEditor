@@ -31,7 +31,8 @@ uses
   SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
   NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
   DirMonitors, EditorConfigs, Assemblers, ProjectConfigs, UnTerminal,
-  PackageEngines;
+  {$IFDEF TERMINAL} TerminalFrames, TerminalForms, TerminalConfigs, {$ENDIF}
+  Uploads, PackageEngines;
 
 {$R *.res}
 

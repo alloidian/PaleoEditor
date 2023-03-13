@@ -1,0 +1,92 @@
+object UploadForm: TUploadForm
+  Left = 2170
+  Height = 155
+  Top = 250
+  Width = 320
+  BorderIcons = []
+  BorderStyle = bsDialog
+  Caption = 'Upload File'
+  ClientHeight = 155
+  ClientWidth = 320
+  OnCreate = FormCreate
+  Position = poMainFormCenter
+  object FileNameLabel: TLabel
+    Left = 10
+    Height = 15
+    Top = 5
+    Width = 54
+    Caption = 'File name:'
+    FocusControl = FileNameEdit
+    ParentColor = False
+  end
+  object FileNameEdit: TFileNameEdit
+    Left = 10
+    Height = 23
+    Top = 20
+    Width = 300
+    FilterIndex = 0
+    HideDirectories = False
+    ButtonWidth = 23
+    NumGlyphs = 1
+    MaxLength = 0
+    TabOrder = 0
+  end
+  object UploadButton: TButton
+    Left = 140
+    Height = 25
+    Top = 120
+    Width = 75
+    Action = UploadAction
+    Default = True
+    TabOrder = 1
+  end
+  object CancelButton: TButton
+    Left = 235
+    Height = 25
+    Top = 120
+    Width = 75
+    Action = CancelAction
+    Cancel = True
+    TabOrder = 2
+  end
+  object TextFileEdit: TRadioButton
+    Left = 10
+    Height = 19
+    Top = 50
+    Width = 63
+    Caption = 'Text File'
+    TabOrder = 3
+  end
+  object DownloadFileEdit: TRadioButton
+    Left = 10
+    Height = 19
+    Top = 70
+    Width = 180
+    Caption = 'Prepare for DOWNLOAD.COM'
+    TabOrder = 4
+  end
+  object XModemFileEdit: TRadioButton
+    Left = 10
+    Height = 19
+    Top = 90
+    Width = 69
+    Caption = 'XModem'
+    TabOrder = 5
+  end
+  object ActionList: TActionList
+    Left = 264
+    Top = 56
+    object UploadAction: TAction
+      Caption = '&Upload'
+      Enabled = False
+      OnExecute = UploadActionExecute
+      OnUpdate = UploadActionUpdate
+    end
+    object CancelAction: TAction
+      Caption = 'Cancel'
+      Enabled = False
+      OnExecute = CancelActionExecute
+      OnUpdate = CancelActionUpdate
+    end
+  end
+end

@@ -26,6 +26,8 @@ uses
 
 type
   TIterateTreeNodeProc = procedure(Node: TTreeNode; var Continue: Boolean);
+  TQueryTerminalEvent = procedure(Sender: TObject; var IsTerminalAvailable: Boolean) of object;
+  TFileUploadEvent = procedure(Sender: TObject; const FileName: TFileName; var Successful: Boolean) of object;
 
   { TCustomWorkForm }
 
@@ -44,6 +46,7 @@ type
     CloseUnmodifiedFilesAction: TAction;
     RevertFileAction: TAction;
     DeleteFolderAction: TAction;
+    UploadFileAction: TAction;
     CopyFileAction: TAction;
     ChildAction: TAction;
     AssembleAction: TAction;
@@ -94,6 +97,8 @@ type
     FileCloseUnmodifiedMenu: TMenuItem;
     FileRevertMenu: TMenuItem;
     FileDeleteFileMenu: TMenuItem;
+    UploadSeparator: TMenuItem;
+    UploadFileMenu: TMenuItem;
     CopyFileMenu: TMenuItem;
     AddChildrenMenu: TMenuItem;
     ExecuteSeparator: TMenuItem;
@@ -196,6 +201,8 @@ type
     procedure RevertActionUpdate(Sender: TObject);
     procedure DeleteFolderActionExecute(Sender: TObject);
     procedure DeleteFolderActionUpdate(Sender: TObject);
+    procedure UploadFileActionExecute(Sender: TObject);
+    procedure UploadFileActionUpdate(Sender: TObject);
     procedure CopyFileActionExecute(Sender: TObject);
     procedure CopyFileActionUpdate(Sender: TObject);
     procedure ChildActionExecute(Sender: TObject);
@@ -275,6 +282,8 @@ type
     FFindNode: TTreeNode;
     FItinerary: TItinerary;
     FSymbolFileName: TFileName;
+    FOnTerminalQuery: TQueryTerminalEvent;
+    FOnFileUpload: TFileUploadEvent;
     function GetIsModified: Boolean;
     function GetIsAllModified: Boolean;
     function GetFilter: String;
@@ -316,6 +325,8 @@ type
     procedure DoFileEvent(Sender: TObject; Action: TDirMonitorAction;
       const FileName: TFileName); virtual;
     procedure DoExecuteComplete(Sender: TObject);
+    function DoUploadFile(const FileName: TFileName): Boolean;
+    function IsTerminalAvailable: Boolean;
     procedure FindIdentifier(Sender: TObject; const Criteria, Filter: String;
       MatchCase, MatchWholeWordOnly: Boolean);
     procedure RetrieveLabels(List: TStrings);
@@ -330,6 +341,9 @@ type
     property Configs: TCustomConfig read FConfigs;
     property IsModified: Boolean read GetIsModified;
     property IsAllModified: Boolean read GetIsAllModified;
+  published
+    property OnTerminalQuery: TQueryTerminalEvent read FOnTerminalQuery write FOnTerminalQuery;
+    property OnFileUpload: TFileUploadEvent read FOnFileUpload write FOnFileUpload;
   end;
 
   TNavigatorIterator = class(TObject)
@@ -494,6 +508,8 @@ begin
   FSearchFrame.SearchBy := sbNone;
   FItinerary := TItinerary.Create;
   FSymbolFileName := EmptyStr;
+  UploadSeparator.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
+  UploadFileAction.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
 end;
 
 procedure TCustomWorkForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -1060,6 +1076,31 @@ begin
     Action.Hint := Format('Delete the ''%s'' %s.', [Node.LogicalName, NAMES[Node.Kind]])
   else
     Action.Hint := 'Cannot delete an invalid node.';
+end;
+
+procedure TCustomWorkForm.UploadFileActionExecute(Sender: TObject);
+var
+  Node: TTreeNode;
+  FileName: TFileName;
+  WasSuccessful: Boolean;
+begin
+  if Assigned(FOnFileUpload) then begin
+    Node := Navigator.Selected;
+    if Assigned(Node) then begin
+      WasSuccessful := False;
+      FileName := Node.FullName;
+      if FileExists(FileName) then
+        FOnFileUpload(Self, FileName, WasSuccessful);
+    end;
+  end;
+end;
+
+procedure TCustomWorkForm.UploadFileActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+begin
+  Action := Sender as TAction;
+  Action.Enabled := IsTerminalAvailable;
 end;
 
 procedure TCustomWorkForm.CopyFileActionExecute(Sender: TObject);
@@ -2326,6 +2367,20 @@ end;
 procedure TCustomWorkForm.DoExecuteComplete(Sender: TObject);
 begin
   FDirMonitor.Resume;
+end;
+
+function TCustomWorkForm.DoUploadFile(const FileName: TFileName): Boolean;
+begin
+  Result := Assigned(FOnFileUpload);
+  if Result then
+    FOnFileUpload(Self, FileName, Result);
+end;
+
+function TCustomWorkForm.IsTerminalAvailable: Boolean;
+begin
+  Result := Assigned(FOnTerminalQuery);
+  if Result then
+    FOnTerminalQuery(Self, Result);
 end;
 
 procedure TCustomWorkForm.FindIdentifier(Sender: TObject; const Criteria, Filter: String;

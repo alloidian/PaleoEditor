@@ -102,6 +102,76 @@ type
     property Items[Attr: TAttributeType]: TAttribute read GetItems; default;
   end;
 
+  TTerminal = class(TObject)
+  public type
+    TBauds = 0..12;
+    TDataBit = 5..8;
+    TStopBit = 0..2;
+    TParity = (pNone, pOdd, pEven, sMark, pSpace);
+    TFlowControl = (fcNone, fcSoftware, fcHardward);
+  private const
+    INI_TERMINAL     = 'Terminal';
+    INI_COM_PORT     = 'ComPort';
+    INI_BAUD         = 'Baud';
+    INI_DATA_BIT     = 'DataBit';
+    INI_STOP_BIT     = 'StopBit';
+    INI_PARITY       = 'Parity';
+    INI_FLOW_CONTROL = 'FlowControl';
+    INI_CHAR_DELAY   = 'CharDelay';
+    INI_LINE_DELAY   = 'LineDelay';
+    INI_UPLOAD       = 'Upload';
+    INI_DOWNLOAD     = 'Download';
+  public const
+    DEF_COM_PORT     = -1;
+    DEF_BAUD         = 19200;
+    DEF_DATA_BIT     = 8;
+    DEF_STOP_BIT     = 1;
+    DEF_PARITY       = pNone;
+    DEF_FLOW_CONTROL = fcNone;
+    DEF_CHAR_DELAY   = 20;
+    DEF_LINE_DELAY   = 20;
+    DEF_UPLOAD       = 'B:XM R A0:%s';
+    DEF_DOWNLOAD     = 'B:XM S A0:%s';
+  private
+    FComPort: Integer;
+    FBaud: Integer;
+    FDataBits: TDataBit;
+    FStopBits: TStopBit;
+    FParity: TParity;
+    FFlowControl: TFlowControl;
+    FCharDelay: Integer;
+    FLineDelay: Integer;
+    FUploadCommand: String;
+    FDownloadCommand: String;
+  protected
+  public
+//    constructor Create; virtual;
+//    destructor Destroy; override;
+    procedure ReadConfig(Ini: TIniFile);
+    procedure WriteConfig(Ini: TIniFile);
+    class procedure PopulateComPort(List: TStrings);
+    class procedure PopulateBaud(List: TStrings);
+    class procedure PopulateDataBits(List: TStrings);
+    class procedure PopulateStopBits(List: TStrings);
+    class procedure PopulateParity(List: TStrings);
+    class procedure PopulateFlowControl(List: TStrings);
+    class function ComPortToStr(Value: Integer): String;
+    class function DataBitToStr(Value: TDataBit): String;
+    class function StopBitToStr(Value: TStopBit): String;
+    class function ParityToStr(Value: TParity): String;
+    class function FlowControlToStr(Value: TFlowControl): String;
+    property ComPort: Integer read FComPort write FComPort;
+    property Baud: Integer read FBaud write FBaud;
+    property DataBits: TDataBit read FDataBits write FDataBits;
+    property StopBits: TStopBit read FStopBits write FStopBits;
+    property Parity: TParity read FParity write FParity;
+    property FlowControl: TFlowControl read FFlowControl write FFlowControl;
+    property CharDelay: Integer read FCharDelay write FCharDelay;
+    property LineDelay: Integer read FLineDelay write FLineDelay;
+    property UploadCommand: String read FUploadCommand write FUploadCommand;
+    property DownloadCommand: String read FDownloadCommand write FDownloadCommand;
+  end;
+
   TConfig = class(TObject)
   private type
     TParamType = TDictionary<String, String>;
@@ -123,6 +193,7 @@ type
   private
     FConfigFileName: TFileName;
     FVersion: TVersion;
+    FTerminal: TTerminal;
     FEditFiles: String;
     FExecuteFiles: String;
     FAssemblyFiles: String;
@@ -179,6 +250,7 @@ type
     property ConfigFileName: TFileName read FConfigFileName;
     property Version: TVersion read FVersion;
     property VersionText: String read GetVersionText;
+    property Terminal: TTerminal read FTerminal;
     property Platform: String read GetPlatform;
     property Debug: String read GetDebug;
     property PreRelease: String read GetPreRelease;
@@ -236,12 +308,41 @@ type
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
   end;
 
+const
+  BAUDS: array[TTerminal.TBauds] of Integer =
+   (   110,          // CBR_110
+       300,          // CBR_300
+       600,          // CBR_600
+      1200,          // CBR_1200
+      2400,          // CBR_2400
+      4800,          // CBR_4800
+      9600,          // CBR_9600
+     14400,          // CBR_14400
+     19200,          // CBR_19200
+     38400,          // CBR_38400
+     56000,          // CBR_56000
+     57600,          // CBR_57600
+    115200);         // CBR_115200
+
+  PARITIES: array[TTerminal.TParity] of String =
+   ('No Parity',     // NOPARITY
+    'Odd Parity',    // ODDPARITY
+    'Even Parity',   // EVENPARITY
+    'Mark Parity',   // MARKPARITY
+    'Space Parity'); // SPACEPARITY
+
+  FLOW_CONTROLS: array[TTerminal.TFlowControl] of String =
+   ('None',          //
+    'Software',      //
+    'Hardware');     //
+
 implementation
 
 {$WARN 05044 OFF}{$WARN 06058 OFF}
 
 uses
-  StrUtils, Types, Masks, FileInfo, VersionTypes, TypInfo, SynEditStrConst, Dialogs, Utils;
+  StrUtils, Types, Masks, FileInfo, VersionTypes, TypInfo, Dialogs, Registry,
+  SynEditStrConst, Utils;
 
 type
   TAttributeConfig = record
@@ -471,6 +572,202 @@ begin
     end;
 end;
 
+{ TTerminal }
+
+procedure TTerminal.ReadConfig(Ini: TIniFile);
+var
+  Temp: String = '';
+begin
+  FComPort := Ini.ReadInteger(INI_TERMINAL, INI_COM_PORT, DEF_COM_PORT);
+  FBaud := Ini.ReadInteger(INI_TERMINAL, INI_BAUD, DEF_BAUD);
+  FDataBits := Ini.ReadInteger(INI_TERMINAL, INI_DATA_BIT, DEF_DATA_BIT);
+  FStopBits := Ini.ReadInteger(INI_TERMINAL, INI_STOP_BIT, DEF_STOP_BIT);
+  Temp := Ini.ReadString(INI_TERMINAL, INI_PARITY, GetEnumName(TypeInfo(TTerminal.TParity), Ord(DEF_PARITY)));
+  FParity := TTerminal.TParity(GetEnumValue(TypeInfo(TTerminal.TParity), Temp));
+  Temp := Ini.ReadString(INI_TERMINAL, INI_FLOW_CONTROL, GetEnumName(TypeInfo(TTerminal.TFlowControl), Ord(DEF_FLOW_CONTROL)));
+  FFlowControl := TTerminal.TFlowControl(GetEnumValue(TypeInfo(TTerminal.TFlowControl), Temp));
+  FCharDelay := Ini.ReadInteger(INI_TERMINAL, INI_CHAR_DELAY, DEF_CHAR_DELAY);
+  FLineDelay := Ini.ReadInteger(INI_TERMINAL, INI_LINE_DELAY, DEF_LINE_DELAY);
+  FUploadCommand := Ini.ReadString(INI_TERMINAL, INI_UPLOAD, DEF_UPLOAD);
+  FDownloadCommand := Ini.ReadString(INI_TERMINAL, INI_DOWNLOAD, DEF_DOWNLOAD);
+end;
+
+procedure TTerminal.WriteConfig(Ini: TIniFile);
+begin
+  Ini.WriteInteger(INI_TERMINAL, INI_COM_PORT, FComPort);
+  Ini.WriteInteger(INI_TERMINAL, INI_BAUD, FBaud);
+  Ini.WriteInteger(INI_TERMINAL, INI_DATA_BIT, FDataBits);
+  Ini.WriteInteger(INI_TERMINAL, INI_STOP_BIT, FStopBits);
+  Ini.WriteString(INI_TERMINAL, INI_PARITY, GetEnumName(TypeInfo(TTerminal.TParity), Ord(FParity)));
+  Ini.WriteString(INI_TERMINAL, INI_FLOW_CONTROL, GetEnumName(TypeInfo(TTerminal.TFlowControl), Ord(FFlowControl)));
+  Ini.WriteInteger(INI_TERMINAL, INI_CHAR_DELAY, FCharDelay);
+  Ini.WriteInteger(INI_TERMINAL, INI_LINE_DELAY, FLineDelay);
+  Ini.WriteString(INI_TERMINAL, INI_UPLOAD, FUploadCommand);
+  Ini.WriteString(INI_TERMINAL, INI_DOWNLOAD, FDownloadCommand);
+end;
+
+function SortByComNumber(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  First: Integer = 0;
+  Second: Integer = 0;
+begin
+  First := Integer(List.Objects[Index1]);
+  Second := Integer(List.Objects[Index2]);
+  Result := First - Second;
+end;
+
+class procedure TTerminal.PopulateComPort(List: TStrings);
+const
+  KEY = 'HARDWARE\DEVICEMAP\SERIALCOMM';
+var
+  Reg: TRegistry;
+  Temp: TStringList;
+  I: Integer = 0;
+  Name: String = '';
+  Port: Integer = 0;
+begin
+  List.BeginUpdate;
+  try
+    List.Clear;
+    Reg := TRegistry.Create;
+    try
+      Reg.RootKey := HKEY_LOCAL_MACHINE;
+      if Reg.OpenKeyReadOnly(KEY) then begin
+        Temp := TStringList.Create;
+        try
+          Reg.GetValueNames(Temp);
+          for I := 0 to Temp.Count - 1 do begin
+            Name := Reg.ReadString(Temp[I]);
+            Temp[I] := Name + ':';
+            Name := Name.Substring(3, Name.Length - 3);
+            Port := StrToIntDef(Name, 0);
+            Temp.Objects[I] := TObject(Port);
+          end;
+          Temp.CustomSort(SortByComNumber);
+          for I := 0 to Temp.Count - 1 do begin
+            Name := Temp[I];
+            Port := Integer(Temp.Objects[I]);
+            List.AddObject(Name, TObject(Port));
+          end;
+        finally
+          Temp.Free;
+        end;
+      end;
+    finally
+      Reg.Free;
+    end;
+  finally
+    List.EndUpdate;
+  end;
+end;
+
+class procedure TTerminal.PopulateBaud(List: TStrings);
+type
+  TBauds = 0..12;
+var
+  I: TBauds;
+begin
+  List.BeginUpdate;
+  try
+    List.Clear;
+    for I := Low(I) to High(I) do
+      List.AddObject(BAUDS[I].ToString, TObject(BAUDS[I]));
+  finally
+    List.EndUpdate;
+  end;
+end;
+
+class procedure TTerminal.PopulateDataBits(List: TStrings);
+const
+  MASK = '%d Data Bits';
+var
+  I: TTerminal.TDataBit;
+begin
+  List.BeginUpdate;
+  try
+    List.Clear;
+    for I := Low(I) to High(I) do
+      List.AddObject(Format(MASK, [I]), TObject(I));
+  finally
+    List.EndUpdate;
+  end;
+end;
+
+class procedure TTerminal.PopulateStopBits(List: TStrings);
+const
+  MASK = '%d Stop Bits';
+var
+  I: TTerminal.TStopBit;
+begin
+  List.BeginUpdate;
+  try
+    List.Clear;
+    for I := Low(I) to High(I) do
+      List.AddObject(Format(MASK, [I]), TObject(I));
+  finally
+    List.EndUpdate;
+  end;
+end;
+
+class procedure TTerminal.PopulateParity(List: TStrings);
+var
+  I: TTerminal.TParity;
+begin
+  List.BeginUpdate;
+  try
+    List.Clear;
+    for I := Low(I) to High(I) do
+      List.AddObject(PARITIES[I], TObject(I));
+  finally
+    List.EndUpdate;
+  end;
+end;
+
+class procedure TTerminal.PopulateFlowControl(List: TStrings);
+var
+  I: TTerminal.TFlowControl;
+begin
+  List.BeginUpdate;
+  try
+    List.Clear;
+    for I := Low(I) to High(I) do
+      List.AddObject(FLOW_CONTROLS[i], TObject(I));
+  finally
+    List.EndUpdate;
+  end;
+end;
+
+class function TTerminal.ComPortToStr(Value: Integer): String;
+const
+  MASK = 'COM%d:';
+begin
+  Result := Format(MASK, [Value]);
+end;
+
+class function TTerminal.DataBitToStr(Value: TDataBit): String;
+const
+  MASK = '%d Data Bits';
+begin
+  Result := Format(MASK, [Value]);
+end;
+
+class function TTerminal.StopBitToStr(Value: TStopBit): String;
+const
+  MASK = '%d Stop Bits';
+begin
+  Result := Format(MASK, [Value]);
+end;
+
+class function TTerminal.ParityToStr(Value: TParity): String;
+begin
+  Result := PARITIES[Value];
+end;
+
+class function TTerminal.FlowControlToStr(Value: TFlowControl): String;
+begin
+  Result := FLOW_CONTROLS[Value];
+end;
+
 { TConfig }
 
 constructor TConfig.Create;
@@ -524,6 +821,7 @@ begin
   finally
     VersionInfo.Free;
   end;
+  FTerminal := TTerminal.Create;
   FMonitorFolder := True;
   FAttributes := TAttributes.Create;
 end;
@@ -532,6 +830,7 @@ destructor TConfig.Destroy;
 begin
   FAttributes.Free;
   FParams.Free;
+  FTerminal.Free;
   inherited;
 end;
 
@@ -642,6 +941,7 @@ begin
         Temp.Free
       end;
     end;
+    FTerminal.ReadConfig(Ini);
     FAttributes.ReadConfig(Ini);
   finally
     Ini.Free;
@@ -673,6 +973,7 @@ begin
       if not Param.IsEmpty then
         Ini.WriteString(INI_PARAMS, Command, Param);
     end;
+    FTerminal.WriteConfig(Ini);
     FAttributes.WriteConfig(Ini);
   finally
     Ini.Free;

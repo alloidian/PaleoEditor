@@ -1,0 +1,199 @@
+inherited TerminalConfigFrame: TTerminalConfigFrame
+  object ComPortEdit: TComboBox[0]
+    Left = 10
+    Height = 23
+    Top = 20
+    Width = 100
+    ItemHeight = 15
+    Style = csDropDownList
+    TabOrder = 0
+  end
+  object ComPortLabel: TLabel[1]
+    Left = 10
+    Height = 15
+    Top = 5
+    Width = 25
+    Caption = 'Port:'
+    FocusControl = ComPortEdit
+    ParentColor = False
+  end
+  object BaudEdit: TComboBox[2]
+    Left = 130
+    Height = 23
+    Top = 20
+    Width = 100
+    DropDownCount = 13
+    ItemHeight = 15
+    Style = csDropDownList
+    TabOrder = 1
+  end
+  object BaudLabel: TLabel[3]
+    Left = 130
+    Height = 15
+    Top = 5
+    Width = 30
+    Caption = 'Baud:'
+    FocusControl = BaudEdit
+    ParentColor = False
+  end
+  object DataBitLabel: TLabel[4]
+    Left = 10
+    Height = 15
+    Top = 45
+    Width = 49
+    Caption = 'Data Bits:'
+    FocusControl = DataBitEdit
+    ParentColor = False
+  end
+  object DataBitEdit: TComboBox[5]
+    Left = 10
+    Height = 23
+    Top = 60
+    Width = 100
+    ItemHeight = 15
+    Style = csDropDownList
+    TabOrder = 2
+  end
+  object StopBitEdit: TComboBox[6]
+    Left = 130
+    Height = 23
+    Top = 60
+    Width = 100
+    ItemHeight = 15
+    Style = csDropDownList
+    TabOrder = 3
+  end
+  object StopBitLabel: TLabel[7]
+    Left = 130
+    Height = 15
+    Top = 45
+    Width = 49
+    Caption = 'Stop Bits:'
+    FocusControl = StopBitEdit
+    ParentColor = False
+  end
+  object ParityEdit: TComboBox[8]
+    Left = 10
+    Height = 23
+    Top = 100
+    Width = 100
+    ItemHeight = 15
+    Style = csDropDownList
+    TabOrder = 4
+  end
+  object ParityLabel: TLabel[9]
+    Left = 10
+    Height = 15
+    Top = 85
+    Width = 33
+    Caption = 'Parity:'
+    FocusControl = ParityEdit
+    ParentColor = False
+  end
+  object FlowControlEdit: TComboBox[10]
+    Left = 130
+    Height = 23
+    Top = 100
+    Width = 100
+    ItemHeight = 15
+    Style = csDropDownList
+    TabOrder = 5
+  end
+  object FlowControlLabel: TLabel[11]
+    Left = 130
+    Height = 15
+    Top = 85
+    Width = 71
+    Caption = 'Flow Control:'
+    FocusControl = FlowControlEdit
+    ParentColor = False
+  end
+  object CharDelayEdit: TEdit[12]
+    Left = 10
+    Height = 23
+    Top = 140
+    Width = 83
+    Alignment = taRightJustify
+    OnKeyPress = DoKeyPress
+    TabOrder = 6
+  end
+  object LineDelayEdit: TEdit[13]
+    Left = 130
+    Height = 23
+    Top = 140
+    Width = 83
+    Alignment = taRightJustify
+    OnKeyPress = DoKeyPress
+    TabOrder = 7
+  end
+  object CharDelayUpDown: TUpDown[14]
+    Left = 93
+    Height = 23
+    Top = 140
+    Width = 17
+    Associate = CharDelayEdit
+    Min = 0
+    Position = 0
+    TabOrder = 8
+  end
+  object LineDelayUpDown: TUpDown[15]
+    Left = 213
+    Height = 23
+    Top = 140
+    Width = 17
+    Associate = LineDelayEdit
+    Min = 0
+    Position = 0
+    TabOrder = 9
+  end
+  object CharDelayLabel: TLabel[16]
+    Left = 10
+    Height = 15
+    Top = 125
+    Width = 54
+    Caption = 'Character:'
+    FocusControl = CharDelayEdit
+    ParentColor = False
+  end
+  object LineDelayLabel: TLabel[17]
+    Left = 130
+    Height = 15
+    Top = 125
+    Width = 25
+    Caption = 'Line:'
+    FocusControl = LineDelayEdit
+    ParentColor = False
+  end
+  object UploadCommandLabel: TLabel[18]
+    Left = 10
+    Height = 15
+    Top = 165
+    Width = 41
+    Caption = 'Upload:'
+    FocusControl = UploadCommandEdit
+    ParentColor = False
+  end
+  object UploadCommandEdit: TEdit[19]
+    Left = 10
+    Height = 23
+    Top = 180
+    Width = 100
+    TabOrder = 10
+  end
+  object DownloadCommandLabel: TLabel[20]
+    Left = 130
+    Height = 15
+    Top = 165
+    Width = 57
+    Caption = 'Download:'
+    FocusControl = DownloadCommandEdit
+    ParentColor = False
+  end
+  object DownloadCommandEdit: TEdit[21]
+    Left = 130
+    Height = 23
+    Top = 180
+    Width = 100
+    TabOrder = 11
+  end
+end

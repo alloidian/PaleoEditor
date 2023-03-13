@@ -1,0 +1,109 @@
+object TerminalFrame: TTerminalFrame
+  Left = 0
+  Height = 485
+  Top = 0
+  Width = 900
+  ClientHeight = 485
+  ClientWidth = 900
+  OnResize = FrameResize
+  TabOrder = 0
+  DesignLeft = 2239
+  DesignTop = 97
+  object StatusPanel: TPanel
+    Left = 0
+    Height = 50
+    Top = 435
+    Width = 900
+    Align = alBottom
+    BevelOuter = bvNone
+    ClientHeight = 50
+    ClientWidth = 900
+    TabOrder = 0
+    object FileNameLabel: TLabel
+      Left = 110
+      Height = 15
+      Top = 5
+      Width = 780
+      Anchors = [akTop, akLeft, akRight]
+      AutoSize = False
+      Caption = 'FileNameLabel'
+      ParentColor = False
+      Visible = False
+    end
+    object ProgressBar: TProgressBar
+      Left = 110
+      Height = 20
+      Top = 25
+      Width = 780
+      Anchors = [akTop, akLeft, akRight]
+      TabOrder = 0
+      Visible = False
+    end
+    object TxLabel: TLabel
+      Left = 5
+      Height = 15
+      Top = 5
+      Width = 22
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'TX'
+      ParentColor = False
+    end
+    object RxLabel: TLabel
+      Left = 30
+      Height = 15
+      Top = 5
+      Width = 22
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'RX'
+      ParentColor = False
+    end
+    object CtsLabel: TLabel
+      Left = 55
+      Height = 15
+      Top = 5
+      Width = 22
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'CTS'
+      ParentColor = False
+    end
+    object ErrorLabel: TLabel
+      Left = 80
+      Height = 15
+      Top = 5
+      Width = 22
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'ERR'
+      ParentColor = False
+    end
+  end
+  object Scroller: TScrollBox
+    Left = 0
+    Height = 435
+    Top = 0
+    Width = 900
+    HorzScrollBar.Page = 879
+    VertScrollBar.Page = 414
+    Align = alClient
+    ClientHeight = 414
+    ClientWidth = 879
+    TabOrder = 1
+    object TerminalPanel: TPanel
+      Left = 10
+      Height = 435
+      Top = 10
+      Width = 900
+      Align = alClient
+      BorderSpacing.Around = 10
+      BevelInner = bvLowered
+      BevelWidth = 2
+      Constraints.MinHeight = 435
+      Constraints.MinWidth = 900
+      ParentColor = False
+      TabOrder = 0
+    end
+  end
+end

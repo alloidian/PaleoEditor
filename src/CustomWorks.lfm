@@ -480,6 +480,11 @@ object CustomWorkForm: TCustomWorkForm
       OnExecute = DeleteFolderActionExecute
       OnUpdate = DeleteFolderActionUpdate
     end
+    object UploadFileAction: TAction
+      Caption = '&Upload File…'
+      OnExecute = UploadFileActionExecute
+      OnUpdate = UploadFileActionUpdate
+    end
     object CopyFileAction: TAction
       Caption = 'Copy File to A:'
       OnExecute = CopyFileActionExecute
@@ -701,6 +706,9 @@ object CustomWorkForm: TCustomWorkForm
     end
     object UploadSeparator: TMenuItem
       Caption = '-'
+    end
+    object UploadFileMenu: TMenuItem
+      Action = UploadFileAction
     end
     object CopyFileMenu: TMenuItem
       Action = CopyFileAction

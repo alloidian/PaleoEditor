@@ -20,8 +20,8 @@ unit Main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Dialogs, ComCtrls, Menus, ActnList,
-  StdActns, ExtCtrls, Actions, CustomWorks;
+  Classes, SysUtils, Forms, Controls, Dialogs, ComCtrls, Menus, ActnList, StdActns,
+  ExtCtrls, Actions, {$IFDEF TERMINAL} TerminalForms, {$ENDIF} CustomWorks;
 
 type
 
@@ -37,6 +37,7 @@ type
     CloseAllProjectAction: TAction;
     ConfigAction: TAction;
     FileExitAction: TFileExit;
+    ShowTerminalAction: TAction;
     ShowAboutAction: TAction;
     MainMenu: TMainMenu;
     ProjectMenu: TMenuItem;
@@ -50,6 +51,8 @@ type
     ExitSeparator: TMenuItem;
     ProjectExitMenu: TMenuItem;
     WindowMenu: TMenuItem;
+    ShowTerminalMenu: TMenuItem;
+    TerminalSeparator: TMenuItem;
     WindowTileVertialMenu: TMenuItem;
     WindowTileHorizontalMenu: TMenuItem;
     WindowCascadeMenu: TMenuItem;
@@ -79,8 +82,14 @@ type
     procedure CloseAllProjectActionUpdate(Sender: TObject);
     procedure ConfigActionExecute(Sender: TObject);
     procedure ShowAboutActionExecute(Sender: TObject);
+    procedure ShowTerminalActionExecute(Sender: TObject);
+    procedure ShowTerminalActionUpdate(Sender: TObject);
+    procedure StatusBarDblClick(Sender: TObject);
     procedure UnimplementedMenuClick(Sender: TObject);
   private
+{$IFDEF TERMINAL}
+    FTerminal: TTerminalForm;
+{$ENDIF}
     FWindowCascade: TWindowCascade;
     FWindowTileHorizontal: TWindowTileHorizontal;
     FWindowTileVertical: TWindowTileVertical;
@@ -89,6 +98,11 @@ type
     procedure AddProject(const FolderName: TFileName);
     procedure CloseAllProjects;
     function GetActiveProject: TCustomWorkForm;
+    procedure DoQueryTerminal(Sender: TObject; var IsTerminalAvailable: Boolean);
+    procedure DoUploadFile(Sender: TObject; const FileName: TFileName; var Successful: Boolean);
+{$IFDEF TERMINAL}
+    procedure DoTerminalClose(Sender: TObject; var CloseAction: TCloseAction);
+{$ENDIF}
   protected
     procedure RefreshConfig;
     property ActiveProject: TCustomWorkForm read GetActiveProject;
@@ -103,7 +117,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Utils, Configs, Abouts, FolderWorks, ProjectWorks;
+  Utils, Configs, Abouts, FolderWorks, ProjectWorks, Uploads;
 
 { TMainForm }
 
@@ -266,6 +280,43 @@ begin
   ShowAbout;
 end;
 
+procedure TMainForm.ShowTerminalActionExecute(Sender: TObject);
+begin
+{$IFDEF TERMINAL}
+  if Assigned(FTerminal) then
+    FTerminal.BringToFront
+  else begin
+    FTerminal := TTerminalForm.Create(Self);
+    FTerminal.WindowState := wsMaximized;
+    FTerminal.ReadConfig(Config);
+    FTerminal.OnClose := DoTerminalClose;
+    (Sender as TAction).Checked := True;
+    FTerminal.Show;
+  end;
+{$ENDIF}
+end;
+
+procedure TMainForm.ShowTerminalActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+begin
+  Action := Sender as TAction;
+  Action.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
+  TerminalSeparator.Visible := Action.Visible;
+end;
+
+procedure TMainForm.StatusBarDblClick(Sender: TObject);
+var
+  Temp: TStringList;
+begin
+ Temp := FileToUploadFile('C:\Dev\ROMs\DynoPCWork\Binary\Apps\Halt.com');
+ try
+   ShowMessage(Temp.Text);
+ finally
+   Temp.Free;
+ end;
+end;
+
 procedure TMainForm.UnimplementedMenuClick(Sender: TObject);
 begin
   ShowMessage(UNIMPLEMENTED_PROMPT);
@@ -277,6 +328,8 @@ var
 begin
   Editor := TFolderWorkForm.Create(Self);
   Editor.WindowState := wsMaximized;
+  Editor.OnTerminalQuery := DoQueryTerminal;
+  Editor.OnFileUpload := DoUploadFile;
   Editor.Open(FolderName, WindowMenu);
   Editor.Show;
 end;
@@ -286,6 +339,8 @@ var
   Editor: TProjectWorkForm;
 begin
   Editor := TProjectWorkForm.Create(Self);
+  Editor.OnTerminalQuery := DoQueryTerminal;
+  Editor.OnFileUpload := DoUploadFile;
   Editor.WindowState := wsMaximized;
   Editor.Open(FolderName, WindowMenu);
   Editor.Show;
@@ -339,15 +394,71 @@ begin
     Result := nil;
 end;
 
+procedure TMainForm.DoQueryTerminal(Sender: TObject; var IsTerminalAvailable: Boolean);
+begin
+{$IFDEF TERMINAL}
+  IsTerminalAvailable := Assigned(FTerminal) and FTerminal.IsConnected;
+{$ELSE}
+  IsTerminalAvailable := False;
+{$ENDIF}
+end;
+
+procedure TMainForm.DoUploadFile(Sender: TObject; const FileName: TFileName; var Successful: Boolean);
+var
+  Temp: TFileName;
+  Method: TUploadMethod = umDownload;
+begin
+{$IFDEF TERMINAL}
+  Temp := FileName;
+  Successful := UploadFile(Temp, Method);
+  if Successful then begin
+    case Method of
+      umText: begin
+        //  Do something
+        end;
+      umDownload: begin
+        //  Do something
+        end;
+      umXModem: begin
+        //  Do something
+        end;
+    end;
+  end;
+{$ELSE}
+  Successful := False;
+{$ENDIF}
+end;
+
+{$IFDEF TERMINAL}
+procedure TMainForm.DoTerminalClose(Sender: TObject; var CloseAction: TCloseAction);
+begin
+  CloseAction := caFree;
+  FTerminal := nil;
+  ShowTerminalAction.Checked := False;
+end;
+{$ENDIF}
+
 procedure TMainForm.RefreshConfig;
 var
+  OldCursor: TCursor;
   I: Integer = 0;
   Form: TCustomForm;
 begin
-  for I := 0 to MDIChildCount - 1 do begin
-    Form := MDIChildren[I];
-    if Form is TCustomWorkForm then
-      (Form as TCustomWorkForm).RefreshConfig;
+  OldCursor := Screen.Cursor;
+  Screen.Cursor := crHourglass;
+  try
+    for I := 0 to MDIChildCount - 1 do begin
+      Form := MDIChildren[I];
+      if Form is TCustomWorkForm then
+        (Form as TCustomWorkForm).RefreshConfig
+{$IFDEF TERMINAL}
+      else
+        if Form is TTerminalForm then
+          (Form as TTerminalForm).ReadConfig(Config);
+{$ENDIF}
+    end;
+  finally
+    Screen.Cursor := OldCursor;
   end;
 end;
 

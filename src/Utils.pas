@@ -191,6 +191,9 @@ type
 function GetFiles(const Path: TFileName): TStringList;
 function GetDirectories(const Path: TFileName): TStringList;
 function GetChildren(const FullFileName: TFileName): TStringList;
+function FileToUploadStr(const FileName: TFileName): String;
+function FileToUploadFile(const FileName: TFileName; Drive: Char = 'A'; User: Byte = 0): TStringList;
+function FilesToUploadFile(FileNames: TStrings; Drive: Char = 'A'; User: Byte = 0): TStringList;
 
 implementation
 
@@ -276,6 +279,53 @@ begin
   FileName := ChangeFileExt(FileName, EmptyStr);
   for Mask in MASKS do
     AppendChildren(Path, FileName, Result, Mask);
+end;
+
+function FileToUploadStr(const FileName: TFileName): String;
+var
+  InputStream: TFileStream;
+  CheckSum: Byte = 0;
+  Data: Byte = 0;
+begin
+  Result := ':';
+  if FileExists(FileName) then begin
+    InputStream := TFileStream.Create(FileName, fmOpenRead);
+    try
+      InputStream.Position := 0;
+      while InputStream.Position < InputStream.Size do begin
+        Data := InputStream.ReadByte;
+        Inc(CheckSum, Data);
+        Result := Result + IntToHex(Data, 2)
+      end;
+      Result := Result + '>' + IntToHex(InputStream.Size, 2) + IntToHex(CheckSum, 2);
+    finally
+      InputStream.Free;
+    end;
+  end;
+end;
+
+function FileToUploadFile(const FileName: TFileName; Drive: Char; User: Byte): TStringList;
+begin
+  Result := TStringList.Create;
+  Result.Add(Format('%s:DOWNLOAD %s', [Drive, AnsiUpperCase(ExtractFileName(FileName))]));
+  Result.Add(Format('U%d', [User]));
+  Result.Add(FileToUploadStr(FileName));
+end;
+
+function FilesToUploadFile(FileNames: TStrings; Drive: Char; User: Byte): TStringList;
+var
+  FileName: TFileName = '';
+  Temp: TStringList;
+begin
+  Result := TStringList.Create;
+  for FileName in FileNames do begin
+    Temp := FileToUploadFile(FileName, Drive, User);
+    try
+      Result.AddStrings(Temp);
+    finally
+      Temp.Free;
+    end;
+  end;
 end;
 
 { TFileAttribute }

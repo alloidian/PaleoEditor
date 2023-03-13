@@ -28,7 +28,7 @@ inherited NavigatorConfigFrame: TNavigatorConfigFrame
     )
     ColWidths = (
       144
-      236
+      240
     )
   end
   object SaveWorkspaceEdit: TCheckBox[1]

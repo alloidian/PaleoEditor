@@ -22,7 +22,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, Menus, ComCtrls,
   ExtCtrls, ActnList, ConfigUtils, NavigatorConfigs, ProjectConfigs, ColorConfigs,
-  EditorConfigs, CustomWorks;
+  EditorConfigs, {$IFDEF TERMINAL} TerminalConfigs, {$ENDIF} CustomWorks;
 
 type
 
@@ -39,6 +39,7 @@ type
     OKButton: TButton;
     CancelButton: TButton;
     ProjectPage: TTabSheet;
+    TerminalPage: TTabSheet;
     procedure FormCreate(Sender: TObject);
     procedure SaveActionUpdate(Sender: TObject);
     procedure SaveActionExecute(Sender: TObject);
@@ -49,6 +50,9 @@ type
     FProjectConfig: TProjectConfigFrame;
     FColorConfig: TColorConfigFrame;
     FEditorConfig: TEditorConfigFrame;
+{$IFDEF TERMINAL}
+    FTerminalConfig: TTerminalConfigFrame;
+{$ENDIF}
     procedure SetConfig(Value: TConfig);
     procedure SetProjectConfig(Value: TCustomConfig);
     function GetIsModified: Boolean;
@@ -100,6 +104,14 @@ begin
   FEditorConfig := TEditorConfigFrame.Create(Self);
   FEditorConfig.Parent := EditorPage;
   FEditorConfig.Align := alClient;
+{$IFDEF TERMINAL}
+  FTerminalConfig := TTerminalConfigFrame.Create(Self);
+  FTerminalConfig.Parent := TerminalPage;
+  FTerminalConfig.Align := alClient;
+  TerminalPage.TabVisible := True;
+{$ELSE}
+  TerminalPage.TabVisible := False;
+{$ENDIF}
 end;
 
 procedure TConfigForm.SaveActionExecute(Sender: TObject);
@@ -114,6 +126,10 @@ begin
     FColorConfig.WriteConfig(FConfig);
   if FEditorConfig.IsModified then
     FEditorConfig.WriteConfig(FConfig);
+{$IFDEF TERMINAL}
+  if FTerminalConfig.IsModified then
+    FTerminalConfig.WriteConfig(FConfig);
+{$ENDIF}
   ModalResult := mrOk;
 end;
 
@@ -128,6 +144,9 @@ begin
   FNavigatorConfig.ReadConfig(FConfig);
   FColorConfig.ReadConfig(FConfig);
   FEditorConfig.ReadConfig(FConfig);
+{$IFDEF TERMINAL}
+  FTerminalConfig.ReadConfig(FConfig);
+{$ENDIF}
 end;
 
 procedure TConfigForm.SetProjectConfig(Value: TCustomConfig);
@@ -140,7 +159,8 @@ end;
 function TConfigForm.GetIsModified: Boolean;
 begin
   Result := FNavigatorConfig.IsModified or FProjectConfig.IsModified or
-    FColorConfig.IsModified or FEditorConfig.IsModified;
+    FColorConfig.IsModified or FEditorConfig.IsModified
+    {$IFDEF TERMINAL} or FTerminalConfig.IsModified {$ENDIF} ;
 end;
 
 initialization
