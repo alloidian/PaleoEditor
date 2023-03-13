@@ -20,8 +20,7 @@ unit Searches;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, StdCtrls, ActnList, ExtCtrls, Menus, StdActns,
-  ListFilterEdit;
+  Classes, SysUtils, Forms, Controls, StdCtrls, ActnList, ExtCtrls, Menus, ListFilterEdit;
 
 type
   TSearchEvent = procedure(Sender: TObject; const Criteria: String; First, Backwards,
@@ -54,11 +53,6 @@ type
 
   TSearchFrame = class(TFrame)
     Actions: TActionList;
-    EditCutAction: TEditCut;
-    EditCopyAction: TEditCopy;
-    EditPasteAction: TEditPaste;
-    EditSelectAllAction: TEditSelectAll;
-    EditDeleteAction: TEditDelete;
     SearchPrevAction: TAction;
     SearchNextAction: TAction;
     SearchAllAction: TAction;
@@ -67,7 +61,6 @@ type
     LabelAction: TAction;
     GoToAction: TAction;
     CloseAction: TAction;
-    PopupMenu: TPopupMenu;
     SearchCutMenu: TMenuItem;
     SearchCopyMenu: TMenuItem;
     SearchPasteMenu: TMenuItem;
@@ -182,7 +175,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Utils, Configs;
+  Utils, Configs, Dialogs;
 
 { TCache }
 
@@ -386,9 +379,9 @@ var
   end;
 
 begin
-  for I := 0 to ControlCount - 1 do begin
-    Control := Controls[I];
-    if Control is TComboBox then
+  for I := 0 to ScrollBox.ControlCount - 1 do begin
+    Control := ScrollBox.Controls[I];
+    if Control.Enabled and (Control is TComboBox) then
       UpdateHistory(Control as TComboBox);
   end;
 end;
@@ -629,7 +622,7 @@ end;
 
 function TSearchFrame.GetForFile: Boolean;
 begin
-  Result := ForFileEdit.Checked;
+  Result := (SearchBy in [sbSearch]) and ForFileEdit.Checked;
 end;
 
 procedure TSearchFrame.SetForFile(Value: Boolean);
