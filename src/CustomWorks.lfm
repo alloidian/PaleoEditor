@@ -485,6 +485,11 @@ object CustomWorkForm: TCustomWorkForm
       OnExecute = CopyFileActionExecute
       OnUpdate = CopyFileActionUpdate
     end
+    object ChildAction: TAction
+      Caption = 'Add &Children'
+      OnExecute = ChildActionExecute
+      OnUpdate = ChildActionUpdate
+    end
     object ExpandAllAction: TAction
       Caption = '&Expand All'
       Hint = 'Expand all branches.'
@@ -699,6 +704,9 @@ object CustomWorkForm: TCustomWorkForm
     end
     object CopyFileMenu: TMenuItem
       Action = CopyFileAction
+    end
+    object AddChildrenMenu: TMenuItem
+      Action = ChildAction
     end
     object LaunchSeparator: TMenuItem
       Caption = '-'

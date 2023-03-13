@@ -216,10 +216,9 @@ var
 begin
   Item := Sender as TMenuItem;
   FolderName := Item.Caption;
-  Found := False;
   for I := 0 to MDIChildCount - 1 do begin
     Form := MDIChildren[I];
-    if AnsiSameText(Form.Caption, FolderName) then begin
+    if (Form is TCustomWorkForm) and AnsiSameText(Form.Caption, FolderName) then begin
       Found := True;
       Item.MenuIndex := 0;
       Form.BringToFront;

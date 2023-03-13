@@ -21,8 +21,8 @@ interface
 
 uses
   Classes, Windows, SysUtils, Forms, Controls, StrUtils, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ExtCtrls, Menus, ActnList, StdActns, Types, Utils, CustomEditors, Searches,
-  ConfigUtils, Executions, DirMonitors, TermVT, UnTerminal;
+  StdCtrls, ExtCtrls, Menus, ActnList, StdActns, Types, Generics.Collections, Utils,
+  CustomEditors, Searches, ConfigUtils, Executions, DirMonitors, TermVT, UnTerminal;
 
 type
   TIterateTreeNodeProc = procedure(Node: TTreeNode; var Continue: Boolean);
@@ -45,6 +45,7 @@ type
     RevertFileAction: TAction;
     DeleteFolderAction: TAction;
     CopyFileAction: TAction;
+    ChildAction: TAction;
     AssembleAction: TAction;
     ExecuteCommandAction: TAction;
     LaunchExecuteAction: TAction;
@@ -94,6 +95,7 @@ type
     FileRevertMenu: TMenuItem;
     FileDeleteFileMenu: TMenuItem;
     CopyFileMenu: TMenuItem;
+    AddChildrenMenu: TMenuItem;
     ExecuteSeparator: TMenuItem;
     FileAssembleMenu: TMenuItem;
     FileExecuteMenu: TMenuItem;
@@ -196,6 +198,8 @@ type
     procedure DeleteFolderActionUpdate(Sender: TObject);
     procedure CopyFileActionExecute(Sender: TObject);
     procedure CopyFileActionUpdate(Sender: TObject);
+    procedure ChildActionExecute(Sender: TObject);
+    procedure ChildActionUpdate(Sender: TObject);
     procedure AssembleActionExecute(Sender: TObject);
     procedure AssembleActionUpdate(Sender: TObject);
     procedure ExecuteCommandActionExecute(Sender: TObject);
@@ -302,6 +306,8 @@ type
     FFolderName: TFileName;
     FConfigs: TCustomConfig;
     FDirMonitor: TDirMonitor;
+    procedure PopulateChildren(Node: TTreeNode; MasterList: TStringList = nil);
+    procedure CleanDocuments;
     procedure RefreshView; virtual; abstract;
     procedure Log(const Text: String); overload;
     procedure Log(const Mask: String; Args: array of const); overload;
@@ -339,6 +345,7 @@ type
     constructor Create(Navigator: TTreeView); virtual;
     destructor Destroy; override;
     procedure Execute;
+    procedure Backward;
     property OnIterate: TIterationEvent read FOnIterate write FOnIterate;
   end;
 
@@ -409,6 +416,22 @@ type
     property FileName: TFileName read FFileName write FFileName;
   end;
 
+  TDocumentCleanEngine = class(TObject)
+  private type
+    TNodes = class(TObjectList<TTreeNode>);
+  private
+    FEngine: TNavigatorIterator;
+    FFiles: TStringList;
+    FNodes: TNodes;
+    protected
+      procedure DoSearchIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
+      procedure DoCleanIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
+    public
+      constructor Create(Form: TCustomWorkForm); virtual;
+      destructor Destroy; override;
+      procedure Execute;
+  end;
+
   TExecuteEngine = class(TObject)
   private
     FForm: TCustomWorkForm;
@@ -443,8 +466,8 @@ implementation
 {$R *.lfm}
 
 uses
-  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf, Generics.Collections,
-  SyntaxEditors, HexEditors, Configs, NewFiles, Assemblers;
+  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf,  SyntaxEditors, HexEditors,
+  Configs, NewFiles, Assemblers;
 
 var
   Search_Index: Integer;
@@ -572,7 +595,7 @@ var
   Node: TTreeNode;
 begin
   Node := Navigator.Selected;
-  (Sender as TAction).Enabled := Assigned(Node) and (Node.Kind = pkFile);
+  (Sender as TAction).Enabled := Assigned(Node) and (Node.Kind in [pkDocument, pkFile]);
 end;
 
 procedure TCustomWorkForm.NavigatorActionUpdate(Sender: TObject);
@@ -686,7 +709,7 @@ begin
     if CreateNewFile(Node.FullName, FileName) then begin
       if not FileExists(FileName) then
         CloseHandle(FileCreate(FileName));
-      Attribute := TFileAttribute.CreateFile(FileName, FFolderName);
+      Attribute := TFileAttribute.CreateDocument(FileName, FFolderName);
       Child := Navigator.Items.AddChildFirst(Node, Attribute.ShortName);
       Child.ImageIndex := WHITE_DOCUMENT_INDEX;
       Child.SelectedIndex := BLACK_DOCUMENT_INDEX;
@@ -706,7 +729,7 @@ begin
     case Node.Kind of
       pkFolder:
         Node.Expand(False);
-      pkFile:
+      pkDocument, pkFile:
         if Assigned(Node.Page) then
           WorkPages.ActivePage := Node.Page
         else begin
@@ -730,7 +753,7 @@ begin
     case Node.Kind of
       pkFolder:
         Action.Hint := Format('Open the ''%s'' folder.', [Node.LogicalName]);
-      pkFile:
+      pkDocument, pkFile:
         if Assigned(Node.Page) then
           Action.Hint := Format('Select the ''%s'' file.', [Node.LogicalName])
         else
@@ -861,7 +884,7 @@ var
 begin
   Action := Sender as TAction;
   Node := Navigator.Selected;
-  Action.Enabled := Assigned(Node) and (Node.Kind = pkFile);
+  Action.Enabled := Assigned(Node) and (Node.Kind in [pkDocument, pkFile]);
   if not Assigned(Node) then
     Action.Hint := 'Cannot rename an invalid file.'
   else
@@ -1011,8 +1034,10 @@ begin
   Node := Navigator.Selected;
   if Assigned(Node) then begin
     case Node.Kind of
-      pkFolder : DeleteFolder(Node);
-      pkFile: DeleteFile(Node);
+      pkFolder:
+	    DeleteFolder(Node);
+      pkDocument, pkFile:
+	    DeleteFile(Node);
     end;
   end;
 end;
@@ -1020,9 +1045,10 @@ end;
 procedure TCustomWorkForm.DeleteFolderActionUpdate(Sender: TObject);
 const
   NAMES: array[TFileAttribute.TPropertyKind] of String =
-   ('node',    // pkUnknown
-    'folder',  // pkFolder
-    'file');   // pkFile
+   ('node',        // pkUnknown
+    'folder',      // pkFolder
+    'document',    // pkDocument
+    'file');       // pkFile
 var
   Action: TAction;
   Node: TTreeNode;
@@ -1076,6 +1102,24 @@ begin
       SetErrorMode(OldErrorMode);
     end;
   end;
+end;
+
+procedure TCustomWorkForm.ChildActionExecute(Sender: TObject);
+var
+  OldCursor: TCursor;
+begin
+  OldCursor := Screen.Cursor;
+  Screen.Cursor := crHourglass;
+  try
+    PopulateChildren(Navigator.Selected);
+  finally
+    Screen.Cursor := OldCursor;
+  end;
+end;
+
+procedure TCustomWorkForm.ChildActionUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := True;
 end;
 
 procedure TCustomWorkForm.AssembleActionExecute(Sender: TObject);
@@ -1224,11 +1268,13 @@ var
 begin
   Action := Sender as TAction;
   Node := Navigator.Selected;
-  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkFile]);
+  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkDocument, pkFile]);
   if Action.Enabled then
     case Node.Kind of
-      pkFolder: Action.Hint := Format('Open the ''%s'' folder in Windows Explorer.', [Node.LogicalName]);
-      pkFile: Action.Hint := Format('Open the folder containing the ''%s'' file in Windows Explorer.', [Node.LogicalName]);
+      pkFolder:
+        Action.Hint := Format('Open the ''%s'' folder in Windows Explorer.', [Node.LogicalName]);
+      pkDocument, pkFile:
+        Action.Hint := Format('Open the folder containing the ''%s'' file in Windows Explorer.', [Node.LogicalName]);
     end
   else
     Action.Hint := 'Cannot open Windows Explorer.';
@@ -1239,12 +1285,8 @@ var
   Node: TTreeNode;
 begin
   Node := Navigator.Selected;
-  if Assigned(Node) then begin
-    case Node.Kind of
-      pkFolder: OpenConsole(Node);
-      pkFile: OpenConsole(Node);
-    end;
-  end;
+  if Assigned(Node) then
+    OpenConsole(Node);
 end;
 
 procedure TCustomWorkForm.LaunchConsoleActionUpdate(Sender: TObject);
@@ -1254,11 +1296,13 @@ var
 begin
   Action := Sender as TAction;
   Node := Navigator.Selected;
-  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkFile]);
+  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkDocument, pkFile]);
   if Action.Enabled then
     case Node.Kind of
-      pkFolder: Action.Hint := Format('Open the ''%s'' folder in console.', [Node.LogicalName]);
-      pkFile: Action.Hint := Format('Open the folder containing the ''%s'' file in console.', [Node.LogicalName]);
+      pkFolder:
+        Action.Hint := Format('Open the ''%s'' folder in console.', [Node.LogicalName]);
+      pkDocument, pkFile:
+        Action.Hint := Format('Open the folder containing the ''%s'' file in console.', [Node.LogicalName]);
     end
   else
     Action.Hint := 'Cannot open the console.';
@@ -1270,7 +1314,7 @@ var
 begin
   if Assigned(ActiveEditor) then begin
     Node := ActiveEditor.Node;
-    if Assigned(Node) and (Node.Kind = pkFile) then
+    if Assigned(Node) and (Node.Kind in [pkDocument, pkFile]) then
       OpenExplorer(Node);
   end;
 end;
@@ -1283,11 +1327,13 @@ begin
   if Assigned(ActiveEditor) then begin
     Action := Sender as TAction;
     Node := ActiveEditor.Node;
-    Action.Enabled := Assigned(Node) and (Node.Kind in [pkFile]);
+    Action.Enabled := Assigned(Node) and (Node.Kind in [pkDocument, pkFile]);
     if Action.Enabled then
       case Node.Kind of
-        pkFolder: Action.Hint := Format('Open the ''%s'' editro in Windows Explorer.', [Node.LogicalName]);
-        pkFile: Action.Hint := Format('Open the folder containing the ''%s'' editor in Windows Explorer.', [Node.LogicalName]);
+        pkFolder:
+          Action.Hint := Format('Open the ''%s'' editro in Windows Explorer.', [Node.LogicalName]);
+        pkDocument, pkFile:
+          Action.Hint := Format('Open the folder containing the ''%s'' editor in Windows Explorer.', [Node.LogicalName]);
       end
     else
       Action.Hint := 'Cannot open Windows Explorer.';
@@ -1300,7 +1346,7 @@ var
 begin
   if Assigned(ActiveEditor) then begin
     Node := ActiveEditor.Node;
-    if Assigned(Node) and (Node.Kind = pkFile) then
+    if Assigned(Node) and (Node.Kind in [pkDocument, pkFile]) then
       OpenConsole(Node);
   end;
 end;
@@ -1313,11 +1359,13 @@ begin
   if Assigned(ActiveEditor) then begin
     Action := Sender as TAction;
     Node := ActiveEditor.Node;
-    Action.Enabled := Assigned(Node) and (Node.Kind in [pkFile]);
+    Action.Enabled := Assigned(Node) and (Node.Kind in [pkDocument, pkFile]);
     if Action.Enabled then
       case Node.Kind of
-        pkFolder: Action.Hint := Format('Open the ''%s'' editor in console.', [Node.LogicalName]);
-        pkFile: Action.Hint := Format('Open the folder containing the ''%s'' editor in console.', [Node.LogicalName]);
+        pkFolder:
+          Action.Hint := Format('Open the ''%s'' editor in console.', [Node.LogicalName]);
+        pkDocument, pkFile:
+          Action.Hint := Format('Open the folder containing the ''%s'' editor in console.', [Node.LogicalName]);
       end
     else
       Action.Hint := 'Cannot open the console.';
@@ -1331,7 +1379,6 @@ var
 begin
   Node := Navigator.Selected;
   if Assigned(Node) then begin
-    Parameters := EmptyStr;
     if ExecuteFile(Node, Parameters) then begin
       FDirMonitor.Pause;
       try
@@ -1876,7 +1923,7 @@ begin
     case Node.Kind of
       pkFolder:
         Node.Expand(False);
-      pkFile:
+      pkDocument, pkFile:
         if Assigned(Node.Page) then begin
           WorkPages.ActivePage := Node.Page;
           WorkPages.ActivePage.Editor.GotoLine(LineNumber);
@@ -1935,8 +1982,10 @@ begin
   for I := Node.Count - 1 downto 0 do begin
     Child := Node.Items[I];
     case Child.Kind of
-      pkFolder: DeleteFolderNode(Child);
-      pkFile: DeleteFileNode(Child);
+      pkFolder:
+        DeleteFolderNode(Child);
+      pkDocument, pkFile:
+        DeleteFileNode(Child);
     end;
   end;
   if DeleteDirectory(Node.FullName, False) then
@@ -1979,13 +2028,13 @@ var
   FolderName: TFileName = '';
   Parameters: String = '';
 begin
-  if Assigned(Node) and (Node.Kind in [pkFolder, pkFile]) then begin
+  if Assigned(Node) and (Node.Kind in [pkFolder, pkDocument, pkFile]) then begin
     case Node.Kind of
       pkFolder: begin
         FolderName := Node.FullName;
         Parameters := Node.FullName;
         end;
-      pkFile: begin
+      pkDocument, pkFile: begin
         FolderName := ExtractFilePath(Node.FullName);
         Parameters := Format(PARAM, [Node.FullName]);
         end;
@@ -2001,11 +2050,11 @@ const
 var
   FolderName: TFileName = '';
 begin
-  if Assigned(Node) and (Node.Kind in [pkFolder, pkFile]) then begin
+  if Assigned(Node) and (Node.Kind in [pkFolder, pkDocument, pkFile]) then begin
     case Node.Kind of
       pkFolder:
         FolderName := Node.FullName;
-      pkFile:
+      pkDocument, pkFile:
         FolderName := ExtractFilePath(Node.FullName);
     end;
     ShellExecute(0, nil, PChar(SHELL), PChar(Format(MASK, [FolderName])), PChar(FolderName), SW_NORMAL);
@@ -2145,6 +2194,87 @@ begin
   end;
 end;
 
+procedure TCustomWorkForm.PopulateChildren(Node: TTreeNode; MasterList: TStringList);
+var
+  FileList: TStringList;
+
+  procedure ClearList(ParentNode: TTreeNode; List: TStringList);
+  var
+    I: Integer;
+    Node: TTreeNode;
+    J: Integer;
+  begin
+    for I := ParentNode.Count - 1 downto 0 do begin
+      Node := ParentNode.Items[I];
+      J := List.IndexOf(Node.FullName);
+      if J > -1 then
+        List.Delete(J);
+    end;
+  end;
+
+  procedure ClearNode(ParentNode: TTreeNode; List: TStringList);
+  var
+    I: Integer;
+    Node: TTreeNode;
+  begin
+    for I := ParentNode.Count - 1 downto 0 do begin
+      Node := ParentNode.Items[I];
+      if List.IndexOf(Node.FullName) < 0 then
+        Node.Delete;
+    end;
+  end;
+
+  procedure UpdateNode(ParentNode: TTreeNode; List: TStringList);
+  var
+    FileName: String;
+    Node: TTreeNode;
+    Attribute: TFileAttribute;
+  begin
+    for FileName in List do begin
+      Attribute := TFileAttribute.CreateFile(FileName, FFolderName);
+      Node := Navigator.Items.AddChild(ParentNode, Attribute.ShortName);
+      Node.ImageIndex := WHITE_FILE_INDEX;
+      Node.SelectedIndex := BLACK_FILE_INDEX;
+      Node.Data := Attribute;
+    end;
+  end;
+
+  procedure UpdateList(List: TStringList; MasterList: TStringList);
+  var
+    FileName: String;
+  begin
+    if Assigned(MasterList) then
+      for FileName in List do
+        if MasterList.IndexOf(FileName) < 0 then
+          MasterList.Add(FileName);
+  end;
+
+begin
+  if Assigned(Node) then begin
+    FileList := Utils.GetChildren(Node.FullName);
+    try
+      ClearList(Node, FileList);
+//      ClearNode(Node, FileList);
+      UpdateNode(Node, FileList);
+      UpdateList(FileList, MasterList);
+    finally
+      FileList.Free;
+    end;
+  end;
+end;
+
+procedure TCustomWorkForm.CleanDocuments;
+var
+  Engine: TDocumentCleanEngine;
+begin
+  Engine := TDocumentCleanEngine.Create(Self);
+  try
+    Engine.Execute;
+  finally
+    Engine.Free;
+  end;
+end;
+
 procedure TCustomWorkForm.Log(const Text: String);
 begin
   if not StatusPages.Visible then
@@ -2274,9 +2404,22 @@ var
 begin
   Node := Navigator.TopItem;
   while Assigned(Node) and MayContinue do begin
-    if Node.Kind = pkFile then
+    if Node.Kind in [pkDocument, pkFile] then
       DoIterate(Node, MayContinue);
     Node := Node.GetNext;
+  end;
+end;
+
+procedure TNavigatorIterator.Backward;
+var
+  MayContinue: Boolean = True;
+  Node: TTreeNode;
+begin
+  Node := Navigator.BottomItem;
+  while Assigned(Node) and MayContinue do begin
+    if Node.Kind in [pkDocument, pkFile] then
+      DoIterate(Node, MayContinue);
+    Node := Node.GetPrev;
   end;
 end;
 
@@ -2560,6 +2703,50 @@ procedure TFileRefreshEngine.Execute;
 begin
   if not (FAction in [daFileRenamedOldName, daFileRenamedNewName]) then
     FEngine.Execute;
+end;
+
+{ TDocumentCleanEngine }
+
+constructor TDocumentCleanEngine.Create(Form: TCustomWorkForm);
+begin
+  inherited Create;
+  FEngine := TNavigatorIterator.Create(Form.Navigator);
+  FFiles := TStringList.Create;
+  FNodes := TNodes.Create;
+end;
+
+destructor TDocumentCleanEngine.Destroy;
+begin
+  FNodes.Free;
+  FFiles.Free;
+  FEngine.Free;
+  inherited;
+end;
+
+procedure TDocumentCleanEngine.DoSearchIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
+begin
+  if Node.Kind = pkFile then
+    if FFiles.IndexOf(Node.FullName) < 0 then
+      FFiles.Add(Node.FullName);
+end;
+
+procedure TDocumentCleanEngine.DoCleanIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
+begin
+  if Node.Kind = pkDocument then
+    if FFiles.IndexOf(Node.FullName) > -1 then
+      FNodes.Add(Node);
+end;
+
+procedure TDocumentCleanEngine.Execute;
+var
+  Node: TTreeNode;
+begin
+  FEngine.OnIterate:= DoSearchIterate;
+  FEngine.Execute;
+  FEngine.OnIterate := DoCleanIterate;
+  FEngine.Backward;
+  for Node in FNodes do
+    Node.Delete;
 end;
 
 { TExecuteEngine }

@@ -263,13 +263,13 @@ begin
     end;
     Stack := TTreeNodeCache.Create;
     try
-      Attribute := TFileAttribute.CreateFile(FFileName, FProjectFolder);
+      Attribute := TFileAttribute.CreateDocument(FFileName, FProjectFolder);
       Child := View.Items.AddChild(nil, Attribute.ShortName);
       Child.ImageIndex := WHITE_DOCUMENT_INDEX;
       Child.SelectedIndex := BLACK_DOCUMENT_INDEX ;
       Child.Data := Attribute;
       Stack.Add(Child);
-      Attribute := TFileAttribute.CreateFile(ExtractDocFileName(FFileName), FProjectFolder);
+      Attribute := TFileAttribute.CreateDocument(ExtractDocFileName(FFileName), FProjectFolder);
       Child := View.Items.AddChild(nil, Attribute.ShortName);
       Child.ImageIndex := WHITE_DOCUMENT_INDEX;
       Child.SelectedIndex := BLACK_DOCUMENT_INDEX;
@@ -277,7 +277,7 @@ begin
       Stack.Add(Child);
       for I := 0 to FList.Count - 1 do begin
         Module := FList[I];
-        Attribute := TFileAttribute.CreateFile(FullPath(FHomeFolder, Module.ModuleName), FProjectFolder);
+        Attribute := TFileAttribute.CreateDocument(FullPath(FHomeFolder, Module.ModuleName), FProjectFolder);
         Child := View.Items.AddChild(Stack.Node[Module.Level + 1], Attribute.ShortName);
         Child.ImageIndex := WHITE_DOCUMENT_INDEX;
         Child.SelectedIndex := BLACK_DOCUMENT_INDEX ;

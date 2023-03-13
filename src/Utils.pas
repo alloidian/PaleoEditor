@@ -44,11 +44,12 @@ const
 type
   TFileAttribute = class(TObject)
   public type
-    TPropertyKind = (pkUnknown, pkFolder, pkFile);
+    TPropertyKind = (pkUnknown, pkFolder, pkDocument, pkFile);
   private
     FKind: TPropertyKind;
     FProjectName: TFileName;
     FShortName: TFileName;
+    FExtension: TFileName;
     FLogicalName: TFileName;
     FFullName: TFileName;
     FIsFileModified: Boolean;
@@ -57,11 +58,13 @@ type
     function GetImageIndex: Integer;
   public
     constructor CreateFolder(const Name: TFileName); virtual;
+    constructor CreateDocument(const Name: TFileName; const ProjectName: TFileName); virtual;
     constructor CreateFile(const Name: TFileName; const ProjectName: TFileName); virtual;
     procedure RenameFolder(const Name: TFileName);
     procedure RenameFile(const Name: TFileName);
     property Kind: TPropertyKind read FKind;
     property ShortName: TFileName read FShortName;
+    property Extension: TFileName read FExtension;
     property LogicalName: TFileName read FLogicalName;
     property FullName: TFileName read FFullName;
     property IsFileModified: Boolean read FIsFileModified write FIsFileModified;
@@ -148,6 +151,7 @@ type
   public
     procedure RenameFolder(const Name: TFileName);
     procedure RenameFile(const Name: TFileName);
+    function HasExtension(const Extensions: String): Boolean;
     property Kind: TFileAttribute.TPropertyKind read GetKind;
     property Status: TTreeNodeStatus read GetStatus write SetStatus;
     property ShortName: TFileName read GetShortName;
@@ -186,6 +190,7 @@ type
 
 function GetFiles(const Path: TFileName): TStringList;
 function GetDirectories(const Path: TFileName): TStringList;
+function GetChildren(const FullFileName: TFileName): TStringList;
 
 implementation
 
@@ -230,6 +235,49 @@ begin
   FindClose(Rec);
 end;
 
+function GetChildren(const FullFileName: TFileName): TStringList;
+const
+  MASKS: array[0..9] of String =
+   ('%s\%s.lst',
+    '%s\%s.sym',
+    '%s\%s.bin',
+    '%s\%s.com',
+    '%s\%s.html',
+    '%s\%s.rel',
+    '%s\%s.hex',
+    '%s\%s.prn',
+    '%s\%s_*.*',
+    '%s\%s.cmd.log');
+var
+  Path: TFileName = '';
+  FileName: TFileName = '';
+  Mask: String;
+
+  procedure AppendChildren(const Path, FileName: TFileName; List: TStringList; const Mask: String);
+  var
+    Rec: TSearchRec;
+    Temp: String = '';
+  begin
+    if FindFirst(Format(Mask, [Path, FileName]), faAnyFile, Rec) = 0 then begin
+      repeat
+        if ((Rec.Attr and faDirectory) <> faDirectory) then begin
+          Temp := Format('%s\%s', [Path, Rec.Name]);
+          if Result.IndexOf(Temp) < 0 then
+            Result.Add(Temp);
+        end;
+      until FindNext(Rec) <> 0;
+    end;
+  end;
+
+begin
+  Result := TStringList.Create;
+  Path := ExcludeTrailingPathDelimiter(ExtractFilePath(FullFileName));
+  FileName := ExtractFileName(FullFileName);
+  FileName := ChangeFileExt(FileName, EmptyStr);
+  for Mask in MASKS do
+    AppendChildren(Path, FileName, Result, Mask);
+end;
+
 { TFileAttribute }
 
 function TFileAttribute.GetImageIndex: Integer;
@@ -252,11 +300,12 @@ begin
   FPage := nil;
 end;
 
-constructor TFileAttribute.CreateFile(const Name: TFileName; const ProjectName: TFileName);
+constructor TFileAttribute.CreateDocument(const Name: TFileName; const ProjectName: TFileName);
 begin
-  FKind := pkFile;
+  FKind := pkDocument;
   FProjectName := ProjectName;
   FShortName := ExtractFileName(Name);
+  FExtension := ExtractFileExt(FShortName);
   if ProjectName = EmptyStr then
     FLogicalName := FShortName
   else
@@ -264,6 +313,12 @@ begin
   FFullName := Name;
   FIsFileModified := False;
   FPage := nil;
+end;
+
+constructor TFileAttribute.CreateFile(const Name: TFileName; const ProjectName: TFileName);
+begin
+  CreateDocument(Name, ProjectName);
+  FKind := pkFile;
 end;
 
 procedure TFileAttribute.RenameFolder(const Name: TFileName);
@@ -277,7 +332,7 @@ end;
 
 procedure TFileAttribute.RenameFile(const Name: TFileName);
 begin
-  if FKind = pkFile then begin
+  if FKind in [pkDocument, pkFile] then begin
     FShortName := ExtractFileName(Name);
     if FProjectName = EmptyStr then
       FLogicalName := FShortName
@@ -524,7 +579,7 @@ begin
   Result := Assigned(Data);
   if Result then begin
     Attribute := TFileAttribute(Data);
-    Result := (Attribute.Kind = pkFile) and  Config.IsExecutableFile(Attribute.ShortName);
+    Result := (Attribute.Kind in [pkDocument, pkFile]) and  Config.IsExecutableFile(Attribute.ShortName);
   end;
 end;
 
@@ -535,7 +590,7 @@ begin
   Result := Assigned(Data);
   if Result then begin
     Attribute := TFileAttribute(Data);
-    Result := (Attribute.Kind = pkFile) and  Config.IsAssemblyFile(Attribute.ShortName);
+    Result := (Attribute.Kind in [pkDocument, pkFile]) and  Config.IsAssemblyFile(Attribute.ShortName);
   end;
 end;
 
@@ -546,7 +601,7 @@ begin
   Result := Assigned(Data);
   if Result then begin
     Attribute := TFileAttribute(Data);
-    Result := (Attribute.Kind = pkFile) and  Config.HasStructure(Attribute.ShortName);
+    Result := (Attribute.Kind in [pkDocument, pkFile]) and  Config.HasStructure(Attribute.ShortName);
   end;
 end;
 
@@ -567,6 +622,30 @@ begin
   if Assigned(Data) then begin
     Attribute := TFileAttribute(Data);
     Attribute.RenameFile(Name);
+  end;
+end;
+
+function TTreeNodeHelper.HasExtension(const Extensions: String): Boolean;
+var
+  Attribute: TFileAttribute;
+  Temp: TStringList;
+  Ext: String;
+begin
+  Result := False;
+  if Assigned(Data) then begin
+    Attribute := TFileAttribute(Data);
+    Temp := TStringList.Create;
+    try
+      Temp.Delimiter := ';';
+      Temp.DelimitedText := Extensions;
+      for Ext in Temp do
+        if AnsiSameText(Ext, Attribute.Extension) then begin
+          Result := True;
+          Break;
+        end;
+    finally
+      Temp.Free;
+    end;
   end;
 end;
 

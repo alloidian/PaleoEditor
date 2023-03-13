@@ -76,6 +76,7 @@ procedure TFolderWorkForm.RefreshView;
     Name: String = '';
     Attribute: TFileAttribute;
     Node: TTreeNode;
+    List: TStringList;
   begin
     if DirectoryExists(FolderName) then begin
       Files := GetDirectories(FolderName);
@@ -91,19 +92,28 @@ procedure TFolderWorkForm.RefreshView;
       finally
         Files.Free;
       end;
-      Files := GetFiles(FolderName);
+      List := TStringlist.Create;
       try
-        for Name in Files do begin
-          Attribute := TFileAttribute.CreateFile(Name, FFolderName);
-          Node := Navigator.Items.AddChild(Parent, Attribute.ShortName);
-          Node.ImageIndex := WHITE_DOCUMENT_INDEX;
-          Node.SelectedIndex := BLACK_DOCUMENT_INDEX;
-          Node.StateIndex := STATUS_UNATTACHED_INDEX;
-          Node.Data := Attribute;
-          LinkPage(Node);
+        Files := GetFiles(FolderName);
+        try
+          for Name in Files do begin
+            if List.IndexOf(Name) < 0 then begin
+              Attribute := TFileAttribute.CreateDocument(Name, FFolderName);
+              Node := Navigator.Items.AddChild(Parent, Attribute.ShortName);
+              Node.ImageIndex := WHITE_DOCUMENT_INDEX;
+              Node.SelectedIndex := BLACK_DOCUMENT_INDEX;
+              Node.StateIndex := STATUS_UNATTACHED_INDEX;
+              Node.Data := Attribute;
+              if Node.HasExtension('.asm;.z80;.azm;.cmd') then
+                PopulateChildren(Node, List);
+              LinkPage(Node);
+            end;
+          end;
+        finally
+          Files.Free;
         end;
       finally
-        Files.Free;
+        List.Free;
       end;
     end;
   end;
