@@ -1,6 +1,6 @@
 unit Uploads;
 
-{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
+{ Copyright ©2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 

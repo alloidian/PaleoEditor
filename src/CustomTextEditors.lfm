@@ -1,4 +1,4 @@
-inherited SyntaxEditorFrame: TSyntaxEditorFrame
+inherited CustomTextEditorFrame: TCustomTextEditorFrame
   Height = 500
   Width = 966
   ClientHeight = 500
@@ -746,6 +746,7 @@ inherited SyntaxEditorFrame: TSyntaxEditorFrame
     Top = 60
   end
   object Completion: TSynCompletion[6]
+    OnExecute = CompletionExecute
     Position = 0
     LinesInWindow = 6
     SelectedColor = clHighlight

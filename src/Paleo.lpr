@@ -27,12 +27,13 @@ uses
   Interfaces, // this includes the LCL widgetset
   {$IFDEF DEBUG} SysUtils, {$ENDIF}
   Forms, printer4lazarus, lazcontrols, Main, Configs, CustomWorks, Searches,
-  CustomEditors, Utils, SyntaxEditors, Executions, HexEditors, Actions, Abouts,
+  CustomEditors, Utils, CustomTextEditors, Executions, HexEditors, Actions, Abouts,
   SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
   NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
   DirMonitors, EditorConfigs, Assemblers, ProjectConfigs, UnTerminal,
   {$IFDEF TERMINAL} TerminalFrames, TerminalForms, TerminalConfigs, {$ENDIF}
-  Uploads, PackageEngines;
+  Uploads, PackageEngines, AssemblyEditors, BatchEditors,
+  SpinEditors, BasicEditors, PascalEditors, CustomPreviewEditors, HtmlEditors;
 
 {$R *.res}
 

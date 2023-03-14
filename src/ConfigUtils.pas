@@ -46,6 +46,7 @@ const
                                 'Reboot.asm;RTC.asm;Startup.asm;Survey.asm;SysCopy.asm;'    +
                                 'Talk.asm;TESTZ80.asm;Time.asm;Timer.asm;TimeUtil.asm;'     +
                                 'tune.asm;zcpr.asm';
+  INI_HTML_DEF                = '*.html;*.htm';
   INI_SEARCH_DEF              = '*.asm;*.z80;*.azm;*.inc;*.lib;*.lst';
   INI_UNEDITABLE_DEF          = '*.list;*.lst;*.log;*.sym';
   INI_EXCLUDE_FILE_DEF        = '*.pdf;*.docx;*.com;*.exe;*.dll;*.zip;*.lbr;*.png;*.jpg;'   +
@@ -197,6 +198,7 @@ type
     FEditFiles: String;
     FExecuteFiles: String;
     FAssemblyFiles: String;
+    FHtmlFiles: String;
     FSearchFiles: String;
     FUneditableFiles: String;
     FSaveWorkspace: Boolean;
@@ -242,6 +244,7 @@ type
     function IsEditableFile(const FileName: TFileName): Boolean;
     function IsExecutableFile(const FileName: TFileName): Boolean;
     function IsAssemblyFile(const FileName: TFileName): Boolean;
+    function IsHtmlFile(const FileName: TFileName): Boolean;
     function HasStructure(const FileName: TFileName): Boolean;
     function IsSearchableFile(const FileName: TFileName): Boolean;
     function IsReadonlyFile(const FileName: TFileName): Boolean;
@@ -260,6 +263,7 @@ type
     property EditFiles: String read FEditFiles write FEditFiles;
     property ExecuteFiles: String read FExecuteFiles write FExecuteFiles;
     property AssemblyFiles: String read FAssemblyFiles write FAssemblyFiles;
+    property HtmlFiles: String read FHtmlFiles write FHtmlFiles;
     property SearchFiles: String read FSearchFiles write FSearchFiles;
     property UneditableFiles: String read FUneditableFiles write FUneditableFiles;
     property SaveWorkspace: Boolean read FSaveWorkspace write FSaveWorkspace;
@@ -377,6 +381,7 @@ const
   INI_EDIT                 = 'EditFiles';
   INI_EXEC                 = 'ExecuteFiles';
   INI_ASSEMBLE             = 'AssemblyFiles';
+  INI_HTML                 = 'HTML';
   INI_SEARCH               = 'SearchFiles';
   INI_UNEDITABLE           = 'Uneditable';
   INI_SAVE_WORKSPACE       = 'SaveWorkspace';
@@ -916,6 +921,7 @@ begin
     FEditFiles := Ini.ReadString(INI_SETTING, INI_EDIT, INI_EDIT_DEF);
     FExecuteFiles := Ini.ReadString(INI_SETTING, INI_EXEC, INI_EXEC_DEF);
     FAssemblyFiles := Ini.ReadString(INI_SETTING, INI_ASSEMBLE, INI_ASSEMBLE_DEF);
+    FHtmlFiles := Ini.ReadString(INI_SETTING, INI_HTML, INI_HTML_DEF);
     FSearchFiles := Ini.ReadString(INI_SETTING, INI_SEARCH, INI_SEARCH_DEF);
     FUneditableFiles := Ini.ReadString(INI_SETTING, INI_UNEDITABLE, INI_UNEDITABLE_DEF);
     FSaveWorkspace := Ini.ReadBool(INI_SETTING, INI_SAVE_WORKSPACE, INI_SAVE_WORKSPACE_DEF);
@@ -959,6 +965,7 @@ begin
     Ini.WriteString(INI_SETTING, INI_EDIT, FEditFiles);
     Ini.WriteString(INI_SETTING, INI_EXEC, FExecuteFiles);
     Ini.WriteString(INI_SETTING, INI_ASSEMBLE, FAssemblyFiles);
+    Ini.WriteString(INI_SETTING, INI_HTML, FHtmlFiles);
     Ini.WriteString(INI_SETTING, INI_SEARCH, FSearchFiles);
     Ini.WriteString(INI_SETTING, INI_UNEDITABLE, FUneditableFiles);
     Ini.WriteBool(INI_SETTING, INI_SAVE_WORKSPACE, FSaveWorkspace);
@@ -1211,6 +1218,11 @@ end;
 function TConfig.IsAssemblyFile(const FileName: TFileName): Boolean;
 begin
   Result := IsMatch(FileName, AssemblyFiles);
+end;
+
+function TConfig.IsHtmlFile(const FileName: TFileName): Boolean;
+begin
+  Result := MatchesMaskList(FileName, HtmlFiles);
 end;
 
 function TConfig.HasStructure(const FileName: TFileName): Boolean;

@@ -84,6 +84,7 @@ type
     property OnLog: TLogMessageEvent read FOnLog write FOnLog;
     property OnFindIdentifier: TGlobalSearchEvent read FOnFindIdentifier write FOnFindIdentifier;
   end;
+  TCustomEditorFrames = class of TCustomEditorFrame;
 
   TTabSheetHelper = class helper for TTabSheet
   private
@@ -94,12 +95,15 @@ type
     property Status: TTreeNodeStatus read GetStatus;
   end;
 
+  function EditorFactory(const FileName: TFileName): TCustomEditorFrames;
+
 implementation
 
 {$R *.lfm}
 
 uses
-  StrUtils, Configs;
+  Configs, HexEditors, AssemblyEditors, BatchEditors, SpinEditors, BasicEditors, PascalEditors,
+  HtmlEditors;
 
 const
   OVERWRITE_PANEL = 0;
@@ -108,6 +112,45 @@ const
   ROW_PANEL       = 3;
   COL_PANEL       = 4;
   FILE_NAME_PANEL = 5;
+
+function EditorFactory(const FileName: TFileName): TCustomEditorFrames;
+type
+  TFactory = record
+    Ext: String;
+    Editor: TCustomEditorFrames;
+  end;
+const
+  FACTORIES: array[0..17] of TFactory =
+  ((Ext: '.asm';  Editor: TAssemblyEditorFrame),
+   (Ext: '.z80';  Editor: TAssemblyEditorFrame),
+   (Ext: '.azm';  Editor: TAssemblyEditorFrame),
+   (Ext: '.inc';  Editor: TAssemblyEditorFrame),
+   (Ext: '.lib';  Editor: TAssemblyEditorFrame),
+   (Ext: '.mac';  Editor: TAssemblyEditorFrame),
+   (Ext: '.lst';  Editor: TAssemblyEditorFrame),
+   (Ext: '.ins';  Editor: TAssemblyEditorFrame),
+   (Ext: '.bat';  Editor: TBatchEditorFrame),
+   (Ext: '.cmd';  Editor: TBatchEditorFrame),
+   (Ext: '.spin'; Editor: TSpinEditorFrame),
+   (Ext: '.bas';  Editor: TBasicEditorFrame),
+   (Ext: '.pas';  Editor: TPascalEditorFrame),
+   (Ext: '.pp';   Editor: TPascalEditorFrame),
+   (Ext: '.dpr';  Editor: TPascalEditorFrame),
+   (Ext: '.lpr';  Editor: TPascalEditorFrame),
+   (Ext: '.html'; Editor: THtmlEditorFrame),
+   (Ext: '.htm';  Editor: THtmlEditorFrame));
+var
+  Ext: String;
+  I: Integer;
+begin
+  Result := THexEditorFrame;
+  Ext := ExtractFileExt(FileName);
+  for I := Low(FACTORIES) to High(FACTORIES) do
+    if AnsiSameText(Ext, FACTORIES[I].Ext) then begin
+      Result := FACTORIES[I].Editor;
+      Break;
+    end;
+end;
 
 { TCustomEditorFrame }
 
@@ -155,7 +198,6 @@ end;
 procedure TCustomEditorFrame.SetIsModified(Value: Boolean);
 const
   CAPTIONS: array[Boolean] of String = ('', 'Modified');
-  TOKEN = '•';
 begin
   StatusBar.Panels[MODIFIED_PANEL].Text := CAPTIONS[Value];
   if Assigned(FPage) then

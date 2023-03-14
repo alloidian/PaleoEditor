@@ -37,7 +37,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="AsyncPro;UnTerminal"/>
+            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -95,7 +95,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="AsyncPro;UnTerminal"/>
+            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -142,7 +142,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="UnTerminal"/>
+            <OtherUnitFiles Value="UnTerminal;HtmlViewer\source"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -252,13 +252,6 @@
       <Unit>
         <Filename Value="SynHighlighterZ80.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="SyntaxEditors.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="SyntaxEditorFrame"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Frame"/>
       </Unit>
       <Unit>
         <Filename Value="Executions.pas"/>
@@ -395,6 +388,62 @@
         <Filename Value="PackageEngines.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="CustomTextEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CustomTextEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="AssemblyEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="AssemblyEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="BatchEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="BatchEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="SpinEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="SpinEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="BasicEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="BasicEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="PascalEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="PascalEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="CustomPreviewEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="CustomPreviewEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="HtmlEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="HtmlEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -405,7 +454,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="AsyncPro;UnTerminal"/>
+      <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

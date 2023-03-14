@@ -1,0 +1,31 @@
+inherited CustomPreviewEditorFrame: TCustomPreviewEditorFrame
+  object Pages: TPageControl[2]
+    Left = 0
+    Height = 477
+    Top = 0
+    Width = 966
+    ActivePage = EditorPage
+    Align = alClient
+    TabIndex = 0
+    TabOrder = 2
+    TabPosition = tpBottom
+    object EditorPage: TTabSheet
+      Caption = 'Editor'
+    end
+    object PreviewPage: TTabSheet
+      Caption = 'Preview'
+    end
+  end
+  inherited EditorMenu: TPopupMenu[3]
+  end
+  inherited EditorActions: TActionList[4]
+  end
+  inherited BookmarkImages: TImageList[5]
+  end
+  inherited ExporterHTML: TSynExporterHTML[6]
+  end
+  inherited Completion: TSynCompletion[7]
+  end
+  inherited Recorder: TSynMacroRecorder[8]
+  end
+end

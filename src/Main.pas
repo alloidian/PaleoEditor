@@ -117,7 +117,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Utils, Configs, Abouts, FolderWorks, ProjectWorks, Uploads;
+  Utils, Configs, {$IFDEF TERMINAL} Uploads, {$ENDIF} Abouts, FolderWorks, ProjectWorks;
 
 { TMainForm }
 
@@ -404,9 +404,11 @@ begin
 end;
 
 procedure TMainForm.DoUploadFile(Sender: TObject; const FileName: TFileName; var Successful: Boolean);
+{$IFDEF TERMINAL}
 var
   Temp: TFileName;
   Method: TUploadMethod = umDownload;
+{$ENDIF}
 begin
 {$IFDEF TERMINAL}
   Temp := FileName;

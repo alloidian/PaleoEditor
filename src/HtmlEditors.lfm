@@ -1,0 +1,5 @@
+inherited HtmlEditorFrame: THtmlEditorFrame
+  inherited Pages: TPageControl
+    OnChange = PagesChange
+  end
+end

@@ -1,0 +1,268 @@
+object TerminalForm: TTerminalForm
+  Left = 2314
+  Height = 421
+  Top = 283
+  Width = 773
+  Caption = 'Terminal'
+  ClientHeight = 421
+  ClientWidth = 773
+  Constraints.MinHeight = 421
+  Constraints.MinWidth = 773
+  FormStyle = fsMDIChild
+  Menu = TerminalMenus
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  object ControlPanel: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 773
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 50
+    ClientWidth = 773
+    TabOrder = 0
+    object ComPortLabel: TLabel
+      Left = 10
+      Height = 15
+      Top = 5
+      Width = 25
+      Caption = 'Port:'
+      ParentColor = False
+    end
+    object BaudLabel: TLabel
+      Left = 80
+      Height = 15
+      Top = 5
+      Width = 30
+      Caption = 'Baud:'
+      ParentColor = False
+    end
+    object DataBitLabel: TLabel
+      Left = 150
+      Height = 15
+      Top = 5
+      Width = 49
+      Caption = 'Data Bits:'
+      ParentColor = False
+    end
+    object StopBitLabel: TLabel
+      Left = 225
+      Height = 15
+      Top = 5
+      Width = 49
+      Caption = 'Stop Bits:'
+      ParentColor = False
+    end
+    object ParityLabel: TLabel
+      Left = 300
+      Height = 15
+      Top = 5
+      Width = 33
+      Caption = 'Parity:'
+      ParentColor = False
+    end
+    object FlowControlLabel: TLabel
+      Left = 385
+      Height = 15
+      Top = 5
+      Width = 71
+      Caption = 'Flow Control:'
+      ParentColor = False
+    end
+    object CharDelayEdit: TEdit
+      Left = 470
+      Height = 23
+      Top = 20
+      Width = 55
+      Alignment = taRightJustify
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 0
+      Text = '9999'
+    end
+    object LineDelayEdit: TEdit
+      Left = 535
+      Height = 23
+      Top = 20
+      Width = 55
+      Alignment = taRightJustify
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 1
+      Text = '9999'
+    end
+    object CharDelayLabel: TLabel
+      Left = 470
+      Height = 15
+      Top = 5
+      Width = 54
+      Caption = 'Character:'
+      FocusControl = CharDelayEdit
+      ParentColor = False
+    end
+    object LineDelayLabel: TLabel
+      Left = 535
+      Height = 15
+      Top = 5
+      Width = 25
+      Caption = 'Line:'
+      FocusControl = LineDelayEdit
+      ParentColor = False
+    end
+    object ComPortEdit: TEdit
+      Left = 10
+      Height = 23
+      Top = 20
+      Width = 60
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 2
+      Text = 'COM999:'
+    end
+    object BaudEdit: TEdit
+      Left = 80
+      Height = 23
+      Top = 20
+      Width = 60
+      Alignment = taRightJustify
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 3
+      Text = '115200'
+    end
+    object DataBitEdit: TEdit
+      Left = 150
+      Height = 23
+      Top = 20
+      Width = 65
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 4
+      Text = '8 Data Bits'
+    end
+    object StopBitEdit: TEdit
+      Left = 225
+      Height = 23
+      Top = 20
+      Width = 65
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 5
+      Text = '2 Stop Bits'
+    end
+    object ParityEdit: TEdit
+      Left = 300
+      Height = 23
+      Top = 20
+      Width = 75
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 6
+      Text = 'Space Parity'
+    end
+    object FlowControlEdit: TEdit
+      Left = 385
+      Height = 23
+      Top = 20
+      Width = 75
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 7
+      Text = 'Hardware'
+    end
+  end
+  object ActionList: TActionList
+    Left = 144
+    Top = 64
+    object ClearAction: TAction
+      Caption = 'C&lear'
+      OnExecute = ClearActionExecute
+      OnUpdate = ClearActionUpdate
+    end
+    object CopyAction: TAction
+      Caption = '&Copy'
+      OnExecute = CopyActionExecute
+      OnUpdate = CopyActionUpdate
+      ShortCut = 16451
+    end
+    object PasteAction: TAction
+      Caption = '&Paste'
+      OnExecute = PasteActionExecute
+      OnUpdate = PasteActionUpdate
+      ShortCut = 16470
+    end
+    object ConnectAction: TAction
+      Caption = '&Connect'
+      OnExecute = ConnectActionExecute
+    end
+    object DisconnectAction: TAction
+      Caption = '&Disconnect'
+      OnExecute = DisconnectActionExecute
+    end
+    object UploadTextAction: TAction
+      Caption = 'Upload Text File…'
+      OnExecute = UploadTextActionExecute
+      OnUpdate = UploadTextActionUpdate
+    end
+    object UploadBinaryAction: TAction
+      Caption = 'Upload Binary File…'
+      OnExecute = UploadBinaryActionExecute
+      OnUpdate = UploadBinaryActionUpdate
+    end
+    object DownloadBinaryAction: TAction
+      Caption = 'Download Binary File…'
+      OnExecute = DownloadBinaryActionExecute
+      OnUpdate = DownloadBinaryActionUpdate
+    end
+    object CancelTransferAction: TAction
+      Caption = 'Cancel Transfer'
+      OnExecute = CancelTransferActionExecute
+      OnUpdate = CancelTransferActionUpdate
+    end
+  end
+  object TerminalMenus: TMainMenu
+    Left = 40
+    Top = 64
+    object EditMenu: TMenuItem
+      Caption = '&Edit'
+      GroupIndex = 3
+      object EditClearMenu: TMenuItem
+        Action = ClearAction
+      end
+      object EditCopyMenu: TMenuItem
+        Action = CopyAction
+      end
+      object EditPasteMenu: TMenuItem
+        Action = PasteAction
+      end
+    end
+    object TerminalMenu: TMenuItem
+      Caption = '&Terminal'
+      GroupIndex = 4
+      object ConnectMenu: TMenuItem
+        Action = ConnectAction
+      end
+      object UploadTextMenu: TMenuItem
+        Action = UploadTextAction
+      end
+      object UploadBinaryMenu: TMenuItem
+        Action = UploadBinaryAction
+      end
+      object DownloadBinaryMenu: TMenuItem
+        Action = DownloadBinaryAction
+      end
+      object CancelTransferMenu: TMenuItem
+        Action = CancelTransferAction
+      end
+    end
+  end
+end

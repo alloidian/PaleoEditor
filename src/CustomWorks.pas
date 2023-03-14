@@ -480,8 +480,7 @@ implementation
 {$R *.lfm}
 
 uses
-  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf,  SyntaxEditors, HexEditors,
-  Configs, NewFiles, Assemblers;
+  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf, Configs, NewFiles, Assemblers;
 
 var
   Search_Index: Integer;
@@ -656,7 +655,6 @@ var
   var
     I: Integer;
     Node: TTreeNode;
-    J: Integer;
   begin
     for I := Navigator.Items.Count - 1 downto 0 do begin
       Node := Navigator.Items[I];
@@ -1985,10 +1983,7 @@ begin
   Result.Caption := Node.ShortName;
   Result.PageControl := WorkPages;
   Result.ImageIndex := Node.ImageIndex;
-  if Config.IsEditableFile(Node.ShortName) then
-    Editor := TSyntaxEditorFrame.Create(Result)
-  else
-    Editor := THexEditorFrame.Create(Result);
+  Editor := EditorFactory(Node.ShortName).Create(Result);
   Editor.Parent := Result;
   Editor.Align := alClient;
   Editor.Open(Result, Node);
