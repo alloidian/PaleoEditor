@@ -37,7 +37,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source"/>
+            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -95,7 +95,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source"/>
+            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -142,7 +142,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="UnTerminal;HtmlViewer\source"/>
+            <OtherUnitFiles Value="UnTerminal;HtmlViewer\source;MarkDown\source"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -444,6 +444,17 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
+      <Unit>
+        <Filename Value="MarkdownEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="MarkdownEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="SynHighlighterMD.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -454,7 +465,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source"/>
+      <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

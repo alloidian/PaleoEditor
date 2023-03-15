@@ -1,0 +1,5 @@
+inherited MarkdownEditorFrame: TMarkdownEditorFrame
+  inherited Pages: TPageControl
+    OnChange = PagesChange
+  end
+end

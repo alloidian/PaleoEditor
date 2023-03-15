@@ -1,4 +1,4 @@
-unit HtmlEditors;
+unit MarkdownEditors;
 
 { Copyright ©2023 by Steve Garcia. All rights reserved.
 
@@ -20,14 +20,13 @@ unit HtmlEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomPreviewEditors,
-  HtmlView;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomPreviewEditors, HtmlView;
 
 type
 
-  { THtmlEditorFrame }
+  { TMarkdownEditorFrame }
 
-  THtmlEditorFrame = class(TCustomPreviewEditorFrame)
+  TMarkdownEditorFrame = class(TCustomPreviewEditorFrame)
     procedure PagesChange(Sender: TObject);
   private
     FHash: String;
@@ -42,15 +41,15 @@ implementation
 {$R *.lfm}
 
 uses
-  ComCtrls, HtmlBuffer, MD5, SynHighlighterHtml, Searches;
+  ComCtrls, HtmlBuffer, MD5, SynHighlighterMD, MarkdownProcessor, Searches;
 
-{ THtmlEditorFrame }
+{ TMarkdownEditorFrame }
 
-constructor THtmlEditorFrame.Create(AOwner: TComponent);
+constructor TMarkdownEditorFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FHash := EmptyStr;
-  FHighlighter := TSynHTMLSyn.Create(Self);
+  FHighlighter := TSynMDSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
   FViewer := THtmlViewer.Create(Self);
@@ -59,16 +58,56 @@ begin
   FValidActions := [vaCase, vaWord];
 end;
 
-procedure THtmlEditorFrame.PagesChange(Sender: TObject);
+procedure TMarkdownEditorFrame.PagesChange(Sender: TObject);
+const
+  DECORATION1 =
+    '<!DOCTYPE html>'#13#10 +
+    '<html>'#13#10 +
+    '<head>'#13#10 +
+    '  <meta charset="utf-8">'#13#10 +
+    '  <title>Steve Garcia</title>'#13#10 +
+    '  <style>'#13#10 +
+    '    h1 {font-family: helvetica}'#13#10 +
+    '    h2 {font-family: helvetica}'#13#10 +
+    '    p {font-family: helvetica}'#13#10 +
+    '    li {font-family: helvetica}'#13#10 +
+    '    tr {font-family: helvetica}'#13#10 +
+    '  </style>'#13#10 +
+    '</head>'#13#10;
+DECORATION2 =
+    '</body>'#13#10 +
+    '</html>';
 var
   Value: String;
   Hash: String;
+  MD: TMarkdownProcessor;
+
+  procedure SaveString(InString, OutFilePath: string);
+  var
+    F: TextFile;
+  begin
+    AssignFile(F, OutFilePath);
+    try
+      ReWrite(F);
+      Write(F, InString);
+    finally
+      CloseFile(F);
+    end;
+  end;
+
 begin
   if (Sender as TPageControl).PageIndex = 1 then begin
     Value := Editor.Lines.Text;
     Hash := MD5Print(MD5String(Value));
     if not AnsiSameText(FHash, Hash) then begin
       FHash := Hash;
+      MD := TMarkdownProcessor.CreateDialect(mdCommonMark);
+      try
+        Value := DECORATION1 + MD.process(Value) + DECORATION2;
+      finally
+        MD.Free;
+      end;
+      SaveString(Value, 'C:\Dev\Readme.html');
       FViewer.LoadFromString(TBuffer.Convert(UTF8Decode(Value), CP_UTF8));
     end;
   end;

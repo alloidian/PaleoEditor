@@ -102,8 +102,8 @@ implementation
 {$R *.lfm}
 
 uses
-  Configs, HexEditors, AssemblyEditors, BatchEditors, SpinEditors, BasicEditors, PascalEditors,
-  HtmlEditors;
+  Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors, SpinEditors,
+  BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors;
 
 const
   OVERWRITE_PANEL = 0;
@@ -120,7 +120,7 @@ type
     Editor: TCustomEditorFrames;
   end;
 const
-  FACTORIES: array[0..17] of TFactory =
+  FACTORIES: array[0..19] of TFactory =
   ((Ext: '.asm';  Editor: TAssemblyEditorFrame),
    (Ext: '.z80';  Editor: TAssemblyEditorFrame),
    (Ext: '.azm';  Editor: TAssemblyEditorFrame),
@@ -138,7 +138,9 @@ const
    (Ext: '.dpr';  Editor: TPascalEditorFrame),
    (Ext: '.lpr';  Editor: TPascalEditorFrame),
    (Ext: '.html'; Editor: THtmlEditorFrame),
-   (Ext: '.htm';  Editor: THtmlEditorFrame));
+   (Ext: '.htm';  Editor: THtmlEditorFrame),
+   (Ext: '.txt';  Editor: TCustomTextEditorFrame),
+   (Ext: '.md';   Editor: TMarkdownEditorFrame));
 var
   Ext: String;
   I: Integer;

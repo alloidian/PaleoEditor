@@ -32,8 +32,9 @@ uses
   NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
   DirMonitors, EditorConfigs, Assemblers, ProjectConfigs, UnTerminal,
   {$IFDEF TERMINAL} TerminalFrames, TerminalForms, TerminalConfigs, {$ENDIF}
-  Uploads, PackageEngines, AssemblyEditors, BatchEditors,
-  SpinEditors, BasicEditors, PascalEditors, CustomPreviewEditors, HtmlEditors;
+  Uploads, PackageEngines, AssemblyEditors, BatchEditors, SpinEditors,
+  BasicEditors, PascalEditors, CustomPreviewEditors, HtmlEditors, MarkdownEditors,
+  SynHighlighterMD;
 
 {$R *.res}
 
