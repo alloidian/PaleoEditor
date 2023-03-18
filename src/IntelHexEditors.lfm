@@ -1,2 +1,2 @@
-inherited IntelTextEditorFrame: TIntelTextEditorFrame
+inherited IntelHexEditorFrame: TIntelHexEditorFrame
 end
