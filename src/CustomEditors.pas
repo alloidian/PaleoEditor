@@ -103,7 +103,8 @@ implementation
 
 uses
   Masks, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
-  SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors;
+  SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors,
+  XmlEditors;
 
 const
   OVERWRITE_PANEL = 0;
@@ -120,7 +121,7 @@ type
     Editor: TCustomEditorFrames;
   end;
 const
-  FACTORIES: array[0..42] of TFactory =
+  FACTORIES: array[0..48] of TFactory =
   ((Mask: '*.asm';    Editor: TAssemblyEditorFrame),
    (Mask: '*.z80';    Editor: TAssemblyEditorFrame),
    (Mask: '*.azm';    Editor: TAssemblyEditorFrame),
@@ -156,14 +157,20 @@ const
    (Mask: '*.p00';    Editor: TIntelHexEditorFrame),
    (Mask: '*.pff';    Editor: TIntelHexEditorFrame),
    (Mask: 'Makefile'; Editor: TCustomTextEditorFrame),
+   (Mask: 'copying';  Editor: TCustomTextEditorFrame),
    (Mask: '*.docx';   Editor: THexEditorFrame),
    (Mask: '*.doc';    Editor: TCustomTextEditorFrame),
+   (Mask: '*.not';    Editor: TCustomTextEditorFrame),
+   (Mask: '*.hlp';    Editor: TCustomTextEditorFrame),
+   (Mask: '*.msg';    Editor: TCustomTextEditorFrame),
    (Mask: '*.prn';    Editor: TCustomTextEditorFrame),
    (Mask: '*.sym';    Editor: TCustomTextEditorFrame),
    (Mask: 'readme';   Editor: TCustomTextEditorFrame),
    (Mask: 'readme.*'; Editor: TCustomTextEditorFrame),
    (Mask: 'read.me';  Editor: TCustomTextEditorFrame),
-   (Mask: '.git*';    Editor: TCustomTextEditorFrame));
+   (Mask: '.git*';    Editor: TCustomTextEditorFrame),
+   (Mask: '*.xml';    Editor: TXmlEditorFrame),
+   (Mask: '*.kvset';    Editor: TXmlEditorFrame));
 var
   I: Integer;
 begin

@@ -466,6 +466,13 @@
         <Filename Value="SynHighlighterIntelHex.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="XmlEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="XmlEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

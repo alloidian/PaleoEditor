@@ -1,4 +1,4 @@
-unit CustomPreviewEditors;
+unit XmlEditors;
 
 { Copyright ©2023 by Steve Garcia. All rights reserved.
 
@@ -20,37 +20,29 @@ unit CustomPreviewEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, ComCtrls, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
 
 type
-
-  { TCustomPreviewEditorFrame }
-
-  TCustomPreviewEditorFrame = class(TCustomTextEditorFrame)
-    Pages: TPageControl;
-    EditorPage: TTabSheet;
-    PreviewPage: TTabSheet;
-  protected
-    procedure Loaded; override;
+  TXmlEditorFrame = class(TCustomTextEditorFrame)
   public
+    constructor Create(AOwner: TComponent); override;
   end;
 
 implementation
 
 {$R *.lfm}
 
-{ TCustomPreviewEditorFrame }
+uses
+  SynHighlighterXml;
 
-procedure TCustomPreviewEditorFrame.Loaded;
+{ TXmlEditorFrame }
+
+constructor TXmlEditorFrame.Create(AOwner: TComponent);
 begin
-  inherited;
-  Editor.DisableAlign;
-  try
-    Editor.Parent := EditorPage;
-  finally
-    Editor.EnableAlign;
-  end;
+  inherited Create(AOwner);
+  FHighlighter := TSynXmlSyn.Create(Self);
+  Editor.Highlighter := FHighlighter;
+  ExporterHTML.Highlighter := FHighlighter;
 end;
-
 end.
 
