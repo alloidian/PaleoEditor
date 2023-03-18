@@ -1,0 +1,2 @@
+inherited IntelTextEditorFrame: TIntelTextEditorFrame
+end

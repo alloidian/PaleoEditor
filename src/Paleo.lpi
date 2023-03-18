@@ -455,6 +455,17 @@
         <Filename Value="SynHighlighterMD.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="IntelHexEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="IntelTextEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="SynHighlighterIntelHex.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

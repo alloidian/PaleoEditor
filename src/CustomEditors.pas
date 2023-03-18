@@ -102,8 +102,8 @@ implementation
 {$R *.lfm}
 
 uses
-  Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors, SpinEditors,
-  BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors;
+  Masks, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
+  SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors;
 
 const
   OVERWRITE_PANEL = 0;
@@ -116,39 +116,52 @@ const
 function EditorFactory(const FileName: TFileName): TCustomEditorFrames;
 type
   TFactory = record
-    Ext: String;
+    Mask: String;
     Editor: TCustomEditorFrames;
   end;
 const
-  FACTORIES: array[0..19] of TFactory =
-  ((Ext: '.asm';  Editor: TAssemblyEditorFrame),
-   (Ext: '.z80';  Editor: TAssemblyEditorFrame),
-   (Ext: '.azm';  Editor: TAssemblyEditorFrame),
-   (Ext: '.inc';  Editor: TAssemblyEditorFrame),
-   (Ext: '.lib';  Editor: TAssemblyEditorFrame),
-   (Ext: '.mac';  Editor: TAssemblyEditorFrame),
-   (Ext: '.lst';  Editor: TAssemblyEditorFrame),
-   (Ext: '.ins';  Editor: TAssemblyEditorFrame),
-   (Ext: '.bat';  Editor: TBatchEditorFrame),
-   (Ext: '.cmd';  Editor: TBatchEditorFrame),
-   (Ext: '.spin'; Editor: TSpinEditorFrame),
-   (Ext: '.bas';  Editor: TBasicEditorFrame),
-   (Ext: '.pas';  Editor: TPascalEditorFrame),
-   (Ext: '.pp';   Editor: TPascalEditorFrame),
-   (Ext: '.dpr';  Editor: TPascalEditorFrame),
-   (Ext: '.lpr';  Editor: TPascalEditorFrame),
-   (Ext: '.html'; Editor: THtmlEditorFrame),
-   (Ext: '.htm';  Editor: THtmlEditorFrame),
-   (Ext: '.txt';  Editor: TCustomTextEditorFrame),
-   (Ext: '.md';   Editor: TMarkdownEditorFrame));
+  FACTORIES: array[0..34] of TFactory =
+  ((Mask: '*.asm';    Editor: TAssemblyEditorFrame),
+   (Mask: '*.z80';    Editor: TAssemblyEditorFrame),
+   (Mask: '*.azm';    Editor: TAssemblyEditorFrame),
+   (Mask: '*.inc';    Editor: TAssemblyEditorFrame),
+   (Mask: '*.lib';    Editor: TAssemblyEditorFrame),
+   (Mask: '*.mac';    Editor: TAssemblyEditorFrame),
+   (Mask: '*.lst';    Editor: TAssemblyEditorFrame),
+   (Mask: '*.ins';    Editor: TAssemblyEditorFrame),
+   (Mask: '*.bat';    Editor: TBatchEditorFrame),
+   (Mask: '*.cmd';    Editor: TBatchEditorFrame),
+   (Mask: '*.spin';   Editor: TSpinEditorFrame),
+   (Mask: '*.bas';    Editor: TBasicEditorFrame),
+   (Mask: '*.pas';    Editor: TPascalEditorFrame),
+   (Mask: '*.pp';     Editor: TPascalEditorFrame),
+   (Mask: '*.dpr';    Editor: TPascalEditorFrame),
+   (Mask: '*.lpr';    Editor: TPascalEditorFrame),
+   (Mask: '*.html';   Editor: THtmlEditorFrame),
+   (Mask: '*.htm';    Editor: THtmlEditorFrame),
+   (Mask: '*.txt';    Editor: TCustomTextEditorFrame),
+   (Mask: '*.md';     Editor: TMarkdownEditorFrame),
+   (Mask: '*.hex';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.h86';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.hxl';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.hxh';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.obl';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.obh';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.mcs';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.ihex';   Editor: TIntelHexEditorFrame),
+   (Mask: '*.ihe';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.ihx';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.a43';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.a90';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.p00';    Editor: TIntelHexEditorFrame),
+   (Mask: '*.pff';    Editor: TIntelHexEditorFrame),
+   (Mask: 'Makefile'; Editor: TCustomTextEditorFrame));
 var
-  Ext: String;
   I: Integer;
 begin
   Result := THexEditorFrame;
-  Ext := ExtractFileExt(FileName);
   for I := Low(FACTORIES) to High(FACTORIES) do
-    if AnsiSameText(Ext, FACTORIES[I].Ext) then begin
+    if MatchesMask(FileName, FACTORIES[I].Mask) then begin
       Result := FACTORIES[I].Editor;
       Break;
     end;
