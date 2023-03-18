@@ -120,7 +120,7 @@ type
     Editor: TCustomEditorFrames;
   end;
 const
-  FACTORIES: array[0..34] of TFactory =
+  FACTORIES: array[0..42] of TFactory =
   ((Mask: '*.asm';    Editor: TAssemblyEditorFrame),
    (Mask: '*.z80';    Editor: TAssemblyEditorFrame),
    (Mask: '*.azm';    Editor: TAssemblyEditorFrame),
@@ -155,7 +155,15 @@ const
    (Mask: '*.a90';    Editor: TIntelHexEditorFrame),
    (Mask: '*.p00';    Editor: TIntelHexEditorFrame),
    (Mask: '*.pff';    Editor: TIntelHexEditorFrame),
-   (Mask: 'Makefile'; Editor: TCustomTextEditorFrame));
+   (Mask: 'Makefile'; Editor: TCustomTextEditorFrame),
+   (Mask: '*.docx';   Editor: THexEditorFrame),
+   (Mask: '*.doc';    Editor: TCustomTextEditorFrame),
+   (Mask: '*.prn';    Editor: TCustomTextEditorFrame),
+   (Mask: '*.sym';    Editor: TCustomTextEditorFrame),
+   (Mask: 'readme';   Editor: TCustomTextEditorFrame),
+   (Mask: 'readme.*'; Editor: TCustomTextEditorFrame),
+   (Mask: 'read.me';  Editor: TCustomTextEditorFrame),
+   (Mask: '.git*';    Editor: TCustomTextEditorFrame));
 var
   I: Integer;
 begin
