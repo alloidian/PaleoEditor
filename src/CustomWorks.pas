@@ -509,7 +509,6 @@ begin
   FSymbolFileName := EmptyStr;
   UploadSeparator.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
   UploadFileAction.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
-  ActiveControl := NavigatorFilterEdit;
 end;
 
 procedure TCustomWorkForm.FormClose(Sender: TObject; var Action: TCloseAction);

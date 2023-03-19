@@ -1,4 +1,4 @@
-unit XmlEditors;
+unit JsonEditors;
 
 { Copyright ©2023 by Steve Garcia. All rights reserved.
 
@@ -23,7 +23,10 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
 
 type
-  TXmlEditorFrame = class(TCustomTextEditorFrame)
+
+  { TJsonEditorFrame }
+
+  TJsonEditorFrame = class(TCustomTextEditorFrame)
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -33,14 +36,14 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterXml;
+  SynHighlighterJson;
 
-{ TXmlEditorFrame }
+{ TJsonEditorFrame }
 
-constructor TXmlEditorFrame.Create(AOwner: TComponent);
+constructor TJsonEditorFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FHighlighter := TSynXmlSyn.Create(Self);
+  FHighlighter := TSynJsonSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
 end;

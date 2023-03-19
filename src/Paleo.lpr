@@ -34,7 +34,8 @@ uses
   {$IFDEF TERMINAL} TerminalFrames, TerminalForms, TerminalConfigs, {$ENDIF}
   Uploads, PackageEngines, AssemblyEditors, BatchEditors, SpinEditors,
   BasicEditors, PascalEditors, CustomPreviewEditors, HtmlEditors, MarkdownEditors,
-  SynHighlighterMD, IntelHexEditors, SynHighlighterIntelHex, XmlEditors;
+  SynHighlighterMD, IntelHexEditors, SynHighlighterIntelHex, XmlEditors, 
+  JsonEditors, IniEditors;
 
 {$R *.res}
 

@@ -1,4 +1,4 @@
-unit XmlEditors;
+unit IniEditors;
 
 { Copyright ©2023 by Steve Garcia. All rights reserved.
 
@@ -23,7 +23,7 @@ uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
 
 type
-  TXmlEditorFrame = class(TCustomTextEditorFrame)
+  TIniEditorFrame = class(TCustomTextEditorFrame)
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -33,14 +33,14 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterXml;
+  SynHighlighterIni;
 
-{ TXmlEditorFrame }
+{ TIniEditorFrame }
 
-constructor TXmlEditorFrame.Create(AOwner: TComponent);
+constructor TIniEditorFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FHighlighter := TSynXmlSyn.Create(Self);
+  FHighlighter := TSynIniSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
 end;

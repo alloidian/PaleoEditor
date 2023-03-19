@@ -186,6 +186,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="ExtraHighlighters"/>
+      </Item>
+      <Item>
         <PackageName Value="LazControls"/>
       </Item>
       <Item>
@@ -470,6 +473,20 @@
         <Filename Value="XmlEditors.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="XmlEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="JsonEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="JsonEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="IniEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="IniEditorFrame"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
