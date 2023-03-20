@@ -94,15 +94,15 @@ begin
   FCheckSum := EmptyStr;
   FStartCodeAttr := TSynHighlighterAttributes.Create('Start');
   FStartCodeAttr.Style := [];
-  FStartCodeAttr.Foreground := clBlack;
+  FStartCodeAttr.Foreground := clLtGray;
   AddAttribute(FStartCodeAttr);
   FByteCountAttr := TSynHighlighterAttributes.Create('Count');
   FByteCountAttr.Style := [fsBold];
-  FByteCountAttr.Foreground := clBlue;
+  FByteCountAttr.Foreground := clNavy;
   AddAttribute(FByteCountAttr);
   FAddressAttr := TSynHighlighterAttributes.Create('Address');
   FAddressAttr.Style := [fsBold];
-  FAddressAttr.Foreground := clBlack;
+  FAddressAttr.Foreground := clTeal;
   AddAttribute(FAddressAttr);
   FRecordTypeAttr := TSynHighlighterAttributes.Create('Type');
   FRecordTypeAttr.Style := [fsBold];
@@ -114,7 +114,7 @@ begin
   AddAttribute(FDataAttr);
   FCheckSumAttr := TSynHighlighterAttributes.Create('Checksum');
   FCheckSumAttr.Style := [fsBold];
-  FCheckSumAttr.Foreground := clGreen;
+  FCheckSumAttr.Foreground := clPurple;
   AddAttribute(FCheckSumAttr);
   FBlankAttr := TSynHighlighterAttributes.Create('Blank');
   AddAttribute(FBlankAttr);

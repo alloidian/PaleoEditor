@@ -186,6 +186,9 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="richmemopackage"/>
+      </Item>
+      <Item>
         <PackageName Value="ExtraHighlighters"/>
       </Item>
       <Item>
@@ -487,6 +490,13 @@
         <Filename Value="IniEditors.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="IniEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
+      <Unit>
+        <Filename Value="RichTextEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="RichTextEditorFrame"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>

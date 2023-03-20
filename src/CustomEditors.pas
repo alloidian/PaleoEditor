@@ -104,7 +104,7 @@ implementation
 uses
   Masks, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
   SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors,
-  XmlEditors, JsonEditors, IniEditors;
+  XmlEditors, JsonEditors, IniEditors, RichTextEditors;
 
 const
   OVERWRITE_PANEL = 0;
@@ -121,7 +121,7 @@ type
     Editor: TCustomEditorFrames;
   end;
 const
-  FACTORIES: array[0..52] of TFactory =
+  FACTORIES: array[0..55] of TFactory =
   ((Mask: '*.asm';     Editor: TAssemblyEditorFrame),
    (Mask: '*.z80';     Editor: TAssemblyEditorFrame),
    (Mask: '*.z80.sav'; Editor: TAssemblyEditorFrame),
@@ -167,6 +167,8 @@ const
    (Mask: '*.msg';     Editor: TCustomTextEditorFrame),
    (Mask: '*.prn';     Editor: TCustomTextEditorFrame),
    (Mask: '*.sym';     Editor: TCustomTextEditorFrame),
+   (Mask: '*.for';     Editor: TCustomTextEditorFrame),
+   (Mask: '*.log';     Editor: TCustomTextEditorFrame),
    (Mask: 'readme';    Editor: TCustomTextEditorFrame),
    (Mask: 'readme.*';  Editor: TCustomTextEditorFrame),
    (Mask: 'read.me';   Editor: TCustomTextEditorFrame),
@@ -174,7 +176,8 @@ const
    (Mask: '*.xml';     Editor: TXmlEditorFrame),
    (Mask: '*.kvset';   Editor: TXmlEditorFrame),
    (Mask: '*.json';    Editor: TJsonEditorFrame),
-   (Mask: '*.ini';     Editor: TIniEditorFrame));
+   (Mask: '*.ini';     Editor: TIniEditorFrame),
+   (Mask: '*.rtf';     Editor: TRichTextEditorFrame));
 var
   I: Integer;
 begin
