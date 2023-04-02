@@ -38,14 +38,13 @@ type
 
   TCache = record
     Criteria: String;
-    Backwards: Boolean;
     MatchCase: Boolean;
     MatchWholeWordOnly: Boolean;
     ForFile: Boolean;
     procedure Clear;
-    procedure SetValue(const Criteria: String; Backwards, MatchCase, MatchWholeWordOnly,
+    procedure SetValue(const Criteria: String; MatchCase, MatchWholeWordOnly,
       ForFile: Boolean);
-    function IsFirst(const Criteria: String; Backwards, MatchCase, MatchWholeWordOnly,
+    function IsFirst(const Criteria: String; MatchCase, MatchWholeWordOnly,
       ForFile: Boolean): Boolean;
   end;
 
@@ -69,6 +68,7 @@ type
     ScrollBox: TScrollBox;
     SearchEdit: TRadioButton;
     SearchForPanel: TPanel;
+    MatchLabel: TLabel;
     ForTextEdit: TRadioButton;
     ForFileEdit: TRadioButton;
     CriteriaEdit: TComboBox;
@@ -182,45 +182,36 @@ uses
 procedure TCache.Clear;
 begin
   Self.Criteria := EmptyStr;
-  Self.Backwards := False;
   Self.MatchCase := False;
   Self.MatchWholeWordOnly := False;
   Self.ForFile := False;
 end;
 
-procedure TCache.SetValue(const Criteria: String; Backwards, MatchCase, MatchWholeWordOnly,
+procedure TCache.SetValue(const Criteria: String; MatchCase, MatchWholeWordOnly,
   ForFile: Boolean);
 begin
   Self.Criteria := Criteria;
-  Self.Backwards := Backwards;
   Self.MatchCase := MatchCase;
   Self.MatchWholeWordOnly := MatchWholeWordOnly;
   Self.ForFile:= ForFile;
 end;
 
-function TCache.IsFirst(const Criteria: String; Backwards, MatchCase, MatchWholeWordOnly,
+function TCache.IsFirst(const Criteria: String; MatchCase, MatchWholeWordOnly,
   ForFile: Boolean): Boolean;
 var
   CriteriaMatches: Boolean = False;
-  BackwardsMatches: Boolean = False;
   CaseMatches: Boolean = False;
   WholeWordMatches: Boolean = False;
   ForFileMatches: Boolean = False;
 begin
   CriteriaMatches := AnsiSameText(Self.Criteria, Criteria);
-  BackwardsMatches := Self.Backwards = Backwards;
   CaseMatches := Self.MatchCase = MatchCase;
   WholeWordMatches := Self.MatchWholeWordOnly = MatchWholeWordOnly;
   ForFileMatches := Self.ForFile = ForFile;
-  Result := not CriteriaMatches or not BackwardsMatches or not CaseMatches or not
+  Result := not CriteriaMatches or not CaseMatches or not
     WholeWordMatches or not ForFileMatches;
-  if Result then begin
-    Self.Criteria := Criteria;
-    Self.Backwards := Backwards;
-    Self.MatchCase := MatchCase;
-    Self.MatchWholeWordOnly := MatchWholeWordOnly;
-    Self.ForFile := ForFile;
-  end;
+  if Result then
+    SetValue(Criteria, MatchCase, MatchWholeWordOnly, ForFile);
 end;
 
 { TSearchFrame }
@@ -242,7 +233,7 @@ procedure TSearchFrame.SearchPrevActionExecute(Sender: TObject);
 var
   IsFirst: Boolean = False;
 begin
-  IsFirst := FCache.IsFirst(Criteria, True, MatchByCase, MatchWholeWordOnly, ForFile);
+  IsFirst := FCache.IsFirst(Criteria, MatchByCase, MatchWholeWordOnly, ForFile);
   DoSearch(Criteria, IsFirst, True, MatchByCase, MatchWholeWordOnly, ForFile);
 end;
 
@@ -256,7 +247,7 @@ procedure TSearchFrame.SearchNextActionExecute(Sender: TObject);
 var
   IsFirst: Boolean = False;
 begin
-  IsFirst := FCache.IsFirst(Criteria, False, MatchByCase, MatchWholeWordOnly, ForFile);
+  IsFirst := FCache.IsFirst(Criteria, MatchByCase, MatchWholeWordOnly, ForFile);
   DoSearch(Criteria, IsFirst, False, MatchByCase, MatchWholeWordOnly, ForFile)
 end;
 

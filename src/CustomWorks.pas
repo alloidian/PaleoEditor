@@ -274,12 +274,30 @@ type
       var Accept: Boolean);
     procedure WorkPagesMouseDown(Sender: TObject; Button: TMouseButton;Shift: TShiftState;
       X, Y: Integer);
+  private type
+    TFindFileList = class(TObjectList<TTreeNode>)
+    private
+      FNodeIndex: Integer;
+      FNode: TTreeNode;
+      FFindFileName: TFileName;
+      FFindWordCase: Boolean;
+      FFindWholeWord: Boolean;
+      FFindBackwards: Boolean;
+    public
+      procedure ClearAll;
+      function First: Boolean;
+      function Prev: Boolean;
+      function Next: Boolean;
+      function Last: Boolean;
+      property FindFileName: TFileName read FFindFileName write FFindFileName;
+      property FindWordCase: Boolean read FFindWordCase write FFindWordCase ;
+      property FindWholeWord: Boolean read FFindWholeWord write FFindWholeWord;
+      property FindBackwards: Boolean read FFindBackwards write FFindBackwards;
+      property Node: TTreeNode read FNode;
+    end;
   private
     FSearchFrame: TSearchFrame;
-    FFindFileName: TFileName;
-    FFindWordCase: Boolean;
-    FFindWholeWord: Boolean;
-    FFindNode: TTreeNode;
+    FFindFileList: TFindFileList;
     FItinerary: TItinerary;
     FSymbolFileName: TFileName;
     FOnTerminalQuery: TQueryTerminalEvent;
@@ -303,7 +321,6 @@ type
     function FullPath(HomeFolder: String; FileName: String): String;
     function SearchNode(const FileName: TFileName): TTreeNode; overload;
     function SearchNode(Node: TTreeNode; const FileName: TFileName): TTreeNode; overload;
-    function DoesFileMatch(Node: TTreeNode; const FileName: TFileName): Boolean;
     function FindFirstFile(const FileName: TFileName; MatchCase: Boolean; WholeWord: Boolean; Backwards: Boolean): Boolean;
     function FindNextFile(Backwards: Boolean): Boolean;
     procedure SetNavigatorVisible(Value: Boolean);
@@ -331,6 +348,7 @@ type
       MatchCase, MatchWholeWordOnly: Boolean);
     procedure RetrieveLabels(List: TStrings);
     procedure CheckIfModified(Node: TTreeNode);
+    property FindFileList: TFindFileList read FFindFileList;
   public
     procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); virtual; abstract;
     procedure CloseAll;
@@ -505,6 +523,7 @@ begin
   FSearchFrame.OnLabelLookup := DoGotoLine;
   FSearchFrame.OnGotoLine := DoGotoLine;
   FSearchFrame.SearchBy := sbNone;
+  FFindFileList := TFindFileList.Create(False);
   FItinerary := TItinerary.Create;
   FSymbolFileName := EmptyStr;
   UploadSeparator.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
@@ -539,6 +558,7 @@ begin
   FConfigs.WriteConfig;
   FConfigs.Free;
   FItinerary.Free;
+  FFindFileList.Free;
   Config.WriteConfig(Navigator, FFolderName);
   Config.WriteConfig(StatusPages, FFolderName);
   if Config.SaveWorkspace then begin
@@ -2137,61 +2157,64 @@ begin
       Result := SearchNode(Node.GetNext, FileName);
 end;
 
-function TCustomWorkForm.DoesFileMatch(Node: TTreeNode; const FileName: TFileName): Boolean;
-begin
-  if FFindWordCase then
-    if FFindWholeWord then
-      Result := AnsiSameStr(Node.ShortName, FileName)
-    else
-      Result := AnsiContainsStr(Node.ShortName, FileName)
-  else
-    if FFindWholeWord then
-      Result := AnsiSameText(Node.ShortName, FileName)
-    else
-      Result := AnsiContainsText(Node.ShortName, FileName);
-end;
-
 function TCustomWorkForm.FindFirstFile(const FileName: TFileName; MatchCase: Boolean; WholeWord: Boolean; Backwards: Boolean): Boolean;
+var
+  OldNode: TTreeNode;
+  Node: TTreeNode;
+  MayAdd: Boolean;
 begin
-  FFindFileName := FileName;
-  FFindWordCase := MatchCase;
-  FFindWholeWord := WholeWord;
-  FFindNode := Navigator.TopItem;
-  Result := DoesFileMatch(FFindNode, FileName);
+  FindFileList.ClearAll;
+  FindFileList.FindFileName := FileName;
+  FindFileList.FindWordCase := MatchCase;
+  FindFileList.FindWholeWord := WholeWord;
+  FindFileList.FindBackwards := Backwards;
+  Navigator.Items.BeginUpdate;
+  try
+    OldNode := Navigator.Selected;
+    Node := Navigator.TopItem;
+    if Assigned(Node) then begin
+      while Assigned(Node) do begin
+        if MatchCase then
+          if WholeWord then
+            MayAdd := AnsiSameStr(Node.ShortName, FileName)
+          else
+            MayAdd := AnsiContainsStr(Node.ShortName, FileName)
+        else
+          if WholeWord then
+            MayAdd := AnsiSameText(Node.ShortName, FileName)
+          else
+            MayAdd := AnsiContainsText(Node.ShortName, FileName);
+        if MayAdd then
+          FindFileList.Add(Node);
+        Node := Node.GetNext;
+      end;
+    end;
+  finally
+    Navigator.Items.EndUpdate;
+  end;
+  Result := FindFileList.Count > 0;
   if Result then
-    Navigator.Selected := FFindNode
+    if Backwards then
+      Result := FindFileList.Last
+    else
+      Result := FindFileList.First;
+  if Result then
+    Navigator.Selected := FindFileList.Node
   else
-    Result := FindNextFile(Backwards);
+    Navigator.Selected := OldNode;
 end;
 
 function TCustomWorkForm.FindNextFile(Backwards: Boolean): Boolean;
-var
-  OldColor: TColor;
 begin
-  Result := False;
-  repeat
-    if Backwards then
-      FFindNode := FFindNode.GetPrev
-    else
-      FFindNode := FFindNode.GetNext;
-    if not Assigned(FFindNode) then begin
-      FFindFileName :=  EmptyStr;
-      FFindWordCase := False;
-      FFindWholeWord := False;
-      OldColor := Navigator.Color;
-      Navigator.Color := clRed;
-      try
-        Application.ProcessMessages;
-        Beep;
-      finally
-        Navigator.Color := OldColor;
-      end;
-      Break;
-    end;
-    Result := DoesFileMatch(FFindNode, FFindFileName);
-    if Result then
-      Navigator.Selected := FFindNode
-  until Result or not Assigned(FFindNode);
+  if Backwards then
+    Result := FindFileList.Prev
+  else
+    Result := FindFileList.Next;
+  if Result then
+    Navigator.Selected := FindFileList.Node
+  else
+    Flash(Navigator);
+  Result := True;
 end;
 
 procedure TCustomWorkForm.SetNavigatorVisible(Value: Boolean);
@@ -2290,7 +2313,7 @@ begin
     FileList := Utils.GetChildren(Node.FullName);
     try
       ClearList(Node, FileList);
-//      ClearNode(Node, FileList);
+//    ClearNode(Node, FileList);
       UpdateNode(Node, FileList);
       UpdateList(FileList, MasterList);
     finally
@@ -2425,6 +2448,57 @@ begin
   for I := 0 to WorkPages.PageCount - 1 do begin
     Page := WorkPages.Pages[I];
     Page.Editor.RefreshConfig;
+  end;
+end;
+
+{ TCustomWorkForm.TFindFileList }
+
+procedure TCustomWorkForm.TFindFileList.ClearAll;
+begin
+  Clear;
+  FNodeIndex := -1;
+  FNode := nil;
+end;
+
+function TCustomWorkForm.TFindFileList.First: Boolean;
+begin
+  Result := Count > 0;
+  if Result then begin
+    FNodeIndex := 0;
+    FNode := Items[FNodeIndex]; end
+  else begin
+    FNodeIndex := -1;
+    FNode := nil;
+  end;
+end;
+
+function TCustomWorkForm.TFindFileList.Prev: Boolean;
+begin
+  Result := FNodeIndex > 0;
+  if Result then begin
+    Dec(FNodeIndex);
+    FNode := Items[FNodeIndex]
+  end;
+end;
+
+function TCustomWorkForm.TFindFileList.Next: Boolean;
+begin
+  Result := FNodeIndex < Count - 1;
+  if Result then begin
+    Inc(FNodeIndex);
+    FNode := Items[FNodeIndex]
+  end;
+end;
+
+function TCustomWorkForm.TFindFileList.Last: Boolean;
+begin
+  Result := Count > 0;
+  if Result then begin
+    FNodeIndex := Count - 1;
+    FNode := Items[FNodeIndex]; end
+  else begin
+    FNodeIndex := -1;
+    FNode := nil;
   end;
 end;
 

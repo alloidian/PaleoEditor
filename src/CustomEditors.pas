@@ -121,7 +121,7 @@ type
     Editor: TCustomEditorFrames;
   end;
 const
-  FACTORIES: array[0..55] of TFactory =
+  FACTORIES: array[0..57] of TFactory =
   ((Mask: '*.asm';     Editor: TAssemblyEditorFrame),
    (Mask: '*.z80';     Editor: TAssemblyEditorFrame),
    (Mask: '*.z80.sav'; Editor: TAssemblyEditorFrame),
@@ -177,7 +177,9 @@ const
    (Mask: '*.kvset';   Editor: TXmlEditorFrame),
    (Mask: '*.json';    Editor: TJsonEditorFrame),
    (Mask: '*.ini';     Editor: TIniEditorFrame),
-   (Mask: '*.rtf';     Editor: TRichTextEditorFrame));
+   (Mask: '*.rtf';     Editor: TRichTextEditorFrame),
+   (Mask: '*.prj';     Editor: TIniEditorFrame),
+   (Mask: '*.proj';    Editor: TIniEditorFrame));
 var
   I: Integer;
 begin

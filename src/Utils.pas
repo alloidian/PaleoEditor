@@ -20,7 +20,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, ComCtrls, StdCtrls, Generics.Collections, SynEditHighlighter, ConfigUtils;
+  Classes, SysUtils, Controls, ComCtrls, StdCtrls, Generics.Collections, SynEditHighlighter, ConfigUtils;
 
 const
   IMAGE_INDEX: array[Boolean] of Integer = (0, 1);
@@ -194,11 +194,12 @@ function GetChildren(const FullFileName: TFileName): TStringList;
 function FileToUploadStr(const FileName: TFileName): String;
 function FileToUploadFile(const FileName: TFileName; Drive: Char = 'A'; User: Byte = 0): TStringList;
 function FilesToUploadFile(FileNames: TStrings; Drive: Char = 'A'; User: Byte = 0): TStringList;
+procedure Flash(Control: TControl);
 
 implementation
 
 uses
-  StrUtils, FileUtil, Configs;
+  Forms, Graphics, StrUtils, FileUtil, Configs;
 
 function GetFiles(const Path: TFileName): TStringList;
 const
@@ -325,6 +326,22 @@ begin
     finally
       Temp.Free;
     end;
+  end;
+end;
+
+procedure Flash(Control: TControl);
+var
+  OldColor: TColor;
+begin
+  OldColor := Control.Color;
+  Control.Color := clRed;
+  try
+    Beep;
+    Application.ProcessMessages;
+    Sleep(100);
+  finally
+    Control.Color := OldColor;
+    Application.ProcessMessages;
   end;
 end;
 

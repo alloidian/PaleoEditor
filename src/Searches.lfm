@@ -24,19 +24,19 @@ object SearchFrame: TSearchFrame
     ClientWidth = 256
     TabOrder = 0
     object CaseEdit: TCheckBox
-      Left = 24
+      Left = 80
       Height = 19
       Top = 52
-      Width = 82
-      Caption = 'Match Case'
+      Width = 45
+      Caption = 'Case'
       TabOrder = 3
     end
     object WordEdit: TCheckBox
-      Left = 110
+      Left = 146
       Height = 19
       Top = 52
-      Width = 123
-      Caption = 'Match Whole Word'
+      Width = 86
+      Caption = 'Whole Word'
       TabOrder = 4
     end
     object SearchPrevButton: TButton
@@ -219,6 +219,14 @@ object SearchFrame: TSearchFrame
       ExtendedSelect = False
       ItemHeight = 0
       TabOrder = 12
+    end
+    object MatchLabel: TLabel
+      Left = 24
+      Height = 15
+      Top = 54
+      Width = 37
+      Caption = 'Match:'
+      ParentColor = False
     end
   end
   object Actions: TActionList
