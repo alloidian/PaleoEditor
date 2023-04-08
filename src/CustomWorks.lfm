@@ -1,12 +1,12 @@
 object CustomWorkForm: TCustomWorkForm
   Left = 40
-  Height = 482
+  Height = 421
   Top = 30
-  Width = 864
+  Width = 773
   ActiveControl = NavigatorFilterEdit
   Caption = 'Project'
-  ClientHeight = 482
-  ClientWidth = 864
+  ClientHeight = 421
+  ClientWidth = 773
   Constraints.MinHeight = 421
   Constraints.MinWidth = 773
   FormStyle = fsMDIChild
@@ -21,8 +21,8 @@ object CustomWorkForm: TCustomWorkForm
   object StatusPages: TPageControl
     Left = 0
     Height = 104
-    Top = 378
-    Width = 864
+    Top = 317
+    Width = 773
     ActivePage = MessagePage
     Align = alBottom
     Constraints.MaxHeight = 300
@@ -35,12 +35,12 @@ object CustomWorkForm: TCustomWorkForm
     object MessagePage: TTabSheet
       Caption = 'Messages'
       ClientHeight = 76
-      ClientWidth = 856
+      ClientWidth = 765
       object LogEdit: TMemo
         Left = 0
         Height = 76
         Top = 0
-        Width = 856
+        Width = 765
         Align = alClient
         Font.Name = 'Courier New'
         ParentFont = False
@@ -55,20 +55,20 @@ object CustomWorkForm: TCustomWorkForm
     Cursor = crVSplit
     Left = 0
     Height = 8
-    Top = 370
-    Width = 864
+    Top = 309
+    Width = 773
     Align = alBottom
     ResizeAnchor = akBottom
     Visible = False
   end
   object NavigatorPanel: TPanel
     Left = 0
-    Height = 370
+    Height = 309
     Top = 0
     Width = 160
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 370
+    ClientHeight = 309
     ClientWidth = 160
     TabOrder = 2
     object NavigatorFilterPanel: TPanel
@@ -94,7 +94,7 @@ object CustomWorkForm: TCustomWorkForm
     end
     object Navigator: TTreeView
       Left = 0
-      Height = 338
+      Height = 277
       Top = 32
       Width = 160
       Align = alClient
@@ -116,42 +116,41 @@ object CustomWorkForm: TCustomWorkForm
   end
   object NavigatorSplitter: TSplitter
     Left = 160
-    Height = 370
+    Height = 309
     Top = 0
     Width = 8
   end
   object WorkPanel: TPanel
     Left = 168
-    Height = 370
+    Height = 309
     Top = 0
-    Width = 696
+    Width = 605
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 370
-    ClientWidth = 696
+    ClientHeight = 309
+    ClientWidth = 605
     TabOrder = 4
     object SearchPanel: TPanel
-      Left = 440
-      Height = 370
+      Left = 349
+      Height = 309
       Top = 0
       Width = 256
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
     end
-    object WorkPages: TPageControl
+    object WorkPages: TExtendedNotebook
       Left = 0
-      Height = 370
+      Height = 309
       Top = 0
-      Width = 440
+      Width = 349
       Align = alClient
       Images = Images
       PopupMenu = EditorMenu
       TabOrder = 1
       OnChange = WorkPagesChange
-      OnDragDrop = WorkPagesDragDrop
-      OnDragOver = WorkPagesDragOver
-      OnMouseDown = WorkPagesMouseDown
+      TabDragMode = dmAutomatic
+      TabDragAcceptMode = dmAutomatic
     end
   end
   object Images: TImageList
@@ -650,34 +649,6 @@ object CustomWorkForm: TCustomWorkForm
       OnUpdate = ForwardActionUpdate
       ShortCut = 32807
     end
-    object MoveLeftAction: TAction
-      Caption = 'Move Tab Left'
-      Hint = 'Move the selected tab place position to the left.'
-      OnExecute = MoveLeftActionExecute
-      OnUpdate = MoveLeftActionUpdate
-      ShortCut = 32805
-    end
-    object MoveRightAction: TAction
-      Caption = 'Move Tab Right'
-      Hint = 'Move the selected file one position to the right.'
-      OnExecute = MoveRightActionExecute
-      OnUpdate = MoveRightActionUpdate
-      ShortCut = 32807
-    end
-    object MoveFarLeftAction: TAction
-      Caption = 'Move Tab Far Left'
-      Hint = 'Move the selected file to the extreme left.'
-      OnExecute = MoveFarLeftActionExecute
-      OnUpdate = MoveFarLeftActionUpdate
-      ShortCut = 40997
-    end
-    object MoveFarRightAction: TAction
-      Caption = 'Move Tab Far Right'
-      Hint = 'Move the selected file to the extreme right.'
-      OnExecute = MoveFarRightActionExecute
-      OnUpdate = MoveFarRightActionUpdate
-      ShortCut = 40999
-    end
   end
   object NavigatorPopupMenu: TPopupMenu
     Left = 55
@@ -752,21 +723,6 @@ object CustomWorkForm: TCustomWorkForm
     end
     object EditorCloseUnchangedMenu: TMenuItem
       Action = CloseUnmodifiedFilesAction
-    end
-    object EditorMoveSeparator: TMenuItem
-      Caption = '-'
-    end
-    object EditMoveLeftMenu: TMenuItem
-      Action = MoveLeftAction
-    end
-    object EditorModeFarLeftMenu: TMenuItem
-      Action = MoveFarLeftAction
-    end
-    object EditorMoveRightMenu: TMenuItem
-      Action = MoveRightAction
-    end
-    object EditorMoveFarRightMenu: TMenuItem
-      Action = MoveFarRightAction
     end
     object EditorOpenSeparator: TMenuItem
       Caption = '-'

@@ -20,9 +20,10 @@ unit CustomWorks;
 interface
 
 uses
-  Classes, Windows, SysUtils, Forms, Controls, StrUtils, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ExtCtrls, Menus, ActnList, StdActns, Types, Generics.Collections, Utils,
-  CustomEditors, Searches, ConfigUtils, Executions, DirMonitors, TermVT, UnTerminal;
+  Classes, Windows, SysUtils, Forms, Controls, StrUtils, Graphics, Dialogs,
+  ComCtrls, StdCtrls, ExtCtrls, Menus, ActnList, StdActns, ShellCtrls,
+  ExtendedNotebook, Types, Generics.Collections, Utils, CustomEditors, Searches,
+  ConfigUtils, Executions, DirMonitors, TermVT, UnTerminal;
 
 type
   TIterateTreeNodeProc = procedure(Node: TTreeNode; var Continue: Boolean);
@@ -70,10 +71,6 @@ type
     ViewStatusAction: TAction;
     ForwardAction: TAction;
     BackwardAction: TAction;
-    MoveFarRightAction: TAction;
-    MoveFarLeftAction: TAction;
-    MoveRightAction: TAction;
-    MoveLeftAction: TAction;
     RefreshAction: TAction;
     CollapseAllAction: TAction;
     ExpandAllAction: TAction;
@@ -134,11 +131,6 @@ type
     EditorCloseMenu: TMenuItem;
     EditorCloseAllMenu: TMenuItem;
     EditorCloseUnchangedMenu: TMenuItem;
-    EditorMoveSeparator: TMenuItem;
-    EditMoveLeftMenu: TMenuItem;
-    EditorModeFarLeftMenu: TMenuItem;
-    EditorMoveRightMenu: TMenuItem;
-    EditorMoveFarRightMenu: TMenuItem;
     EditorOpenSeparator: TMenuItem;
     EditorOpenExmplorerMenu: TMenuItem;
     EditorOpenConsoleMenu: TMenuItem;
@@ -165,7 +157,7 @@ type
     NavigatorSplitter: TSplitter;
     WorkPanel: TPanel;
     SearchPanel: TPanel;
-    WorkPages: TPageControl;
+    WorkPages: TExtendedNotebook;
     StatusPages: TPageControl;
     MessagePage: TTabSheet;
     LogEdit: TMemo;
@@ -236,14 +228,6 @@ type
     procedure ForwardActionUpdate(Sender: TObject);
     procedure BackwardActionExecute(Sender: TObject);
     procedure BackwardActionUpdate(Sender: TObject);
-    procedure MoveLeftActionExecute(Sender: TObject);
-    procedure MoveLeftActionUpdate(Sender: TObject);
-    procedure MoveFarLeftActionExecute(Sender: TObject);
-    procedure MoveFarLeftActionUpdate(Sender: TObject);
-    procedure MoveRightActionExecute(Sender: TObject);
-    procedure MoveRightActionUpdate(Sender: TObject);
-    procedure MoveFarRightActionExecute(Sender: TObject);
-    procedure MoveFarRightActionUpdate(Sender: TObject);
     procedure RefreshActionExecute(Sender: TObject);
     procedure CollapseAllActionExecute(Sender: TObject);
     procedure ExpandAllActionExecute(Sender: TObject);
@@ -269,11 +253,6 @@ type
     procedure DoOriginate(Sender: TObject; const Criteria, Filter: String);
     procedure AdjustSymbolFile(Sender: TObject);
     procedure WindowClickHandler(Sender: TObject);
-    procedure WorkPagesDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure WorkPagesDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState;
-      var Accept: Boolean);
-    procedure WorkPagesMouseDown(Sender: TObject; Button: TMouseButton;Shift: TShiftState;
-      X, Y: Integer);
   private type
     TFindFileList = class(TObjectList<TTreeNode>)
     private
@@ -1587,46 +1566,6 @@ begin
   (Sender as TAction).Enabled := not FItinerary.IsFirst;
 end;
 
-procedure TCustomWorkForm.MoveLeftActionExecute(Sender: TObject);
-begin
-  WorkPages.ActivePage.PageIndex := WorkPages.ActivePage.TabIndex - 1;
-end;
-
-procedure TCustomWorkForm.MoveLeftActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := WorkPages.ActivePageIndex > 0;
-end;
-
-procedure TCustomWorkForm.MoveFarLeftActionExecute(Sender: TObject);
-begin
-  WorkPages.ActivePage.PageIndex := 0;
-end;
-
-procedure TCustomWorkForm.MoveFarLeftActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := WorkPages.ActivePageIndex > 1;
-end;
-
-procedure TCustomWorkForm.MoveRightActionExecute(Sender: TObject);
-begin
-  WorkPages.ActivePage.PageIndex := WorkPages.ActivePage.TabIndex + 1;
-end;
-
-procedure TCustomWorkForm.MoveRightActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := (WorkPages.ActivePageIndex > -1) and (WorkPages.ActivePageIndex < WorkPages.PageCount - 1);
-end;
-
-procedure TCustomWorkForm.MoveFarRightActionExecute(Sender: TObject);
-begin
-  WorkPages.ActivePage.PageIndex := WorkPages.PageCount - 1;
-end;
-
-procedure TCustomWorkForm.MoveFarRightActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := (WorkPages.ActivePageIndex > -1) and (WorkPages.ActivePageIndex < WorkPages.PageCount - 2);
-end;
-
 procedure TCustomWorkForm.RefreshActionExecute(Sender: TObject);
 var
   OldCursor: TCursor;
@@ -1873,67 +1812,6 @@ end;
 procedure TCustomWorkForm.WindowClickHandler(Sender: TObject);
 begin
   BringToFront;
-end;
-
-procedure TCustomWorkForm.WorkPagesDragDrop(Sender, Source: TObject; X, Y: Integer);
-var
-  SenderPages: TPageControl;
-  SourcePages: TPageControl;
-
-  procedure DoTabDragDrop(Sender, Source: TPageControl; X, Y: Integer);
-  var
-    SourceIndex: Integer = 0;
-    TargetIndex: Integer = 0;
-    ATabSheet: TTabSheet;
-  begin
-     if Sender = Source then begin
-       TargetIndex := GetTabIndex(Sender, X, Y);
-       if TargetIndex > -1  then begin
-         if TargetIndex > Sender.ActivePage.PageIndex then
-           Dec(TargetIndex);
-         Sender.ActivePage.PageIndex := TargetIndex;
-       end; end
-     else begin
-       SourceIndex := Source.ActivePage.PageIndex;
-       TargetIndex := GetTabIndex(Sender, X, Y);
-       if TargetIndex > -1 then begin
-         ATabSheet := Source.Pages[SourceIndex];
-         ATabSheet.PageControl := Sender;
-         ATabSheet.PageIndex := TargetIndex;
-       end;
-    end;
-  end;
-
-begin
-  Exit;
-  if (Sender is TPageControl) and (Source is TPageControl) then begin
-    SenderPages := Sender as TPageControl;
-    SourcePages := Source as TPageControl;
-    DoTabDragDrop(SenderPages, SourcePages, X, Y);
-    SourcePages.EndDrag(True);
-  end;
-end;
-
-procedure TCustomWorkForm.WorkPagesDragOver(Sender, Source: TObject; X, Y: Integer;
-  State: TDragState; var Accept: Boolean);
-var
-  SenderPages: TPageControl;
-begin
-  Exit;
-  if Sender is TPageControl then begin
-    SenderPages := Sender as TPageControl;
-    SenderPages.Repaint;
-    if State <> dsDragLeave then
-      Accept := True;
-  end;
-end;
-
-procedure TCustomWorkForm.WorkPagesMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  Exit;
-  if (Sender is TPageControl) then
-    (Sender as TPageControl).BeginDrag(False);
 end;
 
 function TCustomWorkForm.GetIsModified: Boolean;
