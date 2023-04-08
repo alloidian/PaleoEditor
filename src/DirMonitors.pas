@@ -306,11 +306,13 @@ type
   PFileNotifyInformation = ^TFileNotifyInformation;
 const
   BUFFER_SIZE = 65536;
+type
+  TBuffer = array [0 .. BUFFER_SIZE - 1] of byte;
 var
   WaitResult: DWORD = 0;
   BytesRead: DWORD = 0;
   Info: PFileNotifyInformation;
-  Buffer: array [0 .. BUFFER_SIZE - 1] of byte;
+  Buffer: TBuffer;
   Events: array [0 .. 1] of THandle;
   Overlap: TOverlapped;
   Action: TDirMonitorAction;
@@ -330,6 +332,8 @@ var
   end;
 
 begin
+  Buffer := Default(TBuffer);
+  Overlap := Default(TOverlapped);
   if FDirHandle <> INVALID_HANDLE_VALUE then begin
     FillChar(Overlap, SizeOf(Overlap), 0);
     Overlap.hEvent := FChangeHandle;

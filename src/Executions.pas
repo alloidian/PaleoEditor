@@ -313,6 +313,8 @@ begin
   Security.bInheritHandle := True;
   Security.lpSecurityDescriptor := nil;
   if CreatePipe(ReadPipe, WritePipe, @Security, 0) then begin
+    StartupInfo := Default(TStartupInfo);
+    ProcessInfo := Default(TProcessInformation);
     try
       Buffer := AllocMem(MAX_BUFFER + 1);
       try
