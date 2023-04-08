@@ -277,22 +277,24 @@ type
   private type
     TFindFileList = class(TObjectList<TTreeNode>)
     private
+      FView: TTreeView;
       FNodeIndex: Integer;
       FNode: TTreeNode;
-      FFindFileName: TFileName;
-      FFindWordCase: Boolean;
-      FFindWholeWord: Boolean;
-      FFindBackwards: Boolean;
+      FFileName: TFileName;
+      FWordCase: Boolean;
+      FWholeWord: Boolean;
+      FBackwards: Boolean;
     public
-      procedure ClearAll;
+      constructor Create(View: TTreeView); virtual;
+      function Populate: Boolean;
       function First: Boolean;
       function Prev: Boolean;
       function Next: Boolean;
       function Last: Boolean;
-      property FindFileName: TFileName read FFindFileName write FFindFileName;
-      property FindWordCase: Boolean read FFindWordCase write FFindWordCase ;
-      property FindWholeWord: Boolean read FFindWholeWord write FFindWholeWord;
-      property FindBackwards: Boolean read FFindBackwards write FFindBackwards;
+      property FileName: TFileName read FFileName write FFileName;
+      property WordCase: Boolean read FWordCase write FWordCase ;
+      property WholeWord: Boolean read FWholeWord write FWholeWord;
+      property Backwards: Boolean read FBackwards write FBackwards;
       property Node: TTreeNode read FNode;
     end;
   private
@@ -523,7 +525,7 @@ begin
   FSearchFrame.OnLabelLookup := DoGotoLine;
   FSearchFrame.OnGotoLine := DoGotoLine;
   FSearchFrame.SearchBy := sbNone;
-  FFindFileList := TFindFileList.Create(False);
+  FFindFileList := TFindFileList.Create(Navigator);
   FItinerary := TItinerary.Create;
   FSymbolFileName := EmptyStr;
   UploadSeparator.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
@@ -2157,51 +2159,16 @@ begin
       Result := SearchNode(Node.GetNext, FileName);
 end;
 
+
 function TCustomWorkForm.FindFirstFile(const FileName: TFileName; MatchCase: Boolean; WholeWord: Boolean; Backwards: Boolean): Boolean;
-var
-  OldNode: TTreeNode;
-  Node: TTreeNode;
-  MayAdd: Boolean;
 begin
-  FindFileList.ClearAll;
-  FindFileList.FindFileName := FileName;
-  FindFileList.FindWordCase := MatchCase;
-  FindFileList.FindWholeWord := WholeWord;
-  FindFileList.FindBackwards := Backwards;
-  Navigator.Items.BeginUpdate;
-  try
-    OldNode := Navigator.Selected;
-    Node := Navigator.TopItem;
-    if Assigned(Node) then begin
-      while Assigned(Node) do begin
-        if MatchCase then
-          if WholeWord then
-            MayAdd := AnsiSameStr(Node.ShortName, FileName)
-          else
-            MayAdd := AnsiContainsStr(Node.ShortName, FileName)
-        else
-          if WholeWord then
-            MayAdd := AnsiSameText(Node.ShortName, FileName)
-          else
-            MayAdd := AnsiContainsText(Node.ShortName, FileName);
-        if MayAdd then
-          FindFileList.Add(Node);
-        Node := Node.GetNext;
-      end;
-    end;
-  finally
-    Navigator.Items.EndUpdate;
-  end;
-  Result := FindFileList.Count > 0;
+  FindFileList.FileName := FileName;
+  FindFileList.WordCase := MatchCase;
+  FindFileList.WholeWord := WholeWord;
+  FindFileList.Backwards := Backwards;
+  Result := FindFileList.Populate;
   if Result then
-    if Backwards then
-      Result := FindFileList.Last
-    else
-      Result := FindFileList.First;
-  if Result then
-    Navigator.Selected := FindFileList.Node
-  else
-    Navigator.Selected := OldNode;
+    Navigator.Selected := FindFileList.Node;
 end;
 
 function TCustomWorkForm.FindNextFile(Backwards: Boolean): Boolean;
@@ -2453,11 +2420,66 @@ end;
 
 { TCustomWorkForm.TFindFileList }
 
-procedure TCustomWorkForm.TFindFileList.ClearAll;
+constructor TCustomWorkForm.TFindFileList.Create(View: TTreeView);
+begin
+  inherited Create(False);
+  FView := View;
+end;
+
+function A(Node: TTreeNode; const Text: String): Boolean;
+begin
+  Result := Node.Visible and AnsiSameStr(Node.ShortName, Text);
+end;
+
+function B(Node: TTreeNode; const Text: String): Boolean;
+begin
+  Result := Node.Visible and AnsiContainsStr(Node.ShortName, Text);
+end;
+
+function C(Node: TTreeNode; const Text: String): Boolean;
+begin
+  Result := Node.Visible and AnsiSameText(Node.ShortName, Text);
+end;
+
+function D(Node: TTreeNode; const Text: String): Boolean;
+begin
+  Result := Node.Visible and AnsiContainsText(Node.ShortName, Text);
+end;
+
+function TCustomWorkForm.TFindFileList.Populate: Boolean;
+type
+  TCompare = function(Node: TTreeNode; const Text: String): Boolean;
+  TCompares = array[Boolean, Boolean] of TCompare;
+var
+  Compares: TCompares;
+  Compare: TCompare;
+  Node: TTreeNode;
 begin
   Clear;
   FNodeIndex := -1;
   FNode := nil;
+  Compares[True, True]   := A;
+  Compares[True, False]  := B;
+  Compares[False, True]  := C;
+  Compares[False, False] := D;
+  Compare := Compares[WordCase, WholeWord];
+  FView.Items.BeginUpdate;
+  try
+    Node := FView.TopItem;
+    while Assigned(Node) do begin
+      if Compare(Node, FileName) then
+        Add(Node);
+      Node := Node.GetNext;
+    end;
+  finally
+    FView.Items.EndUpdate;
+  end;
+  Result := Count > 0;
+  if Result then
+    if Backwards then
+      Result := Last
+    else
+      Result := First;
 end;
 
 function TCustomWorkForm.TFindFileList.First: Boolean;
