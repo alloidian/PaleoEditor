@@ -91,7 +91,8 @@ const
      RepeatPrefix : '~';                   {Default repeat prefix}
      CapabilitiesMask : 0;                 {No default extended caps}
      WindowSize : 0;                       {No default windows}
-     MaxLongPacketLen : 0);                {No default long packets}
+     MaxLongPacketLen : 0;                 {No default long packets}
+     SendInitSize : 0);
 
   {#Z+}
   {Default kermit options (from the Kermit Protocol Manual)}
@@ -107,7 +108,8 @@ const
      RepeatPrefix : ' ';                   {Default repeat prefix}
      CapabilitiesMask : 0;                 {No default extended caps}
      WindowSize : 0;                       {No default windows}
-     MaxLongPacketLen : 0);                {No default long packets}
+     MaxLongPacketLen : 0;                 {No default long packets}
+     SendInitSize : 0);
    {#Z-}
 
 {Constructors/destructors}
@@ -150,36 +152,36 @@ implementation
 
 const
   {'S' - SendInit packet option index}
-  MaxL    = 1;     {Max packet length sender can receive (Def = none)}
-  Time    = 2;     {Max seconds to wait before timing out (Def = none)}
-  NPad    = 3;     {Number of padding chars before packets (Def = none)}
-  PadC    = 4;     {Padding character (Def = Nul)}
-  EOL     = 5;     {Packet terminator character (Def = CR)}
-  QCtl    = 6;     {Prefix char for control-char encoding (Def = #)}
-  QBin    = 7;     {Prefix char for hi-bit encoding (Def = ' ' none)}
-  Chkt    = 8;     {1=chksum, 2=2 byte chksum, 3=CRC (Def = 1)}
-  Rept    = 9;     {Prefix char for repeat-count encoding (Def = ' ' none)}
-  Capa    = 10;    {Advanced capabilities bit masks}
-  Windo   = 11;    {Size of the sliding window (in packets)}
+//  MaxL    = 1;     {Max packet length sender can receive (Def = none)}
+//  Time    = 2;     {Max seconds to wait before timing out (Def = none)}
+//  NPad    = 3;     {Number of padding chars before packets (Def = none)}
+//  PadC    = 4;     {Padding character (Def = Nul)}
+//  EOL     = 5;     {Packet terminator character (Def = CR)}
+//  QCtl    = 6;     {Prefix char for control-char encoding (Def = #)}
+//  QBin    = 7;     {Prefix char for hi-bit encoding (Def = ' ' none)}
+//  Chkt    = 8;     {1=chksum, 2=2 byte chksum, 3=CRC (Def = 1)}
+//  Rept    = 9;     {Prefix char for repeat-count encoding (Def = ' ' none)}
+//  Capa    = 10;    {Advanced capabilities bit masks}
+//  Windo   = 11;    {Size of the sliding window (in packets)}
   MaxLx1  = 12;    {long packet size div 95}
   MaxLx2  = 13;    {Long packet size mod 95}
-  SendInitLen = 13; {Size of SendInit data block}
+//  SendInitLen = 13; {Size of SendInit data block}
   MaxKermitOption = 13;
 
   {Advanced capability bit masks}
-  LastMask       = $01;  {Set if more bit masks follow}
+//  LastMask       = $01;  {Set if more bit masks follow}
   LongPackets    = $02;  {Set if using long packets}
   SlidingWindows = $04;  {Set if using sliding windows}
-  FileAttribute  = $08;  {Set if using Attribut packets, not supported}
+//  FileAttribute  = $08;  {Set if using Attribut packets, not supported}
 
   {Text strings for various error/abort conditions}
-  eRecInitTO = 'Timeout waiting for RecInit packet';
-  eFileTO = 'Timeout waiting for File packet';
-  eDataTO = 'Timeout waiting for Data packet';
+//  eRecInitTO = 'Timeout waiting for RecInit packet';
+//  eFileTO = 'Timeout waiting for File packet';
+//  eDataTO = 'Timeout waiting for Data packet';
   eSync = 'Failed to syncronize protocol';
-  eAsync = 'Blockcheck or other error';
+//  eAsync = 'Blockcheck or other error';
   eCancel = 'Canceled';
-  eFileExists = 'Not allowed to overwrite existing file';
+//  eFileExists = 'Not allowed to overwrite existing file';
   eFileError = 'Error opening or writing file';
 
   {Check to aCheckType conversion array}
@@ -187,7 +189,7 @@ const
 
   {Used in ProtocolReceivePart/ProtocolTransmitPart}
   FirstDataState : array[Boolean] of TKermitDataState = (dskData, dskCheck1); 
-  FreeMargin = 20;
+//  FreeMargin = 20;
 
   aDataTrigger = 0;
 
@@ -700,7 +702,7 @@ const
 
   procedure kpCompactInBuff(P : PProtocolData);                        
   var                                                                  
-    TempBuffer : PInBuffer;                                            
+    TempBuffer : PInBuffer = nil;
   begin                                                                
     with P^ do begin                                                   
       TempBuffer := AllocMem(SizeOf(TInBuffer));                       
@@ -750,8 +752,8 @@ const
   procedure kpSendBlockCheck(P : PProtocolData);
     {-Makes final adjustment and sends the aBlockCheck character}
   var
-    Check : Cardinal;
-    C : Char;
+    Check : Cardinal = 0;
+    C : Char = #0;
   begin
     with P^ do begin
       if kCheckKnown then
@@ -800,7 +802,7 @@ const
   procedure kpPutHeader(P : PProtocolData; HType : Char; Len : Cardinal);
     {-Start a header}
   var
-    I : Byte;
+    I : Byte = 0;
   begin
     with P^ do begin
       {Init the block check character}
@@ -860,7 +862,7 @@ const
                           BType : Char);
       {-Transmits one data subpacket from Block}
   var
-    I : Cardinal;
+    I : Cardinal = 0;
   begin
     with P^ do begin
       if BLen = 0 then
@@ -885,8 +887,8 @@ const
   const
     CheckLen : array[1..3] of Byte = (3, 4, 5);
   var
-    TotalLen : Cardinal;
-    I : Byte;
+    TotalLen : Cardinal = 0;
+    I : Byte = 0;
   begin
     with P^ do begin
       {Put required padding}
@@ -925,7 +927,7 @@ const
   const
     AckLen : array[1..3] of Byte = (3, 4, 5);
   var
-    B : Byte;
+    B : Byte = 0;
   begin
     with P^ do begin
       if aHC.Open then begin
@@ -981,10 +983,10 @@ const
                           var RepeatCnt : Cardinal);
     {-Get C from kDataTable handling all prefixing}
   var
-    Finished : Bool;
-    CtlChar : Bool;
-    HibitChar : Bool;
-    Repeating : Bool;
+    Finished : Bool = False;
+    CtlChar : Bool = False;
+    HibitChar : Bool = False;
+    Repeating : Bool = False;
   begin
     with P^ do begin
       Finished := False;
@@ -1051,7 +1053,7 @@ const
   const
     CheckLen : array[1..3] of Byte = (3, 4, 5);
   var
-    C : Char;
+    C : Char = #0;
   begin
     with P^ do begin
       {Assume no header ready}
@@ -1185,7 +1187,7 @@ const
   function kpPacketsOutstanding(P : PProtocolData) : Bool;
     {-True if there are unacked packets in the table}
   var
-    I : Integer;
+    I : Integer = 0;
   begin
     with P^ do begin
       kpPacketsOutstanding := True;
@@ -1198,7 +1200,8 @@ const
 
   function kpGetOldestSequence(P : PProtocolData) : Integer;
   var
-    I, Oldest : Integer;
+    I : Integer = 0;
+    Oldest : Integer = 0;
   begin
     Oldest := MaxInt;
     with P^ do begin
@@ -1216,7 +1219,7 @@ const
   function kpSeqInTable(P : PProtocolData; CurSeq : Integer) : Integer;
     {-Return the position in the table of CurSeq, or -1 of not found}
   var
-    I : Integer;
+    I : Integer = 0;
   begin
     with P^ do begin
       kpSeqInTable := -1;
@@ -1231,7 +1234,7 @@ const
   procedure kpGotAck(P : PProtocolData; CurSeq : Cardinal);
     {-Note ACK for block number CurSeq}
   var
-    I : Integer;
+    I : Integer = 0;
   begin
     with P^ do begin
       I := kpSeqInTable(P, CurSeq);
@@ -1243,8 +1246,8 @@ const
   function kpWindowsUsed(P : PProtocolData) : Byte;
     {-Return number of window slots in use}
   var
-    I : Integer;
-    Cnt : Cardinal;
+    I : Integer = 0;
+    Cnt : Cardinal = 0;
   begin
     with P^ do begin
       if not kpPacketsOutstanding(P) then begin
@@ -1264,14 +1267,14 @@ const
   procedure kpWritePacket(P : PProtocolData; Index : Byte);
     {-Expand and write the packet from table slot Index}
   var
-    TIndex : Cardinal;
-    WIndex : Cardinal;
-    LastIndex : Cardinal;
-    RepeatCnt : Cardinal;
-    Free : Cardinal;
-    Left : Cardinal;
-    C : Char;
-    Failed : Bool;
+    TIndex : Cardinal = 0;
+    WIndex : Cardinal = 0;
+    LastIndex : Cardinal = 0;
+    RepeatCnt : Cardinal = 0;
+    Free : Cardinal = 0;
+    Left : Cardinal = 0;
+    C : Char = #0;
+    Failed : Bool = False;
 
     procedure WriteBlock;
     begin
@@ -1338,7 +1341,7 @@ const
   function kpSeqGreater(P : PProtocolData; Seq1, Seq2 : Byte) : Bool;
     {-Return True if Seq is greater than Seq2, accounting for wrap at 64}
   var
-    I : Integer;
+    I : Integer = 0;
   begin
     with P^ do begin
       I := Seq1 - Seq2;
@@ -1367,8 +1370,8 @@ const
   function kpHiSeq(P : PProtocolData) : Byte;
     {-Return sequence number of highest acceptable sequence number}
   var
-    I     : Byte;
-    Count : Byte;
+    I     : Byte = 0;
+    Count : Byte = 0;
   begin
     with P^ do begin
       {Handle case of no windows}
@@ -1409,10 +1412,10 @@ const
   procedure kpAddToTable(P : PProtocolData; Seq : Byte);
     {-Add Seq to proper location in table}
   var
-    CurSeq : Byte;
-    HeadSeq : Byte;
-    I : Cardinal;
-    Diff : Cardinal;
+    CurSeq : Byte = 0;
+    HeadSeq : Byte = 0;
+    I : Cardinal = 0;
+    Diff : Cardinal = 0;
   begin
     with P^ do begin
       {Calculate kTableHead value for Seq (range known to be OK)}
@@ -1476,8 +1479,8 @@ const
   const
     AckLen : array[1..3] of Byte = (3, 4, 5);
   var
-    B : Byte;
-    Save : Byte;
+    B : Byte = 0;
+    Save : Byte = 0;
   begin
     with P^ do begin
       B := AckLen[Byte(kKermitOptions.Check)-$30];
@@ -1501,11 +1504,11 @@ const
   function kpDataCount(P : PProtocolData; Index : Byte) : Cardinal;
     {-Count actual data characters in slot Index}
   var
-    TIndex : Cardinal;
-    DIndex : Cardinal;
-    LastIndex : Cardinal;
-    RepeatCnt : Cardinal;
-    C : Char;
+    TIndex : Cardinal = 0;
+    DIndex : Cardinal = 0;
+    LastIndex : Cardinal = 0;
+    RepeatCnt : Cardinal = 0;
+    C : Char = #0;
   begin
     with P^ do begin
       {Set starting indexes}
@@ -1528,8 +1531,8 @@ const
   procedure kpProcessDataPacket(P : PProtocolData);
     {-Process received data packet}
   var
-    I : Cardinal;
-    Count : Cardinal;
+    I : Cardinal = 0;
+    Count : Cardinal = 0;
   begin
     with P^ do begin
       aProtocolError := ecOK;
@@ -1610,12 +1613,12 @@ const
   procedure kpReceiveBlock(P : PProtocolData);
     {-Get the datafield of a Kermit packet}
   var
-    C : Char;
-    Check1 : Cardinal;
-    Check2 : Cardinal;
-    Check3 : Cardinal;
-  label
-    ExitPoint;
+    C : Char = #0;
+    Check1 : Cardinal = 0;
+    Check2 : Cardinal = 0;
+    Check3 : Cardinal = 0;
+//  label
+//    ExitPoint;
   begin
     with P^ do begin
       {Get the data block}
@@ -1705,11 +1708,12 @@ const
   procedure kpExpandFileInfo(P : PProtocolData);
     {Un-escapes file info }
   var
-    ExName : PDataBlock;
-    Index, NIndex : Cardinal;
-    Repeating : Boolean;
-    RepeatCount : Integer;
-    C : Char;
+    ExName : PDataBlock = nil;
+    Index : Cardinal = 0;
+    NIndex : Cardinal = 0;
+    Repeating : Boolean = False;
+    RepeatCount : Integer = 0;
+    C : Char = #0;
   begin
     with P^ do begin
       ExName := AllocMem(SizeOf(TDataBlock));
@@ -1758,8 +1762,8 @@ const
   procedure kpExtractFileInfo(P : PProtocolData);
     {-Extracts the file name from the aDatablock}
   var
-    S    : string[fsPathname];
-    Name : string[fsName];
+    S    : string[fsPathname] = '';
+    Name : string[fsName] = '';
     NameExt : array[0..fsName] of Char;
   begin
     with P^ do begin
@@ -1788,7 +1792,7 @@ const
   const
     StdHdrLen = 13;
   var
-    kSaveCheckChar : Char;
+    kSaveCheckChar : Char = #0;
   begin
     with P^ do begin
       {Send the header}
@@ -1846,7 +1850,7 @@ const
   procedure kpSendDataPacket(P : PProtocolData; Slot : Cardinal);
     {-Send the prepared data packet in kDataTable[Slot]}
   var
-    SaveBlockNum : Cardinal;
+    SaveBlockNum : Cardinal = 0;
   begin
     with P^ do begin
       {Move data from table to aDataBlock}
@@ -1864,8 +1868,8 @@ const
   procedure kpResendDataPacket(P : PProtocolData; Seq : Integer);
     {-Resend a data packet}
   var
-    I : Cardinal;
-    SaveBlockNum : Cardinal;
+    I : Cardinal = 0;
+    SaveBlockNum : Cardinal = 0;
   begin
     with P^ do begin
       {Find our sequence in the table}
@@ -1909,10 +1913,10 @@ const
   procedure kpProcessOptions(P : PProtocolData);
     {-Save the just-received options}
   var
-    Tmp : Byte;
-    LBLen : Cardinal;
-    NewTableSize : Cardinal;
-    NewaBlockLen : Cardinal;
+    Tmp : Byte = 0;
+    LBLen : Cardinal = 0;
+    NewTableSize : Cardinal = 0;
+    NewaBlockLen : Cardinal = 0;
   begin
     with P^ do begin
       aProtocolError := ecOK;
@@ -2019,7 +2023,7 @@ const
   procedure kpSendOptions(P : PProtocolData);
     {-Send our options}
   var
-    TotalLen : Byte;
+    TotalLen : Byte = 0;
   begin
     with P^ do begin
       Move(kKermitOptions, aDataBlock^[1], MaxKermitOption);
@@ -2070,7 +2074,7 @@ const
   function kpCheckRetries(P : PProtocolData) : Bool;
     {-Increments retry count, returns True if greater than aHandshakeRetry}
   var
-    Failed : Boolean;
+    Failed : Boolean = False;
   begin
     with P^ do begin
       aForceStatus := True;
@@ -2099,19 +2103,19 @@ const
   const
     SafetyMargin = 5;
   var
-    WIndex : Cardinal;
-    DIndex : Cardinal;
-    RIndex : Cardinal;
-    RepeatCnt : Cardinal;
-    C : Char;
-    ByteCnt : Cardinal;
+    WIndex : Cardinal = 0;
+    DIndex : Cardinal = 0;
+    RIndex : Cardinal = 0;
+    RepeatCnt : Cardinal = 0;
+    C : Char = #0;
+    ByteCnt : Cardinal = 0;
 
     function Repeating(C : Char; var Cnt : Cardinal) : Bool;
       {Returns True (and new index) if repeat C's are found}
     const
       MaxRpt = 94;  {Per Kermit Protocol Manual}
     var
-      Index : Cardinal;
+      Index : Cardinal = 0;
     begin
       with P^ do begin
         Index := WIndex;
@@ -2348,13 +2352,13 @@ Skip:
   procedure kpReceive(Msg, wParam : Cardinal;
                      lParam : Integer);
     {-Performs one increment of a Kermit receive}
-  label
-    ExitPoint;
+//  label
+//    ExitPoint;
   var
     TriggerID   : Cardinal absolute wParam;
-    P           : PProtocolData;
-    Finished    : Bool;
-    StatusTicks : Integer;
+    P           : PProtocolData = nil;
+    Finished    : Bool = False;
+    StatusTicks : Integer = 0;
     Dispatcher      : TApdBaseDispatcher;
   begin
     Finished := False;                                                 {!!.01}
@@ -2795,9 +2799,9 @@ Skip:
     {-Performs one increment of a Kermit transmit}
   var
     TriggerID   : Cardinal absolute wParam;
-    P           : PProtocolData;
-    Finished    : Bool;
-    StatusTicks : Integer;
+    P           : PProtocolData = nil;
+    Finished    : Bool = False;
+    StatusTicks : Integer = 0;
     Dispatcher      : TApdBaseDispatcher;
   begin
     Finished := False;                                                 {!!.01}

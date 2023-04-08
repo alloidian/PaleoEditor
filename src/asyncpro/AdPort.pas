@@ -64,7 +64,7 @@ unit AdPort;
 interface
 
 uses
-  Windows, SysUtils, Classes, Messages, Controls, Forms, OoMisc, AwUser, {$IFNDEF UseAwWin32} LnsWin32, {$ELSE} AwWin32, {$ENDIF} AdExcept, AdSelCom;
+  Windows, SysUtils, Classes, Controls, Forms, OoMisc, AwUser, {$IFNDEF UseAwWin32} LnsWin32, {$ELSE} AwWin32, {$ENDIF} AdExcept, AdSelCom;
 
 type
   {Parity type}
@@ -345,7 +345,7 @@ type
     {Misc}
     function ActivateDeviceLayer : TApdBaseDispatcher; virtual;
     procedure DeviceLayerChanged; virtual;
-    function InitializePort : integer; virtual;
+    function InitializePort : Integer; virtual;
     procedure Loaded; override;
     procedure RegisterComPort(Enabling : Boolean); virtual;
     procedure ValidateComport; virtual;
@@ -760,7 +760,7 @@ const
     TrigHandle : Word absolute wParam;
     Count      : Word absolute wParam;
     CP         : TApdCustomComPort;
-    D          : Pointer;
+    D          : Pointer = nil;
   begin
     case Msg of
     APW_CLOSEPENDING, APW_TRIGGERAVAIL, APW_TRIGGERDATA,
@@ -885,7 +885,7 @@ const
   procedure TApdCustomComPort.SetComNumber(const NewNumber : Word);
     {-Set a new comnumber, close the old port if open}
   var
-    WasOpen : Boolean;
+    WasOpen : Boolean = False;
     OldTracing : TTraceLogState;
     OldLogging : TTraceLogState;
   begin
@@ -1125,7 +1125,7 @@ const
     RequireDSR : array[Boolean] of Word = (0, hfRequireDSR);
     RequireCTS : array[Boolean] of Word = (0, hfRequireCTS);
   var
-    Opts : Word;
+    Opts : Word = 0;
   begin
     if (FHWFlowOptions <> NewOpts) or Force then begin
       Opts := UseDTR[hwfUseDTR in NewOpts] +
@@ -1168,7 +1168,7 @@ const
 
   procedure TApdCustomComPort.SetSWFlowOptions(const NewOpts : TSWFlowOptions);
   var
-    Opts : Word;
+    Opts : Word = 0;
   begin
     if (FSWFlowOptions <> NewOpts) or Force then begin
       if NewOpts = swfBoth then
@@ -1222,7 +1222,7 @@ const
   procedure TApdCustomComPort.SetBufferFull(const NewFull : Word);
     {-Set buffer full mark}
   var
-    SaveForce : Boolean;
+    SaveForce : Boolean = False;
   begin
     if (NewFull <> FBufferFull) or Force then begin
       if NewFull <= InSize then
@@ -1240,7 +1240,7 @@ const
   procedure TApdCustomComPort.SetBufferResume(const NewResume : Word);
     {-Set buffer resume mark}
   var
-    SaveForce : Boolean;
+    SaveForce : Boolean = False;
   begin
     if (NewResume <> FBufferResume) or Force then begin
       if NewResume > FBufferFull then
@@ -1530,7 +1530,7 @@ const
   procedure TApdCustomComPort.SetRS485Mode(NewMode : Boolean);
     {-Set the RS485 mode}
   var
-    NewFlowOpts : THWFlowOptionSet;
+    NewFlowOpts : THWFlowOptionSet = [];
   begin
     if (FRS485Mode <> NewMode) or Force then begin
       FRS485Mode := NewMode;
@@ -1603,7 +1603,7 @@ const
   function TApdCustomComPort.InitializePort : Integer;
   var
     Temp : array[0..12] of Char;
-    FlowFlags : DWORD;
+    FlowFlags : DWORD = 0;
 
     function MakeComName(const ComNum : Word) : PChar;
       {-Return a string like 'COMXX'}
@@ -1704,8 +1704,8 @@ const
   procedure TApdCustomComPort.PortOpen;
     {-Port open processing}
   var
-    I : Word;
-    UL : PUserListEntry;
+    I : Word = 0;
+    UL : PUserListEntry = nil;
   begin
     {Tell all comport users that the port is now open}
     if UserList.Count > 0 then begin
@@ -1731,8 +1731,8 @@ const
   procedure TApdCustomComPort.PortClose;
     {-Port close processing}
   var
-    I : Word;
-    UL : PUserListEntry;
+    I : Word = 0;
+    UL : PUserListEntry = nil;
   begin
     {Tell all comport users that the port is now closed}
     if UserList.Count > 0 then begin
@@ -1759,8 +1759,8 @@ const
     {-Port closing processing, sent to other controls to notify that the port }
     { is starting to close for cleanup }
   var
-    I : Word;
-    UL : PUserListEntry;
+    I : Word = 0;
+    UL : PUserListEntry = nil;
   begin
     { tell all users that the port is now being closed }
     if UserList.Count > 0 then begin
@@ -1963,8 +1963,8 @@ const
   destructor TApdCustomComPort.Destroy;
     {-Destroy the object instance}
   var
-    I : Word;
-    UL : PUserListEntry;
+    I : Word = 0;
+    UL : PUserListEntry = nil;
   begin
 
     {Close the port}
@@ -1989,13 +1989,17 @@ const
   procedure TApdCustomComPort.InitPort;
     {-Physically open the comport}
   var
-    Res : Integer;
-    nBaud     : Integer;
-    nParity   : Word;
-    nDataBits : TDatabits;
-    nStopBits : TStopbits;
-    nHWOpts, nSWOpts, nBufferFull, nBufferResume : Cardinal;
-    nOnChar, nOffChar : Char;
+    Res : Integer = 0;
+    nBaud     : Integer = 0;
+    nParity   : Word = 0;
+    nDataBits : TDatabits = 8;
+    nStopBits : TStopbits = 1;
+    nHWOpts: Cardinal = 0;
+    nSWOpts: Cardinal = 0;
+    nBufferFull: Cardinal = 0;
+    nBufferResume : Cardinal = 0;
+    nOnChar: Char = #0;
+    nOffChar: Char = #0;
   begin
     { Validate the comport -- not needed for Tapi }
     if TapiMode <> tmOn then
@@ -2130,8 +2134,8 @@ const
     {-Assign values of Source to self}
   var
     SourcePort : TApdCustomComPort absolute Source;
-    I : Word;
-    UL : PUserListEntry;
+    I : Word = 0;
+    UL : PUserListEntry = nil;
   begin
     if Source is TApdCustomComPort then begin
       {Discard existing userlist}
@@ -2208,7 +2212,7 @@ const
   procedure TApdCustomComPort.RegisterUser(const H : THandle);
     {-Register a user of this comport}
   var
-    UL : PUserListEntry;
+    UL : PUserListEntry = nil;
   begin
     New(UL);
     with UL^ do begin
@@ -2223,7 +2227,7 @@ const
   procedure TApdCustomComPort.RegisterUserEx(const H : THandle);{!!.03}
       {-Register a TApdComPort user to receive open/closing/close events}
   var
-    UL : PUserListEntry;
+    UL : PUserListEntry = nil;
   begin
     New(UL);
     with UL^ do begin
@@ -2238,7 +2242,7 @@ const
   procedure TApdCustomComPort.RegisterUserCallback(CallBack : TPortCallback);
     {-Register a user of this comport}
   var
-    UL : PUserListEntry;
+    UL : PUserListEntry = nil;
   begin
     New(UL);
     with UL^ do begin
@@ -2254,7 +2258,7 @@ const
     CallBackEx : TPortCallbackEx);
   {-Register a TApdComPort user to receive extended callbacks}
   var
-    UL : PUserListEntry;
+    UL : PUserListEntry = nil;
   begin
     New(UL);
     with UL^ do begin
@@ -2269,7 +2273,7 @@ const
   procedure TApdCustomComPort.DeregisterUser(const H : THandle);
     {-Deregister a user of this comport}
   var
-    UL : PUserListEntry;
+    UL : PUserListEntry = nil;
     I : Word;
   begin
     if csDestroying in ComponentState then Exit;                         {!!.05}
@@ -2289,7 +2293,7 @@ const
   procedure TApdCustomComPort.DeregisterUserCallback(CallBack : TPortCallback);
     {-Deregister a user of this comport}
   var
-    UL : PUserListEntry;
+    UL : PUserListEntry = nil;
     I : Word;
   begin
     if csDestroying in ComponentState then Exit;                         {!!.05}
@@ -2310,7 +2314,7 @@ const
     CallBackEx : TPortCallbackEx);
     {-Deregister a TApdComPort user callback}
   var
-    UL : PUserListEntry;
+    UL : PUserListEntry = nil;
     I : Word;
   begin
     if csDestroying in ComponentState then Exit;                         {!!.05}  
@@ -2517,10 +2521,13 @@ const
   function TApdCustomComPort.AddDataTrigger(const Data : ShortString;
                                             const IgnoreCase : Boolean) : Word;
     {-Add a ShortString data trigger}
+  type
+    TP = array[0..255] of Char;
   var
-    Len : Word;
-    P : array[0..255] of Char;
+    Len : Word = 0;
+    P : TP;
   begin
+    P := Default(TP);
     if (PortState = psShuttingDown) then begin
       Result := 0;
       Exit;
@@ -2599,8 +2606,8 @@ const
   function TApdCustomComPort.PeekChar(const Count : Word) : Char;
     {-Peek at the Count'th character in the buffer (1=next)}
   var
-    Res : Integer;
-    C   : Char;
+    Res : Integer = 0;
+    C   : Char = #0;
   begin
     if (PortState = psShuttingDown) then begin
       Res := ecOk;
@@ -2618,8 +2625,8 @@ const
   function TApdCustomComPort.GetChar : Char;
     {-Retrieve the next character from the input queue}
   var
-    Res : Integer;
-    C   : Char;
+    Res : Integer = 0;
+    C   : Char = #0;
   begin
     if (PortState = psShuttingDown) then begin
       Res := ecOk;
@@ -2681,7 +2688,7 @@ const
                                             IgnoreCase : Boolean) : Boolean;
     {-Compare C against a sequence of chars, looking for S}
   var
-    CurChar : Char;
+    CurChar : Char = #0;
   begin
     CheckForString := False;
     if (PortState = psShuttingDown) then Exit;
@@ -2717,16 +2724,16 @@ const
     {-Wait for data, generate ETimeout exception if not found}
   var
     ET        : EventTimer;
-    C         : Char;
-    CurChar   : Char;
-    StartChar : Char;
-    Index     : Byte;
-    Finished  : Boolean;
-    WasBusy   : Boolean;
-    Len       : Word;
+    C         : Char = #0;
+    CurChar   : Char = #0;
+    StartChar : Char = #0;
+    Index     : Byte = 0;
+    Finished  : Boolean = False;
+    WasBusy   : Boolean = False;
+    Len       : Word = 0;
   begin
     Result := True;
-
+    ET := Default(EventTimer);
     {Exit immediately if nothing to do}
     if (S = '') or (PortState = psShuttingDown) then                 
       Exit;                                                         
@@ -2818,19 +2825,20 @@ const
     MaxSubs = 127;
   var
     ET         : EventTimer;
-    I, Total   : Word;
-    C          : Char;
-    CurChar    : Char;
-    Finished   : Boolean;
-    WasBusy    : Boolean;
+    I          : Word = 0;
+    Total      : Word = 0;
+    C          : Char = #0;
+    CurChar    : Char = #0;
+    Finished   : Boolean = False;
+    WasBusy    : Boolean = False;
     StartChar  : array[1..MaxSubs] of Char;
     StartIndex : array[1..MaxSubs] of Byte;
     EndIndex   : array[1..MaxSubs] of Byte;
     Index      : array[1..MaxSubs] of Byte;
-    Len        : Word;
+    Len        : Word = 0;
   begin
     Result := 0;
-
+    ET := Default(EventTimer);
     {Exit immediately if nothing to do}
     if (S = '') or (PortState = psShuttingDown) then                 
       Exit;
@@ -2956,7 +2964,7 @@ const
 
     function FindComPort(const C : TComponent) : TApdCustomComPort;
     var
-      I  : Integer;
+      I  : Integer = 0;
     begin
       Result := nil;
       if not Assigned(C) then

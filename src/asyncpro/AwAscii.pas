@@ -254,9 +254,9 @@ const
   function spSendBlockPart(P : PProtocolData; var Block : TDataBlock) : Boolean;
     {-Send part of the block, return True when finished}
   var
-    AccumDelay : Cardinal;
-    C : Char;
-    Finished : Boolean;
+    AccumDelay : Cardinal = 0;
+    C : Char  = #0;
+    Finished : Boolean = False;
 
     procedure SendChar(C : Char);
       {-Send current character and increment count}
@@ -351,8 +351,8 @@ const
     {-Collect received data into aDataBlock, return True for full block}
     {-Note: may go one past BlockLen}
   var
-    C : Char;
-    GotEOFMarker : Boolean;                                            
+    C : Char = #0;
+    GotEOFMarker : Boolean = False;
 
     procedure AddChar(C : Char);
       {-Add C to buffer}
@@ -416,7 +416,7 @@ const
                            var BlockSize : Cardinal; var HandShake : Char);
     {-Receive block into Buffer}
   var
-    I : Cardinal;
+    I : Cardinal = 0;
   begin
     with P^ do begin
       {Check for ^Z}
@@ -462,10 +462,10 @@ const
     {-Performs one increment of an ASCII transmit}
   var
     TriggerID   : Cardinal absolute wParam;
-    P           : PProtocolData;
-    Finished    : Boolean;
-    StatusTicks : Integer;
-    Dispatcher      : TApdBaseDispatcher;
+    P           : PProtocolData = nil;
+    Finished    : Boolean = False;
+    StatusTicks : Integer = 0;
+    Dispatcher  : TApdBaseDispatcher;
   begin
     Finished := False;                                                 {!!.01}
     {Get the protocol pointer from data pointer 1}
@@ -671,11 +671,11 @@ const
     ExitPoint;
   var
     TriggerID   : Cardinal absolute wParam;
-    P           : PProtocolData;
-    BlockSize   : Cardinal;
-    Finished    : Boolean;
-    Handshake   : Char;
-    StatusTicks : Integer;
+    P           : PProtocolData = nil;
+    BlockSize   : Cardinal = 0;
+    Finished    : Boolean = False;
+    Handshake   : Char = #0;
+    StatusTicks : Integer = 0;
     Dispatcher  : TApdBaseDispatcher;
 
     procedure Cleanup(DisposeBuffers : Boolean);

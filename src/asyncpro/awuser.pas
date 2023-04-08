@@ -101,7 +101,7 @@ unit AwUser;
 interface
 
 uses
-  Windows, LCLIntf, LCLType, Messages, SysUtils, Classes, OoMisc, AdExcept, LNSQueue, SyncObjs;
+  Windows, LCLIntf, LCLType, SysUtils, Classes, OoMisc, AdExcept, LNSQueue, SyncObjs;
 
 const
   FirstTriggerCounter = 1;
@@ -457,7 +457,7 @@ var
 
 const
   { This should be the same in ADSOCKET.PAS }
-  CM_APDSOCKETMESSAGE = WM_USER + $0711;
+//  CM_APDSOCKETMESSAGE = WM_USER + $0711;
 
   {For setting stop bits}
   StopBitArray : array[TStopbits] of Byte = (OneStopbit, TwoStopbits, 0);
@@ -478,7 +478,7 @@ const
 
   {For clearing modem status}
   ClearDelta    = $F0;
-  ClearNone     = $FF;
+//  ClearNone     = $FF;
   ClearDeltaCTS = Byte(not DeltaCTSMask);
   ClearDeltaDSR = Byte(not DeltaDSRMask);
   ClearDeltaRI  = Byte(not DeltaRIMask);
@@ -493,7 +493,7 @@ const
 function GetTComRecPtr(Cid : Integer; DeviceLayerClass : TApdDispatcherClass) : Pointer;
   {-Find the entry into the port array which has the specified Cid}
 var
-  i : Integer;
+  i : Integer = 0;
 begin
   LockPortList;
   try
@@ -568,7 +568,7 @@ end;
 
   procedure TApdBaseDispatcher.ThreadGone(Sender: TObject);
   var                                                                       // SWB
-    retVal      : Integer;                                                  // SWB
+    retVal      : Integer = 0;                                              // SWB
   begin
     retVal := TApdDispatcherThread(Sender).ReturnValue;                     // SWB
     if ((retVal = ecDeviceRead) or (retVal = ecDeviceWrite)) then           // SWB
@@ -640,7 +640,7 @@ end;
 
   constructor TApdBaseDispatcher.Create(Owner : TObject);
   var
-    i : Integer;
+    i : Integer = 0;
   begin
     inherited Create;
     fOwner := Owner;
@@ -683,7 +683,7 @@ end;
 
   destructor TApdBaseDispatcher.Destroy;
   var
-    i : Integer;
+    i : Integer = 0;
   begin
     if ClosePending then begin
       DonePortPrim
@@ -767,7 +767,7 @@ end;
   procedure TApdBaseDispatcher.RefreshStatus;
     {-Get current ComStatus}
   var
-    NewError : Integer;
+    NewError : Integer = 0;
   begin
     {Get latest ComStatus and LastError}
     NewError := GetComError(ComStatus);
@@ -779,8 +779,8 @@ end;
   procedure TApdBaseDispatcher.MapEventsToMS(Events : Integer);
     {-Set bits in ModemStatus according to flags in Events}
   var
-    OldMS : Byte;
-    Delta : Byte;
+    OldMS : Byte = 0;
+    Delta : Byte = 0;
   begin
     {Note old, get new}
     OldMS := ModemStatus;
@@ -844,7 +844,7 @@ end;
 
   procedure TApdBaseDispatcher.ResetStatusHits;
   var
-    i : Integer;
+    i : Integer = 0;
   begin
     for i := pred(StatusTriggers.Count) downto 0 do
       PStatusTrigger(StatusTriggers[i])^.StatusHit := False;
@@ -853,7 +853,7 @@ end;
 
   procedure TApdBaseDispatcher.ResetDataTriggers;
   var
-    i : Integer;
+    i : Integer = 0;
   begin
     for i := pred(DataTriggers.Count) downto 0 do
       with PDataTrigger(DataTriggers[i])^ do
@@ -868,13 +868,8 @@ end;
                          StopBits : TStopbits;
                          InSize, OutSize : Cardinal;
                          FlowOpts : DWORD) : Integer;                  
-  type
-    OS = record
-      O : Cardinal;
-      S : Cardinal;
-    end;
   var
-    Error : Integer;
+    Error : Integer = 0;
   begin
     RingFlag := False;
 
@@ -1099,8 +1094,8 @@ end;
        19200,  0,      0,      38400,   0,       0,       0,       56000,
        0,      0,      0,      128000,  0,       0,       0,       256000);
   var
-    Index : Cardinal;
-    Baud : Integer;
+    Index : Cardinal = 0;
+    Baud : Integer = 0;
   begin
     if BaudCode = $FEFF then
       {COMM.DRV's 115200 hack}
@@ -1130,12 +1125,12 @@ end;
   { goes out under the "old" line parameters. }
   procedure TApdBaseDispatcher.WaitTxSent;
   var
-    BitsPerChar     : DWORD;
-    BPS             : Integer;
-    MicroSecsPerBit : DWORD;
-    MicroSecs       : DWORD;
-    MilliSecs       : DWORD;
-    TxWaitCount     : Integer;
+    BitsPerChar     : DWORD = 0;
+    BPS             : Integer = 0;
+    MicroSecsPerBit : DWORD = 0;
+    MicroSecs       : DWORD = 0;
+    MilliSecs       : DWORD = 0;
+    TxWaitCount     : Integer = 0;
   begin
     { Wait till our Output Buffer becomes free. }
     { If output hasn't drained in 10 seconds, punt. }
@@ -1172,11 +1167,11 @@ end;
                     DataBits : TDatabits;
                     StopBits : TStopbits) : Integer;
   var
-    NewBaudRate  : DWORD;
-    NewParity    : Cardinal;
-    NewByteSize  : TDatabits;
-    NewStopBits  : Byte;
-    NewFlags     : Integer;                                                 // SWB
+    NewBaudRate  : DWORD = 0;
+    NewParity    : Cardinal = 0;
+    NewByteSize  : TDatabits = 8;
+    NewStopBits  : Byte = 0;
+    NewFlags     : Integer = 0;                                                 // SWB
     {-Set or change the line parameters}
   begin
     Result := ecOK;
@@ -1196,7 +1191,7 @@ end;
 
       {Validate stopbit range}
       if StopBits <> DontChangeStopBits then
-        if StopBits < 1 then
+        if StopBits < 2 then
           StopBits := 1
         else if StopBits > 2 then
           StopBits := 2;
@@ -1336,7 +1331,7 @@ end;
   function TApdBaseDispatcher.GetModemStatusPrim(ClearMask : Byte) : Byte;
     {-Primitive to return the modem status and clear mask}
   var
-    Data : DWORD;
+    Data : DWORD = 0;
   begin
     {Get the new absolute values}
     // There is no reason for this to be inside the critical section        // SWB
@@ -1424,7 +1419,7 @@ end;
     AllErrorMask = ce_RxOver +
                    ce_Overrun + ce_RxParity + ce_Frame;
   var
-    GotError : Boolean;
+    GotError : Boolean = False;
   begin
     DataSection.Enter;
     try
@@ -1499,7 +1494,7 @@ end;
   function TApdBaseDispatcher.CharReady : Boolean;
     {-Return True if at least one character is ready at the device driver}
   var
-    NewTail : Cardinal;
+    NewTail : Cardinal = 0;
   begin
     DispSection.Enter;
     try
@@ -1519,8 +1514,8 @@ end;
   function TApdBaseDispatcher.PeekCharPrim(var C : Char; Count : Cardinal) : Integer;
     {-Return the Count'th character but don't remove it from the buffer}
   var
-    NewTail : Cardinal;
-    InCount : Cardinal;
+    NewTail : Cardinal = 0;
+    InCount : Cardinal = 0;
   begin
     Result := ecOK;
     DispSection.Enter;
@@ -1601,9 +1596,9 @@ end;
     Offset : Cardinal; Len : Cardinal; var NewTail : Cardinal) : Integer;
     {-Return Block from ComPort, return new tail value}
   var
-    Count : Cardinal;
-    EndCount : Cardinal;
-    BeginCount : Cardinal;
+    Count : Cardinal = 0;
+    EndCount : Cardinal = 0;
+    BeginCount : Cardinal = 0;
   begin
     DispSection.Enter;
     try
@@ -1654,8 +1649,8 @@ end;
   function TApdBaseDispatcher.PeekBlock(Block : PChar; Len : Cardinal) : Integer;
     {-Return Block from ComPort but don't set new tail value}
   var
-    Tail : Cardinal;
-    Offset : Cardinal;
+    Tail : Cardinal = 0;
+    Offset : Cardinal = 0;
   begin
     DispSection.Enter;
     try
@@ -1673,8 +1668,8 @@ end;
   function TApdBaseDispatcher.GetBlock(Block : PChar; Len : Cardinal) : Integer;
     {-Get Block from ComPort and set new tail}
   var
-    Tail : Cardinal;
-    I : Cardinal;
+    Tail : Cardinal = 0;
+    I : Cardinal = 0;
   begin
     DispSection.Enter;
     try
@@ -1729,9 +1724,9 @@ end;
   function TApdBaseDispatcher.PutBlock(const Block; Len : Cardinal) : Integer;
     {-Send Block to CommPort}
   var
-    Avail    : Cardinal;
-    I        : Cardinal;
-    CharsOut : Integer;           {Chars transmitted from last block}
+    Avail    : Cardinal = 0;
+    I        : Cardinal = 0;
+    CharsOut : Integer = 0;      {Chars transmitted from last block}
   begin
     {Exit immediately if nothing to do}
     Result := ecOK;
@@ -2115,9 +2110,9 @@ end;
   function TApdBaseDispatcher.SendNotify(Msg, Trigger, Data: Cardinal) : Boolean;
     {-Send trigger messages, return False to stop checking triggers}
   var
-    lParam : DWORD;
-    Res    : DWORD;
-    i      : Integer;
+    lParam : DWORD = 0;
+    Res    : DWORD = 0;
+    i      : Integer = 0;
   begin
     Result := True;
 
@@ -2257,9 +2252,9 @@ end;
                         P : PChar; IgnoreCase : Boolean) : Boolean;
     {-Checks for string P on consecutive calls, returns True when found}
   var
-    I        : Cardinal;
-    Check    : Boolean;
-    GotFirst : Boolean;
+    I        : Cardinal = 0;
+    Check    : Boolean = False;
+    GotFirst : Boolean = False;
   begin
     Result := False;
 
@@ -2312,11 +2307,11 @@ end;
     {-Check status triggers for H, send notification messages as required}
     {-Return True if more checks remain}
   var
-    J : Integer;
-    Hit : Cardinal;
-    StatusLen : Cardinal;
-    Res : Byte;
-    BufCnt : Cardinal;
+    J : Integer = 0;
+    Hit : Cardinal = 0;
+    StatusLen : Cardinal = 0;
+    Res : Byte = 0;
+    BufCnt : Cardinal = 0;
   begin
     {Check status triggers}
     for J := 0 to pred(StatusTriggers.Count) do begin
@@ -2392,16 +2387,14 @@ end;
   function TApdBaseDispatcher.CheckReceiveTriggers : Boolean;
     {-Check all receive triggers for H, send notification messages as required}
     {-Return True if more checks remain}
-  type
-    LH = record L,H : Byte; end;
   var
-    I : Cardinal;
-    J : Integer;
-    BufCnt : Cardinal;
-    MatchSize : Cardinal;
-    CC : Cardinal;
-    AnyMatch : Boolean;
-    C : Char;
+    I : Cardinal = 0;
+    J : Integer = 0;
+    BufCnt : Cardinal = 0;
+    MatchSize : Cardinal = 0;
+    CC : Cardinal = 0;
+    AnyMatch : Boolean = False;
+    C : Char = #0;
 
     function CharCount(CurTail, Adjust : Cardinal) : Cardinal;
       {-Return the number of characters available between CurTail }
@@ -2521,7 +2514,7 @@ end;
     {-Check timer triggers for H, send notification messages as required}
     {-Return True if more checks remain}
   var
-    J : Integer;
+    J : Integer = 0;
   begin
     {Check for timer triggers}
     for J := 0 to pred(TimerTriggers.Count) do begin
@@ -2545,11 +2538,11 @@ end;
     {-Move data from communications driver to dispatch buffer}
     {-Return True if data available, false otherwise}
   var
-    BytesToRead : Cardinal;
-    FreeSpace : Cardinal;
-    BeginFree : Cardinal;
-    EndFree : Cardinal;
-    Len : Integer;
+    BytesToRead : Cardinal = 0;
+    FreeSpace : Cardinal = 0;
+    BeginFree : Cardinal = 0;
+    EndFree : Cardinal = 0;
+    Len : Integer = 0;
   begin
     DispSection.Enter;
     try
@@ -2712,7 +2705,7 @@ end;
 
   procedure TApdBaseDispatcher.RegisterWndTriggerHandler(HW : TApdHwnd);
   var
-    TH : PWndTriggerHandler;
+    TH : PWndTriggerHandler = nil;
   begin
     DataSection.Enter;
     try
@@ -2737,7 +2730,7 @@ end;
 
   procedure TApdBaseDispatcher.RegisterProcTriggerHandler(NP : TApdNotifyProc);
   var
-    TH : PProcTriggerHandler;
+    TH : PProcTriggerHandler = nil;
   begin
     DataSection.Enter;
     try
@@ -2762,7 +2755,7 @@ end;
 
   procedure TApdBaseDispatcher.RegisterSyncEventTriggerHandler(NP : TApdNotifyEvent);
   var
-    TH : PEventTriggerHandler;
+    TH : PEventTriggerHandler = nil;
   begin
     DataSection.Enter;
     try
@@ -2788,7 +2781,7 @@ end;
 
   procedure TApdBaseDispatcher.RegisterEventTriggerHandler(NP : TApdNotifyEvent);
   var
-    TH : PEventTriggerHandler;
+    TH : PEventTriggerHandler = nil;
   begin
     DataSection.Enter;
     try
@@ -2814,7 +2807,7 @@ end;
 
   procedure TApdBaseDispatcher.DeregisterWndTriggerHandler(HW : TApdHwnd);
   var
-    i : Integer;
+    i : Integer = 0;
   begin
     DataSection.Enter;
     try
@@ -2841,7 +2834,7 @@ end;
 
   procedure TApdBaseDispatcher.DeregisterProcTriggerHandler(NP : TApdNotifyProc);
   var
-    i : Integer;
+    i : Integer = 0;
   begin
     DataSection.Enter;
     try
@@ -2868,7 +2861,7 @@ end;
 
   procedure TApdBaseDispatcher.DeregisterEventTriggerHandler(NP : TApdNotifyEvent);
   var
-    i : Integer;
+    i : Integer = 0;
   begin
     DataSection.Enter;
     try
@@ -2896,8 +2889,8 @@ end;
   function TApdBaseDispatcher.GetTriggerHandle : Cardinal;
     {-Find, allocate and return the first free trigger handle}
   var
-    I : Integer;
-    Good : Boolean;
+    I : Integer = 0;
+    Good : Boolean = False;
   begin
     { Allocate a trigger handle. If we can, within the size of the handle's   }
     { datatype, we just increment TriggerCounter to get a new handle. If not, }
@@ -2939,8 +2932,8 @@ end;
                                    var T : TTriggerType; var Trigger : Pointer) : Integer;
     {-Find the trigger index}
   var
-    i : Integer;
-    b : Byte;
+    i : Integer = 0;
+    b : Byte = 0;
   begin
     T := ttNone;
     Result := ecOk;
@@ -3017,7 +3010,7 @@ end;
   function TApdBaseDispatcher.AddTimerTrigger : Integer;
     {-Add a timer trigger}
   var
-    NewTimerTrigger : PTimerTrigger;
+    NewTimerTrigger : PTimerTrigger = nil;
   begin
     DataSection.Enter;
     try
@@ -3044,7 +3037,7 @@ end;
                               IgnoreCase : Boolean; Len : Cardinal) : Integer;
     {-Add a data trigger, data is any ASCIIZ string so no embedded zeros}
   var
-    NewDataTrigger : PDataTrigger;
+    NewDataTrigger : PDataTrigger = nil;
   begin
     DataSection.Enter;
     try
@@ -3085,7 +3078,7 @@ end;
   function TApdBaseDispatcher.AddStatusTrigger(SType : Cardinal) : Integer;
     {-Add a status trigger of type SType}
   var
-    NewStatusTrigger : PStatusTrigger;
+    NewStatusTrigger : PStatusTrigger = nil;
   begin
     if (SType > stOutSent) then begin
       Result := ecBadArgument;
@@ -3116,8 +3109,8 @@ end;
   function TApdBaseDispatcher.RemoveTrigger(TriggerHandle : Cardinal) : Integer;
     {-Remove the trigger for Index}
   var
-    Trigger : Pointer;
-    T : TTriggerType;
+    Trigger : Pointer = nil;
+    T : TTriggerType = ttNone;
   begin
     DataSection.Enter;
     try
@@ -3140,8 +3133,8 @@ end;
   const
     DeactivateStr : string = 'Deactivated';
   var
-    Trigger : PTimerTrigger;
-    T : TTriggerType;
+    Trigger : PTimerTrigger = nil;
+    T : TTriggerType = ttNone;
   begin
     DataSection.Enter;
     try
@@ -3173,8 +3166,8 @@ end;
   function TApdBaseDispatcher.ExtendTimer(TriggerHandle : Cardinal;
                         Ticks : Integer) : Integer;
   var
-    Trigger : PTimerTrigger;
-    T : TTriggerType;
+    Trigger : PTimerTrigger = nil;
+    T : TTriggerType = ttNone;
   begin
     DataSection.Enter;
     try
@@ -3197,8 +3190,8 @@ end;
   function TApdBaseDispatcher.TimerTicksRemaining(TriggerHandle : Cardinal;
                                 var TicksRemaining : Integer) : Integer;
   var
-    Trigger : PTimerTrigger;
-    T : TTriggerType;
+    Trigger : PTimerTrigger = nil;
+    T : TTriggerType = ttNone;
   begin
     TicksRemaining := 0;
     DataSection.Enter;
@@ -3218,7 +3211,7 @@ end;
 
   procedure TApdBaseDispatcher.UpdateHandlerFlags(FlagUpdate : TApHandlerFlagUpdate);
   var
-    HandlersInstalled : Boolean;
+    HandlersInstalled : Boolean = False;
   begin
     DataSection.Enter;
     try
@@ -3251,8 +3244,8 @@ end;
   type
     LH = record L,H : Byte; end;
   var
-    Trigger : PStatusTrigger;
-    T : TTriggerType;
+    Trigger : PStatusTrigger = nil;
+    T : TTriggerType = ttNone;
 
     function SetLineBits(Value : Cardinal) : Cardinal;
       {-Return mask that can be checked against LastError later}
@@ -3335,10 +3328,10 @@ end;
   procedure TApdBaseDispatcher.SaveTriggers(var Save : TTriggerSave);
     {-Saves all current triggers to Save}
   var
-    i : Integer;
-    NewTimerTrigger : PTimerTrigger;
-    NewDataTrigger : PDataTrigger;
-    NewStatusTrigger : PStatusTrigger;
+    i : Integer = 0;
+    NewTimerTrigger : PTimerTrigger = nil;
+    NewDataTrigger : PDataTrigger = nil;
+    NewStatusTrigger : PStatusTrigger = nil;
   begin
     with Save do begin
       DataSection.Enter;
@@ -3376,10 +3369,10 @@ end;
   procedure TApdBaseDispatcher.RestoreTriggers(var Save : TTriggerSave);
     {-Restores previously saved triggers}
   var
-    i : Integer;
-    NewTimerTrigger : PTimerTrigger;
-    NewDataTrigger : PDataTrigger;
-    NewStatusTrigger : PStatusTrigger;
+    i : Integer = 0;
+    NewTimerTrigger : PTimerTrigger = nil;
+    NewDataTrigger : PDataTrigger = nil;
+    NewStatusTrigger : PStatusTrigger = nil;
   begin
     with Save do begin
       DataSection.Enter;
@@ -3611,15 +3604,18 @@ end;
   const
     Digits : array[0..$F] of Char = '0123456789ABCDEF';
     LowChar : array[Boolean] of Byte = (32, 33);
+  type
+    TTraceFileBuffer = array[1..512] of Char;
   var
-    Start, Len : Cardinal;
+    Start : Cardinal = 0;
+    Len : Cardinal = 0;
     TraceFile : Text;
-    TraceFileBuffer : array[1..512] of Char;
-    LastEventType : Char;
-    First : Boolean;
-    Col : Cardinal;
-    I : Cardinal;
-    Res : Cardinal;
+    TraceFileBuffer : TTraceFileBuffer;
+    LastEventType : Char = #0;
+    First : Boolean = False;
+    Col : Cardinal = 0;
+    I : Cardinal = 0;
+    Res : Cardinal = 0;
 
     procedure CheckCol(N : Cardinal);
       {-Wrap if N bytes would exceed column limit}
@@ -3634,6 +3630,7 @@ end;
     function HexB(B : Byte) : string;
       {-Return hex string for byte}
     begin
+      Result := Default(String);
       SetLength(Result, 2);
       HexB[1] := Digits[B shr 4];
       HexB[2] := Digits[B and $F];
@@ -3641,7 +3638,7 @@ end;
 
   begin
     Result := ecOK;
-
+    TraceFileBuffer := Default(TTraceFileBuffer);
     {Make sure we have something to do}
     if TraceQueue = nil then
       Exit;
@@ -3851,26 +3848,27 @@ end;
     {-Dump the dispatch log}
   const
     StartColumn = 45;                                              
-    Digits : array[0..$F] of Char = '0123456789ABCDEF';
     LowChar : array[Boolean] of Byte = (32, 33);
+  type
+    TLogFileBuffer = array[1..512] of Char;
   var
-    I, J : Cardinal;
-    Col : Cardinal;
-    Res : Integer;
+    I : Cardinal = 0;
+    J : Cardinal = 0;
+    Col : Cardinal = 0;
+    Res : Integer = 0;
     DumpFile : Text;
-    C : Char;
-    LogFileBuffer : array[1..512] of Char;
-    S : string[80];
+    C : Char = #0;
+    LogFileBuffer : TLogFileBuffer;
+    S : string[80] = '';
     logBfr      : TLogBuffer;                                               // SWB
 
     function GetOSVersion : string;
     var
       OSVersion : TOSVersionInfo;
-      SerPack : string;                                                  {!!.04}
+      SerPack : string = '';                                             {!!.04}
     begin
       OSVersion.dwOSVersionInfoSize := SizeOf(OSVersion);
       GetVersionEx(OSVersion);
-      SerPack := '';                                                     {!!.04}
       case OSVersion.dwPlatformID of
         VER_PLATFORM_WIN32s        : begin                               {!!.04}
           SerPack := StrPas(OSVersion.szCSDVersion);                     {!!.04}
@@ -3922,7 +3920,7 @@ end;
 
   begin
     Result := ecOK;
-
+    LogFileBuffer := Default(TLogFileBuffer);
     {Make sure we have something to do}
     if ((DLoggingQueue = nil) or                                            // SWB
         (DLoggingQueue.Count = 0)) then begin                               // SWB
@@ -4174,7 +4172,7 @@ end;
   procedure TApdBaseDispatcher.SetRS485Mode(OnOff : Boolean);
     {-Set/reset the RS485 flag}
   var
-    LocalBaseAddress : Word;
+    LocalBaseAddress : Word = 0;
   begin
     DataSection.Enter;
     try
@@ -4252,7 +4250,7 @@ end;
   procedure TOutThread.Execute;
     {-Wait for and process output events}
   var
-    Res : Integer;
+    Res : Integer = 0;
     OutOL         : TOverlapped;       {For output event waiting}
 
     function DataInBuffer : Boolean;
@@ -4270,10 +4268,10 @@ end;
 
     procedure ProcessOutputEvent(H : TApdBaseDispatcher);
     var
-      NumToWrite : Integer;
-      NumWritten : DWORD;
-      Ok         : Boolean;
-      TempBuff   : POBuffer;
+      NumToWrite : Integer = 0;
+      NumWritten : DWORD = 0;
+      Ok         : Boolean = False;
+      TempBuff   : POBuffer = nil;
     begin
       while DataInBuffer do begin
         with H do begin
@@ -4490,11 +4488,13 @@ end;
   procedure TComThread.Execute;
     {-Wait for and process communications events}
   var
-    Junk     : DWORD;
-    LastMask : Integer;
+    Junk     : DWORD = 0;
+    LastMask : Integer = 0;
     Timeouts : TCommTimeouts;
     ComOL    : TOverlapped;       {For com event waiting}
   begin
+    Timeouts := Default(TCommTimeouts);
+    ComOL := Default(TOverlapped);
     InterLockedIncrement(H.ActiveThreads);
     try
       FillChar(ComOL, SizeOf(ComOL), #0);

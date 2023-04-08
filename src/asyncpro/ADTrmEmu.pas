@@ -190,7 +190,7 @@ type
           cmAppend); {..capture data, appending to old file}
 
   TAdTerminalCursorMovedEvent =
-     procedure (aSender : TObject; aRow, aCol : integer) of object;
+     procedure (aSender : TObject; aRow, aCol : Integer) of object;
 
   TAdCursorType = (  {cursor types}
     ctNone,          {..no cursor is visible}
@@ -205,7 +205,7 @@ type
 
 const
   {default property values for the terminal}
-  adc_TermActive = true;
+  adc_TermActive = True;
   adc_TermBackColor = adc_TermBufBackColor;
   adc_TermBlinkTime = 500;
   adc_TermBorderStyle = bsSingle;
@@ -215,17 +215,17 @@ const
   adc_TermCursorType = ctBlock;
   adc_TermFontName = 'Terminal';
   adc_TermForeColor = adc_TermBufForeColor;
-  adc_TermHalfDuplex = false;
+  adc_TermHalfDuplex = False;
   adc_TermHeight = 200;
   adc_TermLazyByteDelay = 200;
   adc_TermLazyTimeDelay = 100;
   adc_TermRowCount = adc_TermBufRowCount;
-  adc_TermScrollback = false;
+  adc_TermScrollback = False;
   adc_TermScrollRowCount = adc_TermBufScrollRowCount;
-  adc_TermUseLazyDisplay = true;
-  adc_TermWantAllKeys = true;
+  adc_TermUseLazyDisplay = True;
+  adc_TermWantAllKeys = True;
   adc_TermWidth = 300;
-  adc_FreezeScrollback = true;
+  adc_FreezeScrollback = True;
   adc_TermMouseSelect = True;                                            {!!.03}
   adc_TermAutoCopy = True;                                               {!!.03}
   adc_TermAutoScrollback = True;                                         {!!.03}
@@ -235,21 +235,21 @@ const
   adc_TermPasteToScreen = False;                                         {!!.04}
 
   {default property values for the VT100 emulator--'power-up' values}
-  adc_VT100ANSIMode = true;
+  adc_VT100ANSIMode = True;
   adc_VT100Answerback = 'APROterm';
-  adc_VT100AppKeyMode = false;
-  adc_VT100AppKeypadMode = false;
-  adc_VT100AutoRepeat = true;
-  adc_VT100Col132Mode = false;
+  adc_VT100AppKeyMode = False;
+  adc_VT100AppKeypadMode = False;
+  adc_VT100AutoRepeat = True;
+  adc_VT100Col132Mode = False;
   adc_VT100G0CharSet = 0;
   adc_VT100G1CharSet = 0;
-  adc_VT100GPOMode = false;
+  adc_VT100GPOMode = False;
   adc_VT100InsertMode = adc_TermBufUseInsertMode;
-  adc_VT100Interlace = false;
+  adc_VT100Interlace = False;
   adc_VT100NewLineMode = adc_TermBufUseNewLineMode;
   adc_VT100RelOriginMode = not adc_TermBufUseAbsAddress;
-  adc_VT100RevScreenMode = false;
-  adc_VT100SmoothScrollMode = false;
+  adc_VT100RevScreenMode = False;
+  adc_VT100SmoothScrollMode = False;
   adc_VT100WrapAround = adc_TermBufUseAutoWrap;
 
 type                          
@@ -357,54 +357,54 @@ type
 
   TAdCustomTerminal = class(TApdBaseWinControl)
     private
-      FActive         : boolean;
-      FBlinkTime      : integer;
-      FBlinkTimeCount : integer;
-      FBlinkTextVisible : boolean;
+      FActive         : Boolean;
+      FBlinkTime      : Integer;
+      FBlinkTimeCount : Integer;
+      FBlinkTextVisible : Boolean;
       FBorderStyle    : TBorderStyle;
       FByteQueue      : pointer;
       FCapture        : TAdCaptureMode;
       FCaptureFile    : string;
       FCaptureStream  : TFileStream;
       FCanvas         : TCanvas;
-      FCharHeight     : integer; {height of char cell in pixels}
-      FCharWidth      : integer; {width of char cell in pixels}
-      FClientCols     : integer; {client width in columns, incl part}
-      FClientFullCols : integer; {client width in *full* columns}
-      FClientRows     : integer; {client height in rows, incl part}
-      FClientFullRows : integer; {client height in *full* rows}
+      FCharHeight     : Integer; {height of char cell in pixels}
+      FCharWidth      : Integer; {width of char cell in pixels}
+      FClientCols     : Integer; {client width in columns, incl part}
+      FClientFullCols : Integer; {client width in *full* columns}
+      FClientRows     : Integer; {client height in rows, incl part}
+      FClientFullRows : Integer; {client height in *full* rows}
       FComPort        : TapdCustomComPort;
-      FCreatedCaret   : boolean;
+      FCreatedCaret   : Boolean;
       FCursorType     : TAdCursorType;
       FDefEmulator    : TAdTerminalEmulator; {default = tty}
       FEmulator       : TAdTerminalEmulator;
-      FHalfDuplex     : boolean;
-      FHaveSelection  : boolean;
+      FHalfDuplex     : Boolean;
+      FHaveSelection  : Boolean;
       FHeartbeat      : TTimer;
-      FLazyByteCount  : integer;
-      FLazyTimeCount  : integer;
-      FLazyByteDelay  : integer;
-      FLazyTimeDelay  : integer;
+      FLazyByteCount  : Integer;
+      FLazyTimeCount  : Integer;
+      FLazyByteDelay  : Integer;
+      FLazyTimeDelay  : Integer;
       FLButtonAnchor  : TPoint;
-      FLButtonDown    : boolean;
+      FLButtonDown    : Boolean;
       FLButtonRect    : TRect;
       FOnCursorMoved  : TAdTerminalCursorMovedEvent;
-      FOriginCol      : integer;
-      FOriginRow      : integer;
-      FScrollback     : boolean;
-      FFreezeScrollBack : boolean;                                     
+      FOriginCol      : Integer;
+      FOriginRow      : Integer;
+      FScrollback     : Boolean;
+      FFreezeScrollBack : Boolean;                                     
       FScrollHorzInfo : TScrollInfo;
       FScrollVertInfo : TScrollInfo;
-      FShowingCaret   : boolean;
-      FTriggerHandlerOn : boolean;
+      FShowingCaret   : Boolean;
+      FTriggerHandlerOn : Boolean;
       FUsedRect       : TRect;
-      FUseLazyDisplay : boolean;
+      FUseLazyDisplay : Boolean;
       FUnusedRightRect    : TRect;
       FUnusedBottomRect   : TRect;
-      FUseHScrollBar  : boolean;
-      FUseVScrollBar  : boolean;
-      FWantAllKeys    : boolean;
-      FWaitingForComPortOpen : boolean;
+      FUseHScrollBar  : Boolean;
+      FUseVScrollBar  : Boolean;
+      FWantAllKeys    : Boolean;
+      FWaitingForComPortOpen : Boolean;
       FWaitingForPort        : Boolean;                                  {!!.03}
       FMouseSelect           : Boolean;                                  {!!.03}
       FAutoCopy              : Boolean;                                  {!!.03}
@@ -422,50 +422,50 @@ type
       procedure Loaded; override;                                        {!!.03}
       procedure tmFollowCursor;                                          {!!.03}
       {get and set methods for properties}
-      function tmGetAttributes(aRow, aCol : integer) : TAdTerminalCharAttrs;
-      function tmGetBackColor(aRow, aCol : integer) : TColor;
-      function tmGetCharSet(aRow, aCol : integer) : byte;
-      function tmGetColumns : integer;
+      function tmGetAttributes(aRow, aCol : Integer) : TAdTerminalCharAttrs;
+      function tmGetBackColor(aRow, aCol : Integer) : TColor;
+      function tmGetCharSet(aRow, aCol : Integer) : byte;
+      function tmGetColumns : Integer;
       function tmGetEmulator : TAdTerminalEmulator;
-      function tmGetForeColor(aRow, aCol : integer) : TColor;
-      function tmGetLine(aRow : integer) : string;
-      function tmGetRows : integer;
-      function tmGetScrollbackRows : integer;
+      function tmGetForeColor(aRow, aCol : Integer) : TColor;
+      function tmGetLine(aRow : Integer) : string;
+      function tmGetRows : Integer;
+      function tmGetScrollbackRows : Integer;
 
-      procedure tmSetActive(aValue : boolean);
-      procedure tmSetAttributes(aRow, aCol : integer;
+      procedure tmSetActive(aValue : Boolean);
+      procedure tmSetAttributes(aRow, aCol : Integer;
                         const aAttr      : TAdTerminalCharAttrs);
       procedure tmSetAutoCopy (const v : Boolean);                       {!!.03}
       procedure tmSetAutoScrollback (const v : Boolean);                 {!!.03}
-      procedure tmSetBackColor(aRow, aCol : integer; aValue : TColor);
-      procedure tmSetBlinkTime(aValue : integer);
+      procedure tmSetBackColor(aRow, aCol : Integer; aValue : TColor);
+      procedure tmSetBlinkTime(aValue : Integer);
       procedure tmSetBorderStyle(aBS : TBorderStyle);
       procedure tmSetCapture(aValue : TAdCaptureMode);
       procedure tmSetCaptureFile(const aValue : string);
       procedure tmSetCharHPadding (const v : Integer);                   {!!.06}
-      procedure tmSetCharSet(aRow, aCol : integer; aValue : byte);
+      procedure tmSetCharSet(aRow, aCol : Integer; aValue : byte);
       procedure tmSetCharVPadding (const v : Integer);                   {!!.06}
       procedure tmSetComPort(aValue : TapdCustomComPort);
-      procedure tmSetColumns(aValue : integer);
+      procedure tmSetColumns(aValue : Integer);
       procedure tmSetCursorType(aValue : TAdCursorType);
       procedure tmSetFollowCursor (const v : Boolean);                   {!!.03}
-      procedure tmSetForeColor(aRow, aCol : integer; aValue : TColor);
+      procedure tmSetForeColor(aRow, aCol : Integer; aValue : TColor);
       procedure tmSetEmulator(aValue : TAdTerminalEmulator);
       procedure tmSetHideScrollbars (const v : Boolean);                 {!!.03}
-      procedure tmSetLazyByteDelay(aValue : integer);
-      procedure tmSetLazyTimeDelay(aValue : integer);
-      procedure tmSetLine(aRow : integer; const aValue : string);
+      procedure tmSetLazyByteDelay(aValue : Integer);
+      procedure tmSetLazyTimeDelay(aValue : Integer);
+      procedure tmSetLine(aRow : Integer; const aValue : string);
       procedure tmSetMouseSelect (const v : Boolean);                    {!!.03}
-      procedure tmSetOriginCol(aValue : integer);
-      procedure tmSetOriginRow(aValue : integer);
+      procedure tmSetOriginCol(aValue : Integer);
+      procedure tmSetOriginRow(aValue : Integer);
       procedure tmSetPasteToPort (const v : Boolean);                    {!!.04}
       procedure tmSetPasteToScreen (const v : Boolean);                  {!!.04}
-      procedure tmSetRows(aValue : integer);
-      procedure tmSetScrollback(aValue : boolean);
-      procedure tmSetScrollbackRows(aValue : integer);
-      procedure tmSetUseLazyDisplay(aValue : boolean);
-      procedure tmSetWantAllKeys(aValue : boolean);
-      procedure tmSetFreezeScrollBack (v : boolean);                   
+      procedure tmSetRows(aValue : Integer);
+      procedure tmSetScrollback(aValue : Boolean);
+      procedure tmSetScrollbackRows(aValue : Integer);
+      procedure tmSetUseLazyDisplay(aValue : Boolean);
+      procedure tmSetWantAllKeys(aValue : Boolean);
+      procedure tmSetFreezeScrollBack (v : Boolean);                   
 
       {various miscellaneous methods}
       procedure tmDrawDefaultText;
@@ -473,7 +473,7 @@ type
       procedure tmCalcExtent;
       procedure tmDetachFromComPort;
       procedure tmGetFontInfo;
-      procedure tmInvalidateRow(aRow : integer);
+      procedure tmInvalidateRow(aRow : Integer);
 
       {caret methods}
       procedure tmFreeCaret;
@@ -489,26 +489,26 @@ type
       function  tmNeedVScrollbar : Boolean;                              {!!.03}
       procedure tmRemoveHScrollBar;                                      {!!.03}
       procedure tmRemoveVScrollBar;                                      {!!.03}
-      procedure tmScrollHorz(aDist : integer);
-      procedure tmScrollVert(aDist : integer);
+      procedure tmScrollHorz(aDist : Integer);
+      procedure tmScrollVert(aDist : Integer);
 
       {selection stuff}
-      procedure tmGrowSelect(X, Y : integer);
-      procedure tmMarkDeselected(aRow : integer;
-                                 aFromCol, aToCol : integer);
-      procedure tmMarkSelected(aRow : integer;
-                               aFromCol, aToCol : integer);
-      function tmProcessClipboardCopy(var Msg : TWMKeyDown) : boolean;
-      procedure tmStartSelect(X, Y : integer);
+      procedure tmGrowSelect(X, Y : Integer);
+      procedure tmMarkDeselected(aRow : Integer;
+                                 aFromCol, aToCol : Integer);
+      procedure tmMarkSelected(aRow : Integer;
+                               aFromCol, aToCol : Integer);
+      function tmProcessClipboardCopy(var Msg : TWMKeyDown) : Boolean;
+      procedure tmStartSelect(X, Y : Integer);
 
       {overridden ancestor methods}
       procedure KeyDown(var Key : word; Shift: TShiftState); override;
       procedure KeyPress(var Key: Char); override;
       procedure MouseDown(Button : TMouseButton; Shift : TShiftState;
-                          X, Y : integer); override;
-      procedure MouseMove(Shift : TShiftState; X, Y : integer); override;
+                          X, Y : Integer); override;
+      procedure MouseMove(Shift : TShiftState; X, Y : Integer); override;
       procedure MouseUp(Button : TMouseButton; Shift : TShiftState;
-                        X, Y : integer); override;
+                        X, Y : Integer); override;
       procedure PaintWindow(DC : HDC); override;
       procedure Notification(AComponent : TComponent;
                              Operation  : TOperation); override;
@@ -567,43 +567,43 @@ type
       procedure PasteFromClipboard;                                      {!!.04}
 
       {public properties}
-      property Attributes [aRow, aCol : integer] : TAdTerminalCharAttrs
+      property Attributes [aRow, aCol : Integer] : TAdTerminalCharAttrs
                   read tmGetAttributes write tmSetAttributes;
-      property BackColor [aRow, aCol : integer] : TColor
+      property BackColor [aRow, aCol : Integer] : TColor
                   read tmGetBackColor write tmSetBackColor;
       property Color;                                                
       property Canvas : TCanvas
                   read FCanvas;
-      property CharHeight : integer
+      property CharHeight : Integer
                   read FCharHeight;
       property CharHPadding : Integer                                    {!!.06}
                read FCharHPadding write tmSetCharHPadding default 0;     {!!.06}
-      property CharSet [aRow, aCol : integer] : byte
+      property CharSet [aRow, aCol : Integer] : byte
                   read tmGetCharSet write tmSetCharSet;
       property CharVPadding : Integer                                    {!!.06}
                read FCharVPadding write tmSetCharVPadding default 0;     {!!.06}
-      property CharWidth : integer
+      property CharWidth : Integer
                   read FCharWidth;
-      property ClientCols : integer
+      property ClientCols : Integer
                   read FClientCols;
-      property ClientRows : integer
+      property ClientRows : Integer
                   read FClientRows;
-      property ClientOriginCol : integer
+      property ClientOriginCol : Integer
                   read FOriginCol write tmSetOriginCol;
-      property ClientOriginRow : integer
+      property ClientOriginRow : Integer
                   read FOriginRow write tmSetOriginRow;
-      property ForeColor [aRow, aCol : integer] : TColor
+      property ForeColor [aRow, aCol : Integer] : TColor
                   read tmGetForeColor write tmSetForeColor;
-      property HaveSelection : boolean                         
+      property HaveSelection : Boolean                         
                   read FHaveSelection;                         
-      property Line [aRow : integer] : string
+      property Line [aRow : Integer] : string
                   read tmGetLine write tmSetLine;
 
       property Emulator : TAdTerminalEmulator
                   read tmGetEmulator write tmSetEmulator;
 
    {published}                                                         
-      property Active : boolean
+      property Active : Boolean
                   read FActive write tmSetActive
                   default adc_TermActive;
       property AutoCopy : Boolean                                        {!!.03}
@@ -612,7 +612,7 @@ type
       property AutoScrollback : Boolean                                  {!!.03}
                read FAutoScrollback write tmSetAutoScrollback            {!!.03}
                default adc_TermAutoScrollback;                           {!!.03}
-      property BlinkTime : integer
+      property BlinkTime : Integer
                   read FBlinkTime write tmSetBlinkTime
                   default adc_TermBlinkTime;
       property BorderStyle : TBorderStyle
@@ -623,7 +623,7 @@ type
                   default adc_TermCapture;
       property CaptureFile : string
                   read FCaptureFile write tmSetCaptureFile;
-      property Columns : integer
+      property Columns : Integer
                   read tmGetColumns write tmSetColumns
                   default adc_TermColumnCount;
       property ComPort : TapdCustomComPort
@@ -634,16 +634,16 @@ type
       property FollowCursor : Boolean                                    {!!.03}
                read FFollowCursor write tmSetFollowCursor                {!!.03}
                default adc_TermFollowsCursor;                            {!!.03}
-      property HalfDuplex : boolean
+      property HalfDuplex : Boolean
                   read FHalfDuplex write FHalfDuplex
                   default adc_TermHalfDuplex;
       property HideScrollbars : Boolean                                  {!!.03}
                read FHideScrollbars write tmSetHideScrollbars            {!!.03}
                default adc_TermHideScrollbars;                           {!!.03}
-      property LazyByteDelay : integer
+      property LazyByteDelay : Integer
                   read FLazyByteDelay write tmSetLazyByteDelay
                   default adc_TermLazyByteDelay;
-      property LazyTimeDelay : integer
+      property LazyTimeDelay : Integer
                   read FLazyTimeDelay write tmSetLazyTimeDelay
                   default adc_TermLazyTimeDelay;
       property MouseSelect : Boolean                                     {!!.03}
@@ -655,25 +655,25 @@ type
       property PasteToScreen : Boolean                                   {!!.04}
                read FPasteToScreen write tmSetPasteToScreen              {!!.04}
                default adc_TermPasteToScreen;                            {!!.04}
-      property Rows : integer
+      property Rows : Integer
                   read tmGetRows write tmSetRows
                   default adc_TermRowCount;
-      property ScrollbackRows : integer
+      property ScrollbackRows : Integer
                   read tmGetScrollbackRows write tmSetScrollbackRows
                   default adc_TermScrollRowCount;
-      property Scrollback : boolean
+      property Scrollback : Boolean
                   read FScrollback write tmSetScrollback;
-      property UseLazyDisplay : boolean
+      property UseLazyDisplay : Boolean
                   read FUseLazyDisplay write tmSetUseLazyDisplay
                   default adc_TermUseLazyDisplay;
       property UsingHScrollBar : Boolean                                 {!!.06}
                read FUseHScrollbar;                                      {!!.06}
       property UsingVScrollBar : Boolean                                 {!!.06}
                read FUseVScrollbar;                                      {!!.06}
-      property WantAllKeys : boolean
+      property WantAllKeys : Boolean
                   read FWantAllKeys write tmSetWantAllKeys
                   default adc_TermWantAllKeys;
-      property FreezeScrollBack : boolean
+      property FreezeScrollBack : Boolean
                   read FFreezeScrollBack write tmSetFreezeScrollBack
                   default adc_FreezeScrollBack;
 
@@ -689,7 +689,7 @@ type
       FAnswerback      : string;                                         {!!.06}
       FTerminalBuffer  : TAdTerminalBuffer;
       FCharSetMapping  : TAdCharSetMapping;
-      FIsDefault       : boolean;
+      FIsDefault       : Boolean;
       FKeyboardMapping : TAdKeyboardMapping;
       FParser          : TAdTerminalParser;
       FTerminal        : TAdCustomTerminal;
@@ -698,9 +698,9 @@ type
       FSavedAttrs : TAdTerminalCharAttrs;
       FSavedBackColor : TColor;
       FSavedCharSet : byte;
-      FSavedCol : integer;
+      FSavedCol : Integer;
       FSavedForeColor : TColor;
-      FSavedRow : integer;
+      FSavedRow : Integer;
       FOnProcessChar : TAdOnProcessChar;                               {!!.04}
       FCommandList : TAdEmuCommandList;                                {!!.04}
 
@@ -711,7 +711,7 @@ type
       procedure ReadAnswerback (Reader : TReader);                       {!!.06}
       procedure WriteAnswerback (Writer : TWriter);                      {!!.06}
       {property access methods}
-      function teGetNeedsUpdate : boolean; virtual;
+      function teGetNeedsUpdate : Boolean; virtual;
       procedure teSetTerminal(aValue : TAdCustomTerminal); virtual;
 
       {overridden ancestor methods}
@@ -721,7 +721,7 @@ type
       {new virtual methods}
       procedure teClear; virtual;
       procedure teClearAll; virtual;
-      procedure teSendChar (aCh : char; aCanEcho : boolean;            {!!.04}
+      procedure teSendChar (aCh : char; aCanEcho : Boolean;            {!!.04}
                             CharSource : TAdCharSource   ); virtual;   {!!.04}
 
       {Cursor Movement Methods}
@@ -742,9 +742,9 @@ type
       constructor Create(aOwner : TComponent); override;
       destructor Destroy; override;
 
-      procedure BlinkPaint(aVisible : boolean); virtual;
+      procedure BlinkPaint(aVisible : Boolean); virtual;
       procedure ExecuteTerminalCommands (CommandList : TAdEmuCommandList);{!!.04}
-      function HasBlinkingText : boolean; virtual;
+      function HasBlinkingText : Boolean; virtual;
       procedure KeyDown(var Key : word; Shift: TShiftState); virtual;
       procedure KeyPress(var Key : AnsiChar); virtual;
       procedure LazyPaint; virtual;
@@ -765,7 +765,7 @@ type
       property Parser : TAdTerminalParser
                   read FParser;
 
-      property NeedsUpdate : boolean
+      property NeedsUpdate : Boolean
                   read teGetNeedsUpdate;
 
       property OnProcessChar : TAdOnProcessChar                        {!!.04}
@@ -841,13 +841,13 @@ type
     private
       FCellWidths    : PAdIntegerArray;
       FDisplayStr    : PAnsiChar;
-      FDisplayStrSize: integer;
+      FDisplayStrSize: Integer;
       FPaintFreeList : pointer;
       FRefresh       : Boolean;
 
     protected
       {property accessor methods}
-      function teGetNeedsUpdate : boolean; override;
+      function teGetNeedsUpdate : Boolean; override;
 
       {overridden ancestor methods}
       procedure teClear; override;
@@ -856,11 +856,11 @@ type
 
       {miscellaneous}
       function  ttyCharToCommand (aCh : AnsiChar) : TAdEmuCommand;     {!!.04}
-      procedure ttyDrawChars(aRow, aStartCol, aEndCol : integer;
-                             aVisible : boolean);
+      procedure ttyDrawChars(aRow, aStartCol, aEndCol : Integer;
+                             aVisible : Boolean);
 
       {paint node methods}
-      procedure ttyExecutePaintScript(aRow    : integer;
+      procedure ttyExecutePaintScript(aRow    : Integer;
                                       aScript : pointer);
       procedure ttyFreeAllPaintNodes;
       procedure ttyFreePaintNode(aNode : pointer);
@@ -888,33 +888,33 @@ type
       FBlinkFreeList  : pointer;
       FCellWidths     : PAdIntegerArray;
       FDisplayStr     : PAnsiChar;
-      FDisplayStrSize : integer;
-      FDispUpperASCII : boolean;
-      FLEDs           : integer;
+      FDisplayStrSize : Integer;
+      FDispUpperASCII : Boolean;
+      FLEDs           : Integer;
       FLineAttrArray  : TObject;
       FPaintFreeList  : pointer;
-      FRefresh        : boolean;
+      FRefresh        : Boolean;
       FSecondaryFont  : TFont;
 
       {modes}
-      FANSIMode         : boolean;
-      FAppKeyMode       : boolean;
-      FAppKeypadMode    : boolean;
-      FAutoRepeat       : boolean;
-      FCol132Mode       : boolean;
-      FGPOMode          : boolean;{graphics proc.option not supported}
-      FInsertMode       : boolean;
-      FInterlace        : boolean;{interlace chgs are not supported}
-      FNewLineMode      : boolean;
-      FRelOriginMode    : boolean;
-      FRevScreenMode    : boolean;
-      FSmoothScrollMode : boolean;{smooth scrolling is not supported}
-      FWrapAround       : boolean;
+      FANSIMode         : Boolean;
+      FAppKeyMode       : Boolean;
+      FAppKeypadMode    : Boolean;
+      FAutoRepeat       : Boolean;
+      FCol132Mode       : Boolean;
+      FGPOMode          : Boolean;{graphics proc.option not supported}
+      FInsertMode       : Boolean;
+      FInterlace        : Boolean;{interlace chgs are not supported}
+      FNewLineMode      : Boolean;
+      FRelOriginMode    : Boolean;
+      FRevScreenMode    : Boolean;
+      FSmoothScrollMode : Boolean;{smooth scrolling is not supported}
+      FWrapAround       : Boolean;
 
       {character sets}
-      FUsingG1   : boolean;                                   
-      FG0CharSet : integer;
-      FG1CharSet : integer;
+      FUsingG1   : Boolean;                                   
+      FG0CharSet : Integer;
+      FG1CharSet : Integer;
 
     protected
       { Answerback Property Maintenance }                                {!!.06}
@@ -923,10 +923,10 @@ type
       {procedure ReadAnswerback (Reader : TReader);                    } {!!.06}
       {procedure WriteAnswerback (Writer : TWriter);                   } {!!.06}
       {property accessor methods}
-      function teGetNeedsUpdate : boolean; override;
-      procedure vttSetCol132Mode(aValue : boolean);
-      procedure vttSetRelOriginMode(aValue : boolean);
-      procedure vttSetRevScreenMode(aValue : boolean);
+      function teGetNeedsUpdate : Boolean; override;
+      procedure vttSetCol132Mode(aValue : Boolean);
+      procedure vttSetRelOriginMode(aValue : Boolean);
+      procedure vttSetRevScreenMode(aValue : Boolean);
 
       {overridden ancestor methods}
       procedure teClear; override;
@@ -934,27 +934,27 @@ type
       procedure teSetTerminal(aValue : TAdCustomTerminal); override;
 
       {miscellaneous}
-      procedure vttDrawChars(aRow, aStartVal, aEndVal : integer;
-                             aVisible : boolean;
-                             aCharValues : boolean);
+      procedure vttDrawChars(aRow, aStartVal, aEndVal : Integer;
+                             aVisible : Boolean;
+                             aCharValues : Boolean);
       procedure vttProcessCommand;
-      function vttGenerateDECREPTPARM(aArg : integer) : string;
-      procedure vttInvalidateRow(aRow : integer);
+      function vttGenerateDECREPTPARM(aArg : Integer) : string;
+      procedure vttInvalidateRow(aRow : Integer);
       procedure vttProcess8bitChar(aCh : AnsiChar);
       procedure vttScrollRowsHandler(aSender : TObject;
-                                     aCount, aTop, aBottom : integer);
+                                     aCount, aTop, aBottom : Integer);
       procedure vttToggleNumLock;
 
       {blink node methods}
       procedure vttCalcBlinkScript;
       procedure vttClearBlinkScript;
-      procedure vttDrawBlinkOffCycle(aRow, aStartCh, aEndCh : integer);
+      procedure vttDrawBlinkOffCycle(aRow, aStartCh, aEndCh : Integer);
       procedure vttFreeAllBlinkNodes;
       procedure vttFreeBlinkNode(aNode : pointer);
       function vttNewBlinkNode : pointer;
 
       {paint node methods}
-      procedure vttExecutePaintScript(aRow    : integer;
+      procedure vttExecutePaintScript(aRow    : Integer;
                                       aScript : pointer);
       procedure vttFreeAllPaintNodes;
       procedure vttFreePaintNode(aNode : pointer);
@@ -965,8 +965,8 @@ type
       destructor Destroy; override;
 
       {overridden ancestor methods}
-      procedure BlinkPaint(aVisible : boolean); override;
-      function HasBlinkingText : boolean; override;
+      procedure BlinkPaint(aVisible : Boolean); override;
+      function HasBlinkingText : Boolean; override;
       procedure KeyDown(var Key : word; Shift: TShiftState); override;
       procedure KeyPress(var Key : AnsiChar); override;
       procedure LazyPaint; override;
@@ -975,42 +975,42 @@ type
                               CharSource : TAdCharSource); override;   {!!.04}
 
       {modes}
-      property ANSIMode : boolean
+      property ANSIMode : Boolean
                   read FANSIMode write FANSIMode;
-      property AppKeyMode : boolean
+      property AppKeyMode : Boolean
                   read FAppKeyMode write FAppKeyMode;
-      property AppKeypadMode : boolean
+      property AppKeypadMode : Boolean
                   read FAppKeypadMode write FAppKeypadMode;
-      property AutoRepeat : boolean
+      property AutoRepeat : Boolean
                   read FAutoRepeat write FAutoRepeat;
-      property Col132Mode : boolean
+      property Col132Mode : Boolean
                   read FCol132Mode write vttSetCol132Mode;
-      property GPOMode : boolean
+      property GPOMode : Boolean
                   read FGPOMode write FGPOMode;
-      property InsertMode : boolean
+      property InsertMode : Boolean
                   read FInsertMode write FInsertMode;
-      property Interlace : boolean
+      property Interlace : Boolean
                   read FInterlace write FInterlace;
-      property NewLineMode : boolean
+      property NewLineMode : Boolean
                   read FNewLineMode write FNewLineMode;
-      property RelOriginMode : boolean
+      property RelOriginMode : Boolean
                   read FRelOriginMode write vttSetRelOriginMode;
-      property RevScreenMode : boolean
+      property RevScreenMode : Boolean
                   read FRevScreenMode write vttSetRevScreenMode;
-      property SmoothScrollMode : boolean
+      property SmoothScrollMode : Boolean
                   read FSmoothScrollMode write FSmoothScrollMode;
-      property WrapAround : boolean
+      property WrapAround : Boolean
                   read FWrapAround write FWrapAround;
 
       {miscellaneous}
-      property LEDs : integer
+      property LEDs : Integer
                   read FLEDs write FLEDs;
 
     published
       property Answerback;                                               {!!.06}
       {property Answerback : string                                    } {!!.06}
       {            read FAnswerback write FAnswerback;                 } {!!.06}
-      property DisplayUpperASCII : boolean
+      property DisplayUpperASCII : Boolean
                   read FDispUpperASCII write FDispUpperASCII;
       property OnProcessChar;                                            {!!.04}
   end;
@@ -1025,17 +1025,17 @@ type
   PBlinkNode = ^TBlinkNode;
   TBlinkNode = packed record
     bnNext    : PBlinkNode;
-    bnRow     : integer;
-    bnStartCh : integer;
-    bnEndCh   : integer;
+    bnRow     : Integer;
+    bnStartCh : Integer;
+    bnEndCh   : Integer;
   end;
 
 type
   PPaintNode = ^TPaintNode;
   TPaintNode = packed record
     pnNext : PPaintNode;
-    pnStart: integer;              {start column of range}
-    pnEnd  : integer;              {end column of range}
+    pnStart: Integer;              {start column of range}
+    pnEnd  : Integer;              {end column of range}
     pnFore : TColor;               {foreground color for range}
     pnBack : TColor;               {background color for range}
     pnAttr : TAdTerminalCharAttrs; {attributes for range}
@@ -1069,13 +1069,13 @@ type
   end;
 {--------}
 var
-  TermEmuLink : PTermEmuLink;
-  TermEmuLinkFreeList : PTermEmuLink;
+  TermEmuLink : PTermEmuLink = nil;
+  TermEmuLinkFreeList : PTermEmuLink = nil;
 {--------}
 procedure AddTermEmuLink(aTerminal : TAdCustomTerminal;
                          aEmulator : TAdTerminalEmulator);
 var
-  Node : PTermEmuLink;
+  Node : PTermEmuLink = nil;
 begin
   {if the link already exists, exit}
   Node := TermEmuLink;
@@ -1101,14 +1101,12 @@ begin
 end;
 {--------}
 procedure RemoveTermEmuLink(aTerminal : TAdCustomTerminal;
-                            aNotify   : boolean);
+                            aNotify   : Boolean);
 var
-  Dad, Node : PTermEmuLink;
-  Emulator  : TAdTerminalEmulator;
+  Dad : PTermEmuLink = nil;
+  Node : PTermEmuLink = nil;
+  Emulator  : TAdTerminalEmulator = nil;
 begin
-  {remove the link}
-  Emulator := nil;
-  Dad := nil;
   Node := TermEmuLink;
   while (Node <> nil) do begin
     if (Node^.telTerm = aTerminal) then begin
@@ -1162,7 +1160,7 @@ end;                                                                   {!!.04}
 
 function TAdEmuCommandParams.FindName (AName : string) : Integer;      {!!.04}
 var                                                                    {!!.04}
-  i : Integer;                                                         {!!.04}
+  i : Integer = 0;                                                     {!!.04}
 
 begin                                                                  {!!.04}
   Result := -1;                                                        {!!.04}
@@ -1185,8 +1183,8 @@ function TAdEmuCommandParams.GetBooleanValue (AName     : string;      {!!.04}
                                               APosition : Integer;     {!!.04}
                                               ADefault  : Boolean) : Boolean; {!!.04}
 var                                                                    {!!.04}
-  RealPosition : Integer;                                              {!!.04}
-  Value        : string;                                               {!!.04}
+  RealPosition : Integer = 0;                                          {!!.04}
+  Value        : string = '';                                          {!!.04}
 
 begin                                                                  {!!.04}
   Result := ADefault;                                                  {!!.04}
@@ -1195,10 +1193,10 @@ begin                                                                  {!!.04}
     RealPosition := APosition;                                         {!!.04}
   if (RealPosition >= 0) and (RealPosition < Count) then begin         {!!.04}
     Value := LowerCase (TAdEmuCommandParamsItem (Items[RealPosition]).Value);  {!!.04}
-    if (Value = 't') or (Value = 'true') or (Value = '1') or (Value = 'on') or {!!.04}
+    if (Value = 't') or (Value = 'True') or (Value = '1') or (Value = 'on') or {!!.04}
        (Value = 'yes') then                                            {!!.04}
       Result := True                                                   {!!.04}
-    else if (Value = 'f') or (Value = 'false') or (Value = '0') or     {!!.04}
+    else if (Value = 'f') or (Value = 'False') or (Value = '0') or     {!!.04}
             (Value = 'off') or (Value = 'no') then                     {!!.04}
       Result := False;                                                 {!!.04}
   end;                                                                 {!!.04}
@@ -1208,7 +1206,7 @@ function TAdEmuCommandParams.GetIntegerValue (AName     : string;      {!!.04}
                                               APosition : Integer;     {!!.04}
                                               ADefault  : Integer) : Integer; {!!.04}
 var                                                                    {!!.04}
-  RealPosition : Integer;                                              {!!.04}
+  RealPosition : Integer = 0;                                          {!!.04}
 
 begin                                                                  {!!.04}
   Result := ADefault;                                                  {!!.04}
@@ -1235,7 +1233,7 @@ function TAdEmuCommandParams.GetStringValue (AName     : string;       {!!.04}
                                              APosition : Integer;      {!!.04}
                                              ADefault  : string) : string; {!!.04}
 var                                                                    {!!.04}
-  RealPosition : Integer;                                              {!!.04}
+  RealPosition : Integer = 0;                                          {!!.04}
 
 begin                                                                  {!!.04}
   Result := ADefault;                                                  {!!.04}
@@ -1250,7 +1248,7 @@ function TAdEmuCommandParams.GetTColorValue (AName     : string;       {!!.04}
                                              APosition : Integer;      {!!.04}
                                              ADefault  : TColor) : TColor; {!!.04}
 var                                                                    {!!.04}
-  RealPosition : Integer;                                              {!!.04}
+  RealPosition : Integer = 0;                                          {!!.04}
 
 begin                                                                  {!!.04}
   Result := ADefault;                                                  {!!.04}
@@ -1431,31 +1429,31 @@ type
       bqQueue     : PChar;
       bqQueueEnd  : PChar;
     protected
-      function getCapacity : integer;
-      function getCount : integer;
-      procedure setCapacity(aValue : integer);
+      function getCapacity : Integer;
+      function getCount : Integer;
+      procedure setCapacity(aValue : Integer);
     public
       constructor Create;
       destructor Destroy; override;
 
-      procedure AdvanceAfterPut(aDataLen : integer);
+      procedure AdvanceAfterPut(aDataLen : Integer);
       procedure Clear;
       (***** not used yet
-      procedure Get(var aData; aDataLen : integer);
-      function IsEmpty : boolean;
+      procedure Get(var aData; aDataLen : Integer);
+      function IsEmpty : Boolean;
       *****)
-      procedure Put(const aData; aDataLen : integer);
-      function PutPeek(aDataLen : integer) : pointer;
-      function Peek(aDataLen : integer) : pointer;
-      procedure Remove(aDataLen : integer);
+      procedure Put(const aData; aDataLen : Integer);
+      function PutPeek(aDataLen : Integer) : pointer;
+      function Peek(aDataLen : Integer) : pointer;
+      procedure Remove(aDataLen : Integer);
 
-      property Capacity : integer
+      property Capacity : Integer
          read getCapacity write setCapacity;
-      property Count : integer
+      property Count : Integer
          read getCount;
   end;
 {--------}
-procedure NotEnoughDataError(aAvail, aReq : integer);
+procedure NotEnoughDataError(aAvail, aReq : Integer);
 begin
   raise Exception.Create(
           Format('Not enough data in queue (%d bytes) to satisfy read request (%d bytes)', //SWB
@@ -1475,7 +1473,7 @@ begin
   inherited Destroy;
 end;
 {--------}
-procedure TaaByteQueue.AdvanceAfterPut(aDataLen : integer);
+procedure TaaByteQueue.AdvanceAfterPut(aDataLen : Integer);
 begin
   inc(bqTail, aDataLen);
 end;
@@ -1487,9 +1485,9 @@ begin
 end;
 {--------}
 (***** not used yet
-procedure TaaByteQueue.Get(var aData; aDataLen : integer);
+procedure TaaByteQueue.Get(var aData; aDataLen : Integer);
 var
-  ByteCount : integer;
+  ByteCount : Integer;
 begin
   {check for enough data}
   if (aDataLen > Count) then
@@ -1513,26 +1511,26 @@ begin
 end;
 *****)
 {--------}
-function TaaByteQueue.getCapacity : integer;
+function TaaByteQueue.getCapacity : Integer;
 begin
   Result := (bqQueueEnd - bqQueue) div 2;
 end;
 {--------}
-function TaaByteQueue.getCount : integer;
+function TaaByteQueue.getCount : Integer;
 begin
   Result := bqTail - bqHead;
 end;
 {--------}
 (***** not used yet
-function TaaByteQueue.IsEmpty : boolean;
+function TaaByteQueue.IsEmpty : Boolean;
 begin
   Result := bqHead = bqTail;
 end;
 *****)
 {--------}
-procedure TaaByteQueue.Put(const aData; aDataLen : integer);
+procedure TaaByteQueue.Put(const aData; aDataLen : Integer);
 var
-  ByteCount : integer;
+  ByteCount : Integer = 0;
 begin
   {if required, grow the queue by at least doubling its size}
   ByteCount := Count;
@@ -1543,9 +1541,9 @@ begin
   inc(bqTail, aDataLen);
 end;
 {--------}
-function TaaByteQueue.PutPeek(aDataLen : integer) : pointer;
+function TaaByteQueue.PutPeek(aDataLen : Integer) : pointer;
 var
-  ByteCount : integer;
+  ByteCount : Integer = 0;
 begin
   {if required, grow the queue by at least doubling its size}
   ByteCount := Count;
@@ -1555,7 +1553,7 @@ begin
   Result := bqTail;
 end;
 {--------}
-function TaaByteQueue.Peek(aDataLen : integer) : pointer;
+function TaaByteQueue.Peek(aDataLen : Integer) : pointer;
 begin
   {check for enough data}
   if (aDataLen > Count) then
@@ -1564,7 +1562,7 @@ begin
   Result := bqHead;
 end;
 {--------}
-procedure TaaByteQueue.Remove(aDataLen : integer);
+procedure TaaByteQueue.Remove(aDataLen : Integer);
 begin
   {check for enough data}
   if (aDataLen > Count) then
@@ -1574,10 +1572,10 @@ begin
   bqTail := bqTail - aDataLen;
 end;
 {--------}
-procedure TaaByteQueue.setCapacity(aValue : integer);
+procedure TaaByteQueue.setCapacity(aValue : Integer);
 var
-  ByteCount : integer;
-  NewQueue  : PChar;
+  ByteCount : Integer = 0;
+  NewQueue  : PChar = nil;
 begin
   {don't allow data to be lost}
   ByteCount := Count;
@@ -1609,10 +1607,10 @@ type
     private
       FArray          : PAnsiChar;
       FEmulator       : TAdVT100Emulator;
-      FTotalLineCount : integer;
+      FTotalLineCount : Integer;
     protected
-      function laaGetAttr(aInx : integer) : TAdVT100LineAttr;
-      procedure laaSetAttr(aInx   : integer;
+      function laaGetAttr(aInx : Integer) : TAdVT100LineAttr;
+      procedure laaSetAttr(aInx   : Integer;
                            aValue : TAdVT100LineAttr);
 
       procedure laaResize;
@@ -1620,9 +1618,9 @@ type
       constructor Create(aEmulator : TAdVT100Emulator);
       destructor Destroy; override;
 
-      procedure Scroll(aCount, aTop, aBottom : integer);
+      procedure Scroll(aCount, aTop, aBottom : Integer);
 
-      property Attr [aInx : integer] : TAdVT100LineAttr
+      property Attr [aInx : Integer] : TAdVT100LineAttr
                   read laaGetAttr write laaSetAttr;
   end;
 {--------}
@@ -1641,7 +1639,7 @@ begin
   inherited Destroy;
 end;
 {--------}
-function TAdLineAttrArray.laaGetAttr(aInx : integer) : TAdVT100LineAttr;
+function TAdLineAttrArray.laaGetAttr(aInx : Integer) : TAdVT100LineAttr;
 begin
   if (FTotalLineCount <> FEmulator.Buffer.SVRowCount) then
     laaResize;
@@ -1654,8 +1652,8 @@ end;
 {--------}
 procedure TAdLineAttrArray.laaResize;
 var
-  NewArray      : PAnsiChar;
-  NewTotalCount : integer;
+  NewArray      : PAnsiChar = nil;
+  NewTotalCount : Integer = 0;
 begin
   {allocate the new array}
   NewTotalCount := FEmulator.Buffer.SVRowCount;
@@ -1673,7 +1671,7 @@ begin
   FTotalLineCount := NewTotalCount;
 end;
 {--------}
-procedure TAdLineAttrArray.laaSetAttr(aInx   : integer;
+procedure TAdLineAttrArray.laaSetAttr(aInx   : Integer;
                                       aValue : TAdVT100LineAttr);
 begin
   if (FTotalLineCount <> FEmulator.Buffer.SVRowCount) then
@@ -1683,10 +1681,10 @@ begin
     FArray[aInx] := AnsiChar(aValue);
 end;
 {--------}
-procedure TAdLineAttrArray.Scroll(aCount, aTop, aBottom : integer);
+procedure TAdLineAttrArray.Scroll(aCount, aTop, aBottom : Integer);
 var
-  i     : integer;
-  ToInx : integer;
+  i     : Integer = 0;
+  ToInx : Integer = 0;
 begin
   aTop := aTop + FTotalLineCount - FEmulator.Buffer.RowCount - 1;
   aBottom := aBottom + FTotalLineCount - FEmulator.Buffer.RowCount - 1;
@@ -1713,7 +1711,7 @@ end;
 
 
 {===Helper routines==================================================}
-function MinI(A, B : integer) : integer;
+function MinI(A, B : Integer) : Integer;
 begin
   if (A < B) then
     Result := A
@@ -1721,7 +1719,7 @@ begin
     Result := B;
 end;
 {--------}
-function MaxI(A, B : integer) : integer;
+function MaxI(A, B : Integer) : Integer;
 begin
   if (A > B) then
     Result := A
@@ -1729,7 +1727,7 @@ begin
     Result := B;
 end;
 {--------}
-function BoundI(aLow, X, aHigh : integer) : integer;
+function BoundI(aLow, X, aHigh : Integer) : Integer;
 begin
   if (aLow < aHigh) then
     if (X <= aLow) then
@@ -1749,7 +1747,7 @@ end;
 {--------}
 procedure GetOrientedRect(var aRect   : TRect;
                         const aAnchor : TPoint;
-                              X, Y    : integer);
+                              X, Y    : Integer);
 begin
   if (X < aAnchor.X) then begin
     aRect.Left := X;
@@ -1786,7 +1784,7 @@ begin
   FHeartbeat := TTimer.Create(Self);
   FHeartbeat.Interval := BeatInterval;
   FHeartbeat.OnTimer := tmBeat;
-  FHeartbeat.Enabled := false;
+  FHeartbeat.Enabled := False;
 
   {create a byte queue to receive data}
   FByteQueue := TaaByteQueue.Create;
@@ -1797,7 +1795,7 @@ begin
 
   {create the default emulator}
   FDefEmulator := TAdTTYEmulator.Create(nil);
-  FDefEmulator.FIsDefault := true;
+  FDefEmulator.FIsDefault := True;
   FDefEmulator.Terminal := Self;
   if (FEmulator =  nil) then begin                                       {!!.05}
     FEmulator := FDefEmulator;
@@ -1851,14 +1849,14 @@ begin
   FDefEmulator := nil;
   FCanvas.Free;
   FHeartbeat.Free;
-  RemoveTermEmuLink(Self, false); {SG}
+  RemoveTermEmuLink(Self, False); {SG}
   TaaByteQueue(FByteQueue).Free;
   inherited Destroy;
 end;
 {--------}
 procedure TAdCustomTerminal.ApwPortOpen(var Msg : TMessage);
 begin
-  {note: if FWaitingForComPortOpen is true, Active is also true}
+  {note: if FWaitingForComPortOpen is True, Active is also True}
   if FWaitingForComPortOpen then
     tmAttachToComPort;
 end;
@@ -1901,8 +1899,8 @@ end;                                                                     {!!.05}
 {--------}
 procedure TAdCustomTerminal.ApwTermStuff(var Msg : TMessage);
 var
-  DataLen  : integer;
-  DataPtr  : pointer;
+  DataLen  : Integer = 0;
+  DataPtr  : pointer = nil;
   PaintRgn : HRGN;
 begin
   {this message is sent by the tmTriggerAvail, and the WriteChar/
@@ -1965,12 +1963,12 @@ begin                                                                    {!!.03}
   else begin                                                             {!!.03}
     if (not FTriggerHandlerOn) and                                       {!!.03}
        (ComPort.AutoOpen or ComPort.Open) then begin                     {!!.03}
-      FWaitingForComPortOpen := false;                                   {!!.03}
+      FWaitingForComPortOpen := False;                                   {!!.03}
       if not ComPort.Open then                                           {!!.03}
-       ComPort.Open := true;                                             {!!.03}
+       ComPort.Open := True;                                             {!!.03}
       if FActive then begin                                              {!!.05}
         ComPort.Dispatcher.RegisterEventTriggerHandler(tmTriggerHandler);{!!.03}
-        FTriggerHandlerOn := true;                                       {!!.03}
+        FTriggerHandlerOn := True;                                       {!!.03}
        end;                                                              {!!.05}
       { call loaded again to make sure things are set up correctly }
       Loaded;                                                            {!!.04}
@@ -2020,10 +2018,11 @@ end;
 procedure TAdCustomTerminal.CNKeyDown(var Msg : TWMKeyDown);
 var
   Shift  : TShiftState;
-  EnhKey : boolean;
-  Key    : word;
+  EnhKey : Boolean = False;
+  Key    : word = 0;
   NumLockState : TKeyboardState;
 begin
+  NumLockState := Default(TKeyboardState);
   {if the left button is down (we're selecting) and the key is Escape,
    cancel the mode}
   if FLButtonDown and (Msg.CharCode = VK_ESCAPE) then begin
@@ -2093,13 +2092,13 @@ end;
 {--------}
 procedure TAdCustomTerminal.CopyToClipboard;
 var
-  i         : integer;
-  CharCount : integer;
-  StartCol  : integer;
-  ColCount  : integer;
-  CurInx    : integer;
-  RowText   : PAnsiChar;
-  TextPtr   : PAnsiChar;
+  i         : Integer = 0;
+  CharCount : Integer = 0;
+  StartCol  : Integer = 0;
+  ColCount  : Integer = 0;
+  CurInx    : Integer = 0;
+  RowText   : PAnsiChar = nil;
+  TextPtr   : PAnsiChar = nil;
 begin
   {calculate the amount of text in the selection; this equals the
    number of characters for each line, plus CR/LF per line}
@@ -2168,7 +2167,7 @@ procedure TAdCustomTerminal.CreateWnd;
   function FindComPort(aForm : TWinControl) : TApdCustomComPort;
     {-Search for an existing TComPort}
   var
-    i : Integer;
+    i : Integer = 0;
   begin
     for i := 0 to pred(aForm.ComponentCount) do
       if aForm.Components[i] is TApdCustomComPort then begin
@@ -2205,7 +2204,7 @@ begin
     {calculate the character sizes}
     tmGetFontInfo;
     {start the heartbeat}
-    FHeartbeat.Enabled := true;
+    FHeartbeat.Enabled := True;
     if (csDesigning in ComponentState) then
       tmDrawDefaultText;
 
@@ -2227,7 +2226,7 @@ begin
       ComPort.DeregisterUser(Handle);
     end;
     {stop the heartbeat}
-    FHeartbeat.Enabled := false;
+    FHeartbeat.Enabled := False;
     {destroy the caret}
     tmFreeCaret;
   end;
@@ -2252,8 +2251,8 @@ end;                                                                     {!!.06}
 {--------}
 procedure TAdCustomTerminal.HideSelection;
 var
-  i        : integer;
-  ColCount : integer;
+  i        : Integer = 0;
+  ColCount : Integer = 0;
 begin
   {clear the current selection}
   ColCount := FEmulator.Buffer.ColCount;
@@ -2265,7 +2264,7 @@ begin
   SetRectEmpty(FLButtonRect);
   FLButtonAnchor.X := 0;
   FLButtonAnchor.Y := 0;
-  FHaveSelection := false;
+  FHaveSelection := False;
 end;
 {--------}
 procedure TAdCustomTerminal.KeyDown(var Key : word; Shift: TShiftState);
@@ -2315,7 +2314,7 @@ end;                                                                     {!!.03}
 {--------}
 procedure TAdCustomTerminal.MouseDown(Button : TMouseButton;
                                       Shift  : TShiftState;
-                                      X, Y   : integer);
+                                      X, Y   : Integer);
 begin
   inherited MouseDown(Button, Shift, X, Y);
 
@@ -2326,7 +2325,7 @@ begin
       else if (Handle <> 0) then
         Windows.SetFocus(Handle);
     end;
-    FLButtonDown := true;
+    FLButtonDown := True;
     {force mouse position into bounds}
     X := BoundI(0, X, pred(ClientCols * GetTotalCharWidth));             {!!.06}
     Y := BoundI(0, Y, pred(ClientRows * GetTotalCharHeight));            {!!.06}
@@ -2336,7 +2335,7 @@ begin
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.MouseMove(Shift : TShiftState; X, Y : integer);
+procedure TAdCustomTerminal.MouseMove(Shift : TShiftState; X, Y : Integer);
 begin
   inherited MouseMove(Shift, X, Y);
   if FLButtonDown then begin
@@ -2350,13 +2349,13 @@ begin
 end;
 {--------}
 procedure TAdCustomTerminal.MouseUp(Button : TMouseButton;
-                              Shift : TShiftState; X, Y : integer);
+                              Shift : TShiftState; X, Y : Integer);
 begin
   inherited MouseUp(Button, Shift, X, Y);
   if FLButtonDown and (Button = mbLeft) then begin
     if (FMouseSelect) and (FAutoCopy) then                               {!!.03}
       CopyToClipboard;                                                   {!!.03}
-    FLButtonDown := false;
+    FLButtonDown := False;
   end;
 end;
 {--------}
@@ -2367,7 +2366,7 @@ begin
     if (AComponent = Emulator) then
       Emulator := nil
     else if (AComponent = ComPort) then begin
-      Active := false;
+      Active := False;
       ComPort := nil;
     end;
   end
@@ -2385,7 +2384,7 @@ begin
 end;
 {--------}
 function TermIntersectRect(var lprcDst : TRect;
-                         const lprcSrc1, lprcSrc2: TRect) : boolean;
+                         const lprcSrc1, lprcSrc2: TRect) : Boolean;
 begin
   Result := IntersectRect(lprcDst, lprcSrc1, lprcSrc2);
 end;
@@ -2396,6 +2395,7 @@ var
   PaintRect : TRect;
   PaintRgn  : HRGN;
 begin
+  PaintRect := Default(TRect);
   {hide the caret}
   tmHideCaret;
   try
@@ -2439,9 +2439,9 @@ end;
 {--------}
 procedure TAdCustomTerminal.PasteFromClipboard;                          {!!.04}
 var                                                                      {!!.04}
-  i             : Integer;                                               {!!.04}
-  ClipboardText : string;                                                {!!.04}
-  ClipboardLen  : Integer;                                               {!!.04}
+  i             : Integer = 0;                                           {!!.04}
+  ClipboardText : string = '';                                           {!!.04}
+  ClipboardLen  : Integer = 0;                                           {!!.04}
 
 begin                                                                    {!!.04}
   Clipboard.Open;                                                        {!!.04}
@@ -2475,10 +2475,10 @@ procedure TAdCustomTerminal.tmAttachToComPort;
 begin
   {Assumptions: not designtime
                 ComPort <> nil
-                Active = true
+                Active = True
                 FWaitingForComPort = don't care}
 
-  FWaitingForComPortOpen := true;                                        {!!.03}
+  FWaitingForComPortOpen := True;                                        {!!.03}
   PostMessage (Handle, apw_TermWaitForPort, 0, 0)                        {!!.03}
 end;
 {--------}
@@ -2560,8 +2560,8 @@ end;
 {--------}
 procedure TAdCustomTerminal.tmCalcExtent;
 var
-  WorkColCount : integer;
-  WorkRowCount : integer;
+  WorkColCount : Integer = 0;
+  WorkRowCount : Integer = 0;
 begin
   {ASSUMPTION: there is a handle allocated, but an emulator may not be
                attached. Since there is a handle, we've already
@@ -2597,14 +2597,14 @@ begin
      large, force the horizontal scroll bar off}
     if (FClientFullCols < WorkColCount) then begin
       if (not FUseHScrollBar) and (not FHideScrollbars) then begin       {!!.03} {!!.06}
-        FUseHScrollBar := true;
+        FUseHScrollBar := True;
         PostMessage(Handle, APW_TERMFORCESIZE, 0, 0);
         Exit;
       end
     end
     else begin
       if tmNeedHScrollbar then begin                                     {!!.03}
-        FUseHScrollBar := false;
+        FUseHScrollBar := False;
         PostMessage(Handle, APW_TERMFORCESIZE, 0, 0);
         Exit;
       end
@@ -2613,7 +2613,7 @@ begin
      large, force the vertical scroll bar off}
     if (FClientFullRows < WorkRowCount) then begin
       if (not FUseVScrollBar) and (not FHideScrollbars) then begin       {!!.06}
-        FUseVScrollBar := true;
+        FUseVScrollBar := True;
         {note: if we have scrollback rows we already have a vertical
                scrollbar}
         if (ScrollbackRows <= Rows) then begin
@@ -2624,7 +2624,7 @@ begin
     end
     else begin
       if FUseVScrollBar then begin
-        FUseVScrollBar := false;
+        FUseVScrollBar := False;
         PostMessage(Handle, APW_TERMFORCESIZE, 0, 0);
         Exit;
       end
@@ -2661,10 +2661,10 @@ begin
   {Assumptions: ComPort <> nil}
   if FTriggerHandlerOn and Assigned(ComPort.Dispatcher) then begin       {!!.03}
     ComPort.Dispatcher.DeregisterEventTriggerHandler(tmTriggerHandler);
-    FTriggerHandlerOn := false;
+    FTriggerHandlerOn := False;
   end;
   if Active then
-    FWaitingForComPortOpen := true;
+    FWaitingForComPortOpen := True;
 end;
 {--------}
 procedure TAdCustomTerminal.tmDrawDefaultText;
@@ -2674,9 +2674,9 @@ const
   VT100Most = #27'[0;%dmDesign mode; line %.2d'^M^J;
   VT100Last = #27'[0;%dmDesign mode; line %.2d'^M;
 var
-  i  : integer;
-  S  : string;
-  VTColor : integer;
+  i  : Integer = 0;
+  S  : string = '';
+  VTColor : Integer;
 begin
   {ASSUMPTION: Handle is allocated}
 
@@ -2734,13 +2734,13 @@ procedure TAdCustomTerminal.tmFreeCaret;
 begin
   if FCreatedCaret then begin
     DestroyCaret;
-    FCreatedCaret := false;
+    FCreatedCaret := False;
   end;
 end;
 {--------}
-function TAdCustomTerminal.tmGetAttributes(aRow, aCol : integer) : TAdTerminalCharAttrs;
+function TAdCustomTerminal.tmGetAttributes(aRow, aCol : Integer) : TAdTerminalCharAttrs;
 var
-  AttrArray : PByteArray;
+  AttrArray : PByteArray = nil;
 begin
   if (FEmulator.Buffer <> nil) then begin
     AttrArray := FEmulator.Buffer.GetLineAttrPtr(aRow);
@@ -2750,9 +2750,9 @@ begin
     Result := [];
 end;
 {--------}
-function TAdCustomTerminal.tmGetBackColor(aRow, aCol : integer) : TColor;
+function TAdCustomTerminal.tmGetBackColor(aRow, aCol : Integer) : TColor;
 var
-  ColorArray : PadtLongArray;
+  ColorArray : PadtLongArray = nil;
 begin
   if (FEmulator.Buffer <> nil) then begin
     ColorArray := FEmulator.Buffer.GetLineBackColorPtr(aRow);
@@ -2762,9 +2762,9 @@ begin
     Result := adc_TermBackColor;
 end;
 {--------}
-function TAdCustomTerminal.tmGetCharSet(aRow, aCol : integer) : byte;
+function TAdCustomTerminal.tmGetCharSet(aRow, aCol : Integer) : byte;
 var
-  CharSetArray : PByteArray;
+  CharSetArray : PByteArray = nil;
 begin
   if (FEmulator.Buffer <> nil) then begin
     CharSetArray := FEmulator.Buffer.GetLineCharSetPtr(aRow);
@@ -2774,7 +2774,7 @@ begin
     Result := 0;
 end;
 {--------}
-function TAdCustomTerminal.tmGetColumns : integer;
+function TAdCustomTerminal.tmGetColumns : Integer;
 begin
   if (FEmulator.Buffer <> nil) then
     Result := FEmulator.Buffer.ColCount
@@ -2793,11 +2793,11 @@ end;
 procedure TAdCustomTerminal.tmGetFontInfo;
 var
   DC              : HDC;
-  i               : integer;
+  i               : Integer = 0;
   SavedFontHandle : THandle;
   Metrics         : TTextMetric;
-  SizeChanged     : boolean;
-  NewValue        : integer;
+  SizeChanged     : Boolean = False;
+  NewValue        : Integer = 0;
   TempFont        : TFont;
   FontList        : TStringList;
   {------}
@@ -2807,7 +2807,7 @@ var
       {calculate the height}
       NewValue := tmHeight + tmExternalLeading;
       if (NewValue > FCharHeight) then begin
-        SizeChanged := true;
+        SizeChanged := True;
         FCharHeight := NewValue;
       end;
       { Always use the max width.  With fixed pitch fonts, this should be
@@ -2816,7 +2816,7 @@ var
       {if it's a fixed pitch font, use the average char width}
       NewValue := tmMaxCharWidth;                                        {!!.03}
       if (NewValue <> FCharWidth) then begin                             {!!.03}
-        SizeChanged := true;
+        SizeChanged := True;
         FCharWidth := NewValue;
       end;
     end;
@@ -2824,6 +2824,7 @@ var
   {------}
 
 begin
+  Metrics := Default(TTextMetric);
   if (FEmulator.CharSetMapping <> nil) then begin
     FontList := TStringList.Create;
     try
@@ -2845,7 +2846,7 @@ begin
   FCharHeight := 0;
   try
     {obtain the character cell height and width from the metrics}
-    SizeChanged := false;
+    SizeChanged := False;
     if (FontList = nil) then begin
       GetTextMetrics(DC, Metrics);
       UpdateCharSizes;
@@ -2879,9 +2880,9 @@ begin
   end;
 end;
 {--------}
-function TAdCustomTerminal.tmGetForeColor(aRow, aCol : integer) : TColor;
+function TAdCustomTerminal.tmGetForeColor(aRow, aCol : Integer) : TColor;
 var
-  ColorArray : PadtLongArray;
+  ColorArray : PadtLongArray = nil;
 begin
   if (FEmulator.Buffer <> nil) then begin
     ColorArray := FEmulator.Buffer.GetLineForeColorPtr(aRow);
@@ -2891,10 +2892,11 @@ begin
     Result := clWhite;
 end;
 {--------}
-function TAdCustomTerminal.tmGetLine(aRow : integer) : string;
+function TAdCustomTerminal.tmGetLine(aRow : Integer) : string;
 var
-  CharArray : PAnsiChar;
+  CharArray : PAnsiChar = nil;
 begin
+  Result := Default(String);
   if (FEmulator.Buffer <> nil) then begin
     CharArray := FEmulator.Buffer.GetLineCharPtr(aRow);
     SetLength(Result, FEmulator.Buffer.ColCount);
@@ -2904,7 +2906,7 @@ begin
     Result := '';
 end;
 {--------}
-function TAdCustomTerminal.tmGetRows : integer;
+function TAdCustomTerminal.tmGetRows : Integer;
 begin
   if (FEmulator.Buffer <> nil) then
     Result := FEmulator.Buffer.RowCount
@@ -2912,7 +2914,7 @@ begin
     Result := 0;
 end;
 {--------}
-function TAdCustomTerminal.tmGetScrollbackRows : integer;
+function TAdCustomTerminal.tmGetScrollbackRows : Integer;
 begin
   if (FEmulator.Buffer <> nil) then
     Result := FEmulator.Buffer.SVRowCount
@@ -2920,17 +2922,17 @@ begin
     Result := 0;
 end;
 {--------}
-procedure TAdCustomTerminal.tmGrowSelect(X, Y : integer);
+procedure TAdCustomTerminal.tmGrowSelect(X, Y : Integer);
 var
-  NewRow   : integer;
-  NewCol   : integer;
-  StartCol : integer;
-  ColCount : integer;
+  NewRow   : Integer = 0;
+  NewCol   : Integer = 0;
+  StartCol : Integer = 0;
+  ColCount : Integer = 0;
   NewRgn   : TRect;
-  i        : integer;
+  i        : Integer = 0;
 begin
   {if this gets called, we have a selection}
-  FHaveSelection := true;
+  FHaveSelection := True;
 
   {get the column count as a local variable: we'll be using it a lot}
   ColCount := FEmulator.Buffer.ColCount;
@@ -3039,13 +3041,13 @@ procedure TAdCustomTerminal.tmHideCaret;
 begin
   if FShowingCaret then begin
     HideCaret(Handle);
-    FShowingCaret := false;
+    FShowingCaret := False;
   end;
 end;
 {--------}
 procedure TAdCustomTerminal.tmInitHScrollBar;
 begin
-  {Assumptions: FUseHScrollBar = true
+  {Assumptions: FUseHScrollBar = True
                 FClientFullCols < Columns}
   with FScrollHorzInfo do begin
     fMask := SIF_ALL;
@@ -3054,12 +3056,12 @@ begin
     nPage := FClientFullCols;
     nPos := ClientOriginCol-1;
   end;
-  SetScrollInfo(Handle, SB_HORZ, FScrollHorzInfo, true);
+  SetScrollInfo(Handle, SB_HORZ, FScrollHorzInfo, True);
 end;
 {--------}
 procedure TAdCustomTerminal.tmInitVScrollBar;
 begin
-  {Assumptions: FUseVScrollBar = true AND FClientFullRows < Rows
+  {Assumptions: FUseVScrollBar = True AND FClientFullRows < Rows
                 OR ScrollbackRows > Rows}
   if FUseVScrollBar and (not Scrollback) then begin
     with FScrollVertInfo do begin
@@ -3079,21 +3081,21 @@ begin
       nPos := ClientOriginRow-1;
     end;
   end;
-  SetScrollInfo(Handle, SB_VERT, FScrollVertInfo, true);
+  SetScrollInfo(Handle, SB_VERT, FScrollVertInfo, True);
 end;
 {--------}
 procedure TAdCustomTerminal.tmMakeCaret;
 begin
-  FCreatedCaret := true;
+  FCreatedCaret := True;
   if (CursorType = ctUnderline) then
     CreateCaret(Handle, 0, GetTotalCharWidth, 2)                         {!!.06}
   else if (CursorType = ctBlock) then
     CreateCaret(Handle, 0, GetTotalCharWidth, GetTotalCharHeight)        {!!.06}
   else
-    FCreatedCaret := false;
+    FCreatedCaret := False;
 end;
 {--------}
-procedure TAdCustomTerminal.tmInvalidateRow(aRow : integer);
+procedure TAdCustomTerminal.tmInvalidateRow(aRow : Integer);
 var
   InvRect : TRect;
 begin
@@ -3103,16 +3105,16 @@ begin
     InvRect.Top := (aRow - ClientOriginRow) * GetTotalCharHeight;        {!!.06}
     InvRect.Right := ClientWidth;
     InvRect.Bottom := InvRect.Top + GetTotalCharHeight;                  {!!.06}
-    InvalidateRect(Handle, @InvRect, false);
+    InvalidateRect(Handle, @InvRect, False);
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmMarkDeselected(aRow : integer;
-                                             aFromCol, aToCol : integer);
+procedure TAdCustomTerminal.tmMarkDeselected(aRow : Integer;
+                                             aFromCol, aToCol : Integer);
 var
-  AttrArray : PByteArray;
-  i         : integer;
-  CharAttrs : TAdTerminalCharAttrs;
+  AttrArray : PByteArray = nil;
+  i         : Integer = 0;
+  CharAttrs : TAdTerminalCharAttrs = [];
 begin
   {get the attributes for this line}
   AttrArray := FEmulator.Buffer.GetLineAttrPtr(aRow);
@@ -3124,12 +3126,12 @@ begin
   tmInvalidateRow(aRow);
 end;
 {--------}
-procedure TAdCustomTerminal.tmMarkSelected(aRow : integer;
-                                           aFromCol, aToCol : integer);
+procedure TAdCustomTerminal.tmMarkSelected(aRow : Integer;
+                                           aFromCol, aToCol : Integer);
 var
-  AttrArray : PByteArray;
-  i         : integer;
-  CharAttrs : TAdTerminalCharAttrs;
+  AttrArray : PByteArray = nil;
+  i         : Integer = 0;
+  CharAttrs : TAdTerminalCharAttrs = [];
 begin
   {get the attributes for this line}
   AttrArray := FEmulator.Buffer.GetLineAttrPtr(aRow);
@@ -3158,7 +3160,8 @@ end;                                                                     {!!.03}
 {--------}
 procedure TAdCustomTerminal.tmPositionCaret;
 var
-  X, Y : integer;
+  X : Integer = 0;
+  Y : Integer = 0;
 begin
   with FEmulator.Buffer do begin
     if UseAbsAddress then begin
@@ -3176,21 +3179,21 @@ begin
      (0 <= Y) and (Y < ClientHeight) then begin     
     ShowCaret(Handle);
     SetCaretPos(X, Y);
-    FShowingCaret := true;
+    FShowingCaret := True;
   end;
 end;
 {--------}
 function TAdCustomTerminal.tmProcessClipboardCopy(
-                                      var Msg : TWMKeyDown) : boolean;
+                                      var Msg : TWMKeyDown) : Boolean;
 const
   VK_C = $43;
 var
-  Shift  : TShiftState;
+  Shift  : TShiftState = [];
 begin
   {this method is called from the main keydown methods to check for
    Ctrl+C or Ctrl+Insert, so that the selected text can get copied to
    the clipboard}
-  Result := false;
+  Result := False;
   {check whether we have a selection}
   if not FHaveSelection then
     Exit;
@@ -3203,13 +3206,13 @@ begin
      (ssShift in Shift) or (ssAlt in Shift) then
     Exit;
   {we have the required keystroke and a selection: copy to clipboard}
-  Result := true;
+  Result := True;
   CopyToClipboard;
 end;
 {--------}
 procedure TAdCustomTerminal.tmRemoveHScrollbar;                          {!!.03}
 var                                                                      {!!.03}
-  Style : Integer;                                                       {!!.03}
+  Style : Integer = 0;                                                   {!!.03}
 
 begin                                                                    {!!.03}
   Style := GetWindowLong (Handle, GWL_STYLE);                            {!!.03}
@@ -3221,7 +3224,7 @@ end;                                                                     {!!.03}
 {--------}
 procedure TAdCustomTerminal.tmRemoveVScrollbar;                          {!!.03}
 var                                                                      {!!.03}
-  Style : Integer;                                                       {!!.03}
+  Style : Integer = 0;                                                   {!!.03}
 
 begin                                                                    {!!.03}
   Style := GetWindowLong (Handle, GWL_STYLE);                            {!!.03}
@@ -3231,7 +3234,7 @@ begin                                                                    {!!.03}
   end;                                                                   {!!.03}
 end;                                                                     {!!.03}
 {--------}
-procedure TAdCustomTerminal.tmScrollHorz(aDist : integer);
+procedure TAdCustomTerminal.tmScrollHorz(aDist : Integer);
 begin
   {aDist is +ve if we are scrolling to the right (ie the current
    window contents are moved to a position aDist pixels to the right),
@@ -3239,7 +3242,7 @@ begin
   ScrollWindow(Handle, aDist, 0, nil, nil);
 end;
 {--------}
-procedure TAdCustomTerminal.tmScrollVert(aDist : integer);
+procedure TAdCustomTerminal.tmScrollVert(aDist : Integer);
 begin
   {aDist is +ve if we are scrolling downwards (ie the current window
    contents are moved to a position aDist pixels down), and is -ve for
@@ -3247,10 +3250,10 @@ begin
   ScrollWindow(Handle, 0, aDist, nil, nil);
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetActive(aValue : boolean);
+procedure TAdCustomTerminal.tmSetActive(aValue : Boolean);
 begin
   if (aValue <> Active) then begin
-    FWaitingForComPortOpen := false;
+    FWaitingForComPortOpen := False;
     FActive := aValue;
     {if we have a comport then either attach to or detach from it}
     if (ComPort <> nil) then begin
@@ -3261,14 +3264,14 @@ begin
           tmDetachFromComPort;
     end
     else if Active then
-      FWaitingForComPortOpen := true;
+      FWaitingForComPortOpen := True;
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetAttributes(aRow, aCol : integer;
+procedure TAdCustomTerminal.tmSetAttributes(aRow, aCol : Integer;
                                const aAttr      : TAdTerminalCharAttrs);
 var
-  AttrArray : PByteArray;
+  AttrArray : PByteArray = nil;
 begin
   if (FEmulator.Buffer <> nil) then begin                    
     AttrArray := FEmulator.Buffer.GetLineAttrPtr(aRow);
@@ -3293,10 +3296,10 @@ begin                                                                    {!!.03}
   end;                                                                   {!!.03}
 end;                                                                     {!!.03}
 {--------}
-procedure TAdCustomTerminal.tmSetBackColor(aRow, aCol : integer;
+procedure TAdCustomTerminal.tmSetBackColor(aRow, aCol : Integer;
                                     aValue     : TColor);
 var
-  ColorArray : PadtLongArray;
+  ColorArray : PadtLongArray = nil;
 begin
   if (FEmulator.Buffer <> nil) then begin
     ColorArray := FEmulator.Buffer.GetLineBackColorPtr(aRow);
@@ -3304,7 +3307,7 @@ begin
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetBlinkTime(aValue : integer);
+procedure TAdCustomTerminal.tmSetBlinkTime(aValue : Integer);
 begin
   if (aValue <> BlinkTime) then begin
     if (aValue <= 0) then
@@ -3364,14 +3367,14 @@ end;
 {--------}
 procedure TAdCustomTerminal.tmSetCaptureFile(const aValue : string);
 var
-  WasCapturing : boolean;
+  WasCapturing : Boolean = False;
 begin
   if (aValue <> CaptureFile) then begin
     {first turn off capturing if needed}
     if (Capture = cmOff) then
-      WasCapturing := false
+      WasCapturing := False
     else begin
-      WasCapturing := true;
+      WasCapturing := True;
       Capture := cmOff;
     end;
     {save the new filename}
@@ -3392,9 +3395,9 @@ begin                                                                    {!!.06}
   end;                                                                   {!!.06}
 end;                                                                     {!!.06}
 {--------}
-procedure TAdCustomTerminal.tmSetCharSet(aRow, aCol : integer; aValue : byte);
+procedure TAdCustomTerminal.tmSetCharSet(aRow, aCol : Integer; aValue : byte);
 var
-  CharSetArray : PByteArray;
+  CharSetArray : PByteArray = nil;
 begin
   if (FEmulator.Buffer <> nil) then begin
     CharSetArray := FEmulator.Buffer.GetLineCharSetPtr(aRow);
@@ -3412,9 +3415,9 @@ begin                                                                    {!!.06}
   end;                                                                   {!!.06}
 end;                                                                     {!!.06}
 {--------}
-procedure TAdCustomTerminal.tmSetColumns(aValue : integer);
+procedure TAdCustomTerminal.tmSetColumns(aValue : Integer);
 var
-  OldValue : integer;
+  OldValue : Integer = 0;
 begin
   if (FEmulator.Buffer <> nil) and
      (aValue > 0) then begin
@@ -3478,9 +3481,9 @@ end;
 {--------}
 procedure TAdCustomTerminal.tmSetEmulator(aValue : TAdTerminalEmulator);
 var
-  OldRowCount : integer;                                       
-  OldColCount : integer;                                       
-  OldSVRowCount : integer;                                     
+  OldRowCount : Integer = 0;
+  OldColCount : Integer = 0;
+  OldSVRowCount : Integer = 0;
 begin
   if not Assigned (FEmulator) then                                       {!!.03}
     Exit;                                                                {!!.03}
@@ -3488,7 +3491,7 @@ begin
     Exit;                                                                {!!.03}
   if (aValue <> Emulator) then begin
     if HandleAllocated then
-      FHeartbeat.Enabled := false;
+      FHeartbeat.Enabled := False;
     {if we were attached to an emulator, remove its link}
     OldSVRowCount := FEmulator.Buffer.SVRowCount;              
     OldRowCount := FEmulator.Buffer.RowCount;                  
@@ -3500,7 +3503,7 @@ begin
          (not (csDestroying in ComponentState)) then                     {!!.05}
         FEmulator.Buffer.DeregisterTerminalHandle;                       {!!.05}
       FEmulator := nil; {to stop recursion with the next call}
-      RemoveTermEmuLink(Self, true);
+      RemoveTermEmuLink(Self, True);
     end;
     {attach ourselves to the new emulator}
     if (aValue = nil) then begin                                         {!!.05}
@@ -3526,7 +3529,7 @@ begin
       FEmulator.Buffer.ColCount := OldColCount;               
     end;
     if HandleAllocated then begin
-      FHeartbeat.Enabled := true;
+      FHeartbeat.Enabled := True;
       if (csDesigning in ComponentState) then
         tmDrawDefaultText;
     end;
@@ -3541,10 +3544,10 @@ begin                                                                    {!!.03}
   end;                                                                   {!!.03}
 end;                                                                     {!!.03}
 {--------}
-procedure TAdCustomTerminal.tmSetForeColor(aRow, aCol : integer;
+procedure TAdCustomTerminal.tmSetForeColor(aRow, aCol : Integer;
                                      aValue     : TColor);
 var
-  ColorArray : PadtLongArray;
+  ColorArray : PadtLongArray = nil;
 begin
   if (FEmulator.Buffer <> nil) then begin
     ColorArray := FEmulator.Buffer.GetLineForeColorPtr(aRow);
@@ -3567,7 +3570,7 @@ begin                                                                    {!!.03}
   end;                                                                   {!!.03}
 end;                                                                     {!!.03}
 {--------}
-procedure TAdCustomTerminal.tmSetLazyByteDelay(aValue : integer);
+procedure TAdCustomTerminal.tmSetLazyByteDelay(aValue : Integer);
 begin
   if (0 < aValue) and (aValue <= 1024) and
      (aValue <> LazyByteDelay) then begin
@@ -3575,7 +3578,7 @@ begin
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetLazyTimeDelay(aValue : integer);
+procedure TAdCustomTerminal.tmSetLazyTimeDelay(aValue : Integer);
 begin
   if (0 < aValue) and (aValue <= 1000) and
      (aValue <> LazyTimeDelay) then begin
@@ -3583,11 +3586,11 @@ begin
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetLine(aRow : integer; const aValue : string);
+procedure TAdCustomTerminal.tmSetLine(aRow : Integer; const aValue : string);
 var
-  CharArray : PAnsiChar;
-  StLen     : integer;
-  i         : integer;
+  CharArray : PAnsiChar = nil;
+  StLen     : Integer = 0;
+  i         : Integer = 0;
 begin
   if (FEmulator.Buffer <> nil) then begin
     CharArray := FEmulator.Buffer.GetLineCharPtr(aRow);
@@ -3615,10 +3618,10 @@ begin                                                                    {!!.03}
   end;                                                                   {!!.03}
 end;                                                                     {!!.03}
 {--------}
-procedure TAdCustomTerminal.tmSetOriginCol(aValue : integer);
+procedure TAdCustomTerminal.tmSetOriginCol(aValue : Integer);
 var
-  MaxOriginCol : integer;
-  OldOrigin    : integer;
+  MaxOriginCol : Integer = 0;
+  OldOrigin    : Integer = 0;
 begin
   if (aValue <> ClientOriginCol) then begin
     {work out the maximum value}
@@ -3642,16 +3645,16 @@ begin
         fMask := SIF_POS;
         nPos := ClientOriginCol-1;
       end;
-      SetScrollInfo(Handle, SB_HORZ, FScrollHorzInfo, true);
+      SetScrollInfo(Handle, SB_HORZ, FScrollHorzInfo, True);
     end;
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetOriginRow(aValue : integer);
+procedure TAdCustomTerminal.tmSetOriginRow(aValue : Integer);
 var
-  MinOriginRow : integer;
-  MaxOriginRow : integer;
-  OldOrigin    : integer;
+  MinOriginRow : Integer = 0;
+  MaxOriginRow : Integer = 0;
+  OldOrigin    : Integer = 0;
 begin
   if (aValue <> ClientOriginRow) then begin
     {work out the minimum value}
@@ -3680,7 +3683,7 @@ begin
         fMask := SIF_POS;
         nPos := ClientOriginRow-1;
       end;
-      SetScrollInfo(Handle, SB_VERT, FScrollVertInfo, true);
+      SetScrollInfo(Handle, SB_VERT, FScrollVertInfo, True);
     end;
   end;
 end;
@@ -3697,9 +3700,9 @@ begin                                                                    {!!.04}
     FPasteToScreen := v;                                                 {!!.04}
 end;                                                                     {!!.04}
 {--------}
-procedure TAdCustomTerminal.tmSetRows(aValue : integer);
+procedure TAdCustomTerminal.tmSetRows(aValue : Integer);
 var
-  OldValue : integer;
+  OldValue : Integer = 0;
 begin
   if (FEmulator.Buffer <> nil) and
      (aValue > 0) then begin
@@ -3712,7 +3715,7 @@ begin
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetScrollback(aValue : boolean);
+procedure TAdCustomTerminal.tmSetScrollback(aValue : Boolean);
 begin
   if (aValue <> Scrollback) then begin
     FScrollback := aValue;
@@ -3723,25 +3726,25 @@ begin
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetScrollbackRows(aValue : integer);
+procedure TAdCustomTerminal.tmSetScrollbackRows(aValue : Integer);
 begin
   if (FEmulator.Buffer <> nil) and (aValue > 0) then
     FEmulator.Buffer.SVRowCount := aValue;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetUseLazyDisplay(aValue : boolean);
+procedure TAdCustomTerminal.tmSetUseLazyDisplay(aValue : Boolean);
 begin
   FUseLazyDisplay := aValue;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetWantAllKeys(aValue : boolean);
+procedure TAdCustomTerminal.tmSetWantAllKeys(aValue : Boolean);
 begin
   if (aValue <> WantAllKeys) then begin
     FWantAllKeys := aValue;
   end;
 end;
 {--------}
-procedure TAdCustomTerminal.tmSetFreezeScrollBack (v : boolean);
+procedure TAdCustomTerminal.tmSetFreezeScrollBack (v : Boolean);
 begin
   if (v <> FFreezeScrollBack) then
     FFreezeScrollBack := v;
@@ -3755,7 +3758,7 @@ begin
     tmPositionCaret;
 end;
 {--------}
-procedure TAdCustomTerminal.tmStartSelect(X, Y : integer);
+procedure TAdCustomTerminal.tmStartSelect(X, Y : Integer);
 begin
   {clear the current selection}
   if (FLButtonRect.Left > 0) and                                         {!!.03}
@@ -3777,7 +3780,7 @@ end;
 procedure TAdCustomTerminal.tmTriggerHandler(Msg, wParam : Cardinal;
                                        lParam : Integer);
 var
-  Buffer : pointer;
+  Buffer : pointer = nil;
 begin
   if (Msg = APW_TRIGGERAVAIL) then begin
     {we get all the data available and buffer it elsewhere}
@@ -3793,7 +3796,7 @@ end;
 procedure TAdCustomTerminal.WMCancelMode(var Msg : TMessage);
 begin
   HideSelection;
-  FLButtonDown := false;
+  FLButtonDown := False;
 end;
 {--------}
 procedure TAdCustomTerminal.WMCopy(var Msg : TMessage);
@@ -3822,9 +3825,9 @@ end;
 {--------}
 procedure TAdCustomTerminal.WMHScroll(var Msg : TWMScroll);
 var
-  PageSize : integer;
-  NewPos   : integer;
-  MaxOriginCol : integer;
+  PageSize : Integer = 0;
+  NewPos   : Integer = 0;
+  MaxOriginCol : Integer = 0;
 begin
   PageSize := FClientFullCols;
   MaxOriginCol := Columns - PageSize + 1;
@@ -3897,10 +3900,10 @@ end;
 {--------}
 procedure TAdCustomTerminal.WMVScroll(var Msg : TWMScroll);
 var
-  PageSize : integer;
-  NewPos   : integer;
-  MinOriginRow : integer;
-  MaxOriginRow : integer;
+  PageSize : Integer = 0;
+  NewPos   : Integer = 0;
+  MinOriginRow : Integer = 0;
+  MaxOriginRow : Integer = 0;
 begin
   {if we've a vertical scrollbar because the window is smaller than
    the terminal screen...}
@@ -3910,14 +3913,14 @@ begin
      the scrollbar, auto switch into scrollback mode}
     if (not Scrollback) and (FAutoScrollback) then begin                 {!!.03}
       if (Msg.ScrollCode = SB_LINEUP) and (ClientOriginRow = 1) then
-        Scrollback := true;
+        Scrollback := True;
     end
     {if we're currently going through the scrollback buffer and the
      current origin row is greater than 1, auto switch into
      non-scrollback mode}
     else if Scrollback and FAutoScrollback then begin                    {!!.03}
       if (ClientOriginRow > 1) then
-        Scrollback := false;
+        Scrollback := False;
     end;
   end;
 
@@ -4012,7 +4015,7 @@ begin
   inherited Destroy;
 end;
 {--------}
-procedure TAdTerminalEmulator.BlinkPaint(aVisible : boolean);
+procedure TAdTerminalEmulator.BlinkPaint(aVisible : Boolean);
 begin
   {do nothing}
 end;
@@ -4035,9 +4038,9 @@ begin                                                                    {!!.04}
     Terminal.Repaint;                                                    {!!.04}
 end;                                                                     {!!.04}
 {--------}
-function TAdTerminalEmulator.HasBlinkingText : boolean;
+function TAdTerminalEmulator.HasBlinkingText : Boolean;
 begin
-  Result := false;
+  Result := False;
 end;
 {--------}
 function TAdTerminalEmulator.IsAnswerbackStored : Boolean;               {!!.06}
@@ -4111,7 +4114,7 @@ begin
   FCommandList.Clear;
 end;
 {--------}
-function TAdTerminalEmulator.teGetNeedsUpdate : boolean;
+function TAdTerminalEmulator.teGetNeedsUpdate : Boolean;
 begin
   Result := Buffer.HasDisplayChanged or Buffer.HasCursorMoved;
 end;
@@ -4122,7 +4125,7 @@ procedure TAdTerminalEmulator.teHandleCursorMovement (Sender : TObject;
 { HandleCursorMovement
   Method is called by the Terminal Buffer's OnCursorMoved event}
 var                                                                      {!!.03}
-  Changed : Boolean;                                                     {!!.03}
+  Changed : Boolean = False;                                             {!!.03}
 
 begin
   { Handle scroll bars if the cursor moves out of range }
@@ -4236,9 +4239,9 @@ procedure TAdTerminalEmulator.teProcessCommand (Command : TAdEmuCommand; {!!.04}
   end;                                                                 {!!.04}
 
 var                                                                    {!!.04}
-  CharAttrs  : TAdTerminalCharAttrs;                                   {!!.04}
-  OldDefChar : AnsiChar;                                               {!!.04}
-  i          : Integer;
+  CharAttrs  : TAdTerminalCharAttrs = [];                              {!!.04}
+  OldDefChar : AnsiChar = #0;                                          {!!.04}
+  i          : Integer = 0;
 
 begin
   {Assumption: aCh is less than space, i.e., is one of the unprintable
@@ -4595,7 +4598,7 @@ end;
 procedure TAdTerminalEmulator.teProcessCommandList (                     {!!.04}
               CommandList : TAdEmuCommandList);                          {!!.04}
 var                                                                      {!!.04}
-  i : Integer;                                                           {!!.04}
+  i : Integer = 0;                                                       {!!.04}
 begin                                                                    {!!.04}
   for i := 0 to CommandList.Count - 1 do begin                           {!!.04}
     teProcessCommand (TAdEmuCommandListItem (CommandList.Items[i]).Command, {!!.04}
@@ -4604,7 +4607,7 @@ begin                                                                    {!!.04}
 end;                                                                     {!!.04}
 {--------}
 procedure TAdTerminalEmulator.teSendChar (aCh        : char;           {!!.04}
-                                          aCanEcho   : boolean;        {!!.04}
+                                          aCanEcho   : Boolean;        {!!.04}
                                           CharSource : TAdCharSource); {!!.04}
 begin
   {Assumptions: aCh is a printable character or is one of the standard
@@ -4626,13 +4629,13 @@ begin
     if (Terminal <> nil) and (not FIsDefault) then begin
       OldTerminal := Terminal;
       FTerminal := nil; {to stop recursion in the following call}
-      RemoveTermEmuLink(OldTerminal, true);
+      RemoveTermEmuLink(OldTerminal, True);
     end;
     FTerminal := aValue;
     {attach ourselves to the new terminal}
     if (Terminal <> nil) and (not FIsDefault) then begin
       if (Terminal.Emulator <> nil) and (Terminal.Emulator <> Self) then
-        RemoveTermEmuLink(Terminal, true);
+        RemoveTermEmuLink(Terminal, True);
       AddTermEmuLink(Terminal, Self);
     end;
   end;
@@ -4656,7 +4659,7 @@ begin
          some default text in the emulator's buffer.}
 
   {create the buffer}
-  FTerminalBuffer := TAdTerminalBuffer.Create(false);
+  FTerminalBuffer := TAdTerminalBuffer.Create(False);
 
   {now let the ancestor do his stuff}
   inherited Create(aOwner);
@@ -4664,8 +4667,8 @@ begin
   {set up the terminal buffer and ourselves}
   FDisplayStrSize := 256; {enough for standard terminals}
   GetMem(FDisplayStr, FDisplayStrSize);
-  GetMem(FCellWidths, 255 * sizeof(integer));
-  FillChar(FCellWidths^, 255 * sizeof(integer), 0);
+  GetMem(FCellWidths, 255 * sizeof(Integer));
+  FillChar(FCellWidths^, 255 * sizeof(Integer), 0);
 
   FTerminalBuffer.OnCursorMoved := teHandleCursorMovement;
 end;
@@ -4676,7 +4679,7 @@ begin
   ttyFreeAllPaintNodes;
   {free the cell widths array}
   if (FCellWidths <> nil) then
-    FreeMem(FCellWidths, 255 * sizeof(integer));
+    FreeMem(FCellWidths, 255 * sizeof(Integer));
   {free the display string}
   if (FDisplayStr <> nil) then
     FreeMem(FDisplayStr, FDisplayStrSize);
@@ -4690,34 +4693,34 @@ begin
   {send it to the host}
   if (Key = ^H) then
     Key := #127;
-  teSendChar(Key, true, csKeyboard);                                   {!!.04}
+  teSendChar(Key, True, csKeyboard);                                   {!!.04}
 end;
 {--------}
 procedure TAdTTYEmulator.LazyPaint;
 var
   DirtyRect : TRect;
-  Row       : integer;
+  Row       : Integer = 0;
 begin
   {the LazyPaint method is called by the terminal, if and only if
    either of the lazy timers expired; in other words, either a certain
    amount of data has been received by the terminal, or a certain time
    has elapsed since the last update}
-
+  DirtyRect := Default(TRect);
   if (Terminal.Color <> Buffer.BackColor) or
      (Terminal.Font.Color <> Buffer.ForeColor) then begin
     Buffer.DefBackColor := Terminal.Color;
     Buffer.DefForeColor := Terminal.Font.Color;
     Buffer.BackColor := Terminal.Color;
     Buffer.ForeColor := Terminal.Font.Color;
-    FRefresh := true;
+    FRefresh := True;
   end;
 
   {if we have to refresh the display, do it, and throw away all the
    'dirty' data}
   if FRefresh then begin
-    FRefresh := false;
+    FRefresh := False;
     for Row := 1 to Buffer.RowCount do
-      ttyDrawChars(Row, 1, Buffer.ColCount, true);
+      ttyDrawChars(Row, 1, Buffer.ColCount, True);
     while Buffer.GetInvalidRect(DirtyRect) do {nothing};
   end
   else begin
@@ -4729,7 +4732,7 @@ begin
         Inc (DirtyRect.Bottom, Terminal.FScrollVertInfo.nPos + 1);
       end;
       for Row := DirtyRect.Top to DirtyRect.Bottom do
-        ttyDrawChars(Row, DirtyRect.Left, DirtyRect.Right, true);
+        ttyDrawChars(Row, DirtyRect.Left, DirtyRect.Right, True);
     end;
   end;
 end;
@@ -4737,7 +4740,7 @@ end;
 procedure TAdTTYEmulator.Paint;
 var
   DirtyRect : TRect;
-  Row       : integer;
+  Row       : Integer = 0;
 begin
   {the Paint method is called by the terminal, if and only if the
    terminal component received a WM_PAINT message}
@@ -4748,7 +4751,7 @@ begin
     Buffer.DefForeColor := Terminal.Font.Color;
     Buffer.BackColor := Terminal.Color;
     Buffer.ForeColor := Terminal.Font.Color;
-    FRefresh := true;
+    FRefresh := True;
   end;
 
   {repaint the clip region}
@@ -4768,7 +4771,7 @@ begin
     Inc (DirtyRect.Bottom, Terminal.FScrollVertInfo.nPos + 1);
   end;
   for Row := DirtyRect.Top to DirtyRect.Bottom do
-    ttyDrawChars(Row, DirtyRect.Left, DirtyRect.Right, true);
+    ttyDrawChars(Row, DirtyRect.Left, DirtyRect.Right, True);
 end;
 {--------}
 procedure TAdTTYEmulator.ProcessBlock (aData      : pointer;             {!!.04}
@@ -4776,11 +4779,11 @@ procedure TAdTTYEmulator.ProcessBlock (aData      : pointer;             {!!.04}
                                        CharSource : TAdCharSource);      {!!.04}
 var
   DataAsChar : PAnsiChar absolute aData;
-  i          : integer;
-  j          : Integer;                                                  {!!.03}
-  Ch         : AnsiChar;
-  Str        : string;                                                   {!!.03}
-  StrLen     : Integer;                                                  {!!.03}
+  i          : Integer = 0;
+  j          : Integer = 0;                                              {!!.03}
+  Ch         : AnsiChar = #0;
+  Str        : string = '';                                              {!!.03}
+  StrLen     : Integer = 0;                                              {!!.03}
 
 begin
   for i := 0 to pred (aDataLen) do begin
@@ -4812,7 +4815,7 @@ begin
   Buffer.EraseAll;
 end;
 {--------}
-function TAdTTYEmulator.teGetNeedsUpdate : boolean;
+function TAdTTYEmulator.teGetNeedsUpdate : Boolean;
 begin
   Result := Buffer.HasDisplayChanged or FRefresh or
             Buffer.HasCursorMoved;
@@ -4836,19 +4839,19 @@ begin                                                                  {!!.04}
   end;{case}                                                           {!!.04}
 end;                                                                   {!!.04}
 {--------}
-procedure TAdTTYEmulator.ttyDrawChars(aRow, aStartCol, aEndCol : integer;
-                                      aVisible : boolean);
+procedure TAdTTYEmulator.ttyDrawChars(aRow, aStartCol, aEndCol : Integer;
+                                      aVisible : Boolean);
 var
-  ColNum     : integer;
-  StartColNum: integer;
+  ColNum     : Integer = 0;
+  StartColNum: Integer = 0;
   BackColor  : TColor;
   ForeColor  : TColor;
-  Attr       : TAdTerminalCharAttrs;
-  ForeColors : PadtLongArray;
-  BackColors : PadtLongArray;
-  Attrs      : PByteArray;
-  Script     : PPaintNode;
-  PaintNode  : PPaintNode;
+  Attr       : TAdTerminalCharAttrs = [];
+  ForeColors : PadtLongArray = nil;
+  BackColors : PadtLongArray = nil;
+  Attrs      : PByteArray = nil;
+  Script     : PPaintNode = nil;
+  PaintNode  : PPaintNode = nil;
 begin
   {ASSUMPTION: aStartCol <= aEndCol}
 
@@ -4932,7 +4935,7 @@ begin
   ttyExecutePaintScript(aRow, Script);
 end;
 {--------}
-procedure TAdTTYEmulator.ttyExecutePaintScript(aRow    : integer;
+procedure TAdTTYEmulator.ttyExecutePaintScript(aRow    : Integer;
                                                aScript : pointer);
 var
   Canvas       : TCanvas;
@@ -4940,15 +4943,17 @@ var
   Walker, Temp : PPaintNode;
   ForeColor    : TColor;
   BackColor    : TColor;
-  CharWidth    : integer;
-  CharHeight   : integer;
-  OriginCol    : integer;
-  TextStrLen   : integer;
+  CharWidth    : Integer = 0;
+  CharHeight   : Integer = 0;
+  OriginCol    : Integer = 0;
+  TextStrLen   : Integer = 0;
   TextChars    : PAnsiChar;
   WorkRect     : TRect;
-  Y            : integer;
-  R, G, B      : integer;
-  Reversed     : boolean;
+  Y            : Integer = 0;
+  R            : Integer = 0;
+  G            : Integer = 0;
+  B            : Integer = 0;
+  Reversed     : Boolean = False;
 begin
   {get some values as local variables}
   Canvas := Terminal.Canvas;
@@ -4982,15 +4987,15 @@ begin
     {check for bold}
     else if (tcaBold in Walker^.pnAttr) then begin
       if Reversed then begin
-        R := MinI(integer(GetRValue(BackColor)) + $80, $FF);
-        G := MinI(integer(GetGValue(BackColor)) + $80, $FF);
-        B := MinI(integer(GetBValue(BackColor)) + $80, $FF);
+        R := MinI(Integer(GetRValue(BackColor)) + $80, $FF);
+        G := MinI(Integer(GetGValue(BackColor)) + $80, $FF);
+        B := MinI(Integer(GetBValue(BackColor)) + $80, $FF);
         BackColor := RGB(R, G, B);
       end
       else begin
-        R := MinI(integer(GetRValue(ForeColor)) + $80, $FF);
-        G := MinI(integer(GetGValue(ForeColor)) + $80, $FF);
-        B := MinI(integer(GetBValue(ForeColor)) + $80, $FF);
+        R := MinI(Integer(GetRValue(ForeColor)) + $80, $FF);
+        G := MinI(Integer(GetGValue(ForeColor)) + $80, $FF);
+        B := MinI(Integer(GetBValue(ForeColor)) + $80, $FF);
         ForeColor := RGB(R, G, B);
       end;
     end;
@@ -5084,8 +5089,8 @@ begin
          some default text in the emulator's buffer.}
 
   {create the buffer and parser and keyboard mapper}
-  FTerminalBuffer := TAdTerminalBuffer.Create(false);
-  FParser := TAdVT100Parser.Create(false);
+  FTerminalBuffer := TAdTerminalBuffer.Create(False);
+  FParser := TAdVT100Parser.Create(False);
   FKeyboardMapping := TAdKeyboardMapping.Create;
   FCharSetMapping := TAdCharSetMapping.Create;
 
@@ -5127,8 +5132,8 @@ begin
   FSecondaryFont := TFont.Create;
   if (Terminal <> nil) then
     FSecondaryFont.Assign(Terminal.Font);
-  GetMem(FCellWidths, 132 * sizeof(integer));
-  FillChar(FCellWidths^, 132 * sizeof(integer), 0);
+  GetMem(FCellWidths, 132 * sizeof(Integer));
+  FillChar(FCellWidths^, 132 * sizeof(Integer), 0);
   FTerminalBuffer.OnCursorMoved := teHandleCursorMovement;
 end;
 {--------}
@@ -5139,7 +5144,7 @@ begin
   vttFreeAllBlinkNodes;
   {free the paint node free list}
   vttFreeAllPaintNodes;
-  FreeMem(FCellWidths, 132 * sizeof(integer));
+  FreeMem(FCellWidths, 132 * sizeof(Integer));
   {free the display string}
   if (FDisplayStr <> nil) then
     FreeMem(FDisplayStr, FDisplayStrSize);
@@ -5153,9 +5158,9 @@ begin
   inherited Destroy;
 end;
 {--------}
-procedure TAdVT100Emulator.BlinkPaint(aVisible : boolean);
+procedure TAdVT100Emulator.BlinkPaint(aVisible : Boolean);
 var
-  Walker : PBlinkNode;
+  Walker : PBlinkNode = nil;
 begin
   {the BlinkPaint method is called by the terminal, if and only if
    the blink timer expired; in other words, the blinking text must be
@@ -5165,7 +5170,7 @@ begin
   Walker := PBlinkNode(FBlinkers);
   while (Walker <> nil) do
     with Walker^ do begin
-      vttDrawChars(bnRow, bnStartCh, bnEndCh, aVisible, true);
+      vttDrawChars(bnRow, bnStartCh, bnEndCh, aVisible, True);
       Walker := bnNext;
     end;
 end;
@@ -5180,7 +5185,7 @@ end;
 {                        Answerback = '');                             } {!!.04}
 {end;                                                                  } {!!.04}
 {--------}
-function TAdVT100Emulator.HasBlinkingText : boolean;
+function TAdVT100Emulator.HasBlinkingText : Boolean;
 begin
   Result := FBlinkers <> nil;
 end;
@@ -5192,11 +5197,11 @@ end;
 {--------}
 procedure TAdVT100Emulator.KeyDown(var Key : word; Shift: TShiftState);
   {------}
-  function CvtHexChar(const S : string; aInx : integer) : AnsiChar;
+  function CvtHexChar(const S : string; aInx : Integer) : AnsiChar;
   var
     Hex : string[3];
-    Value : integer;
-    ec    : integer;
+    Value : Integer = 0;
+    ec    : Integer = 0;
   begin
     Hex := '$  ';
     Hex[2] := S[aInx];
@@ -5209,17 +5214,17 @@ procedure TAdVT100Emulator.KeyDown(var Key : word; Shift: TShiftState);
   end;
   {------}
 var
-  VKKey     : string;
-  VTKey     : string;
-  VTKeyString : string;
-  i         : integer;
-  EscChar   : boolean;
-  HexChar1  : boolean;
-  HexChar2  : boolean;
-  IsEscSeq  : boolean;
-  IsRepeat  : boolean;
-  IsNumLock : boolean;
-  Ch        : AnsiChar;
+  VKKey     : string = '';
+  VTKey     : string = '';
+  VTKeyString : string = '';
+  i         : Integer = 0;
+  EscChar   : Boolean = False;
+  HexChar1  : Boolean = False;
+  HexChar2  : Boolean = False;
+  IsEscSeq  : Boolean = False;
+  IsRepeat  : Boolean = False;
+  IsNumLock : Boolean = False;
+  Ch        : AnsiChar = #0;
 begin
   {check for a repeated key and AutoRepeat is off}
   IsRepeat := (Key and $8000) <> 0;
@@ -5282,10 +5287,10 @@ begin
   {now get the string we need to send to the host for this key}
   VTKeyString := KeyboardMapping.Get(VTKey);
   if (VTKeyString <> '') then begin
-    IsEscSeq := false;
-    EscChar := false;
-    HexChar1 := false;
-    HexChar2 := false;
+    IsEscSeq := False;
+    EscChar := False;
+    HexChar1 := False;
+    HexChar2 := False;
     {interpret the key string}
     for i := 1 to length(VTKeyString) do begin
       {get the next character}
@@ -5294,44 +5299,44 @@ begin
        escaped character, either of the form \e or \xhh}
       if EscChar then begin
         if (Ch = 'e') then begin
-          teSendChar(#27, false, csKeyboard);                          {!!.04}
-          IsEscSeq := true;
+          teSendChar(#27, False, csKeyboard);                          {!!.04}
+          IsEscSeq := True;
         end
         else if (Ch = 'x') then begin
-          HexChar1 := true;
+          HexChar1 := True;
           Ch := CvtHexChar(VTKeyString, i+1);
           if (Ch = #13) then begin
-            teSendChar(Ch, true, csKeyboard);                          {!!.04}
+            teSendChar(Ch, True, csKeyboard);                          {!!.04}
             if NewLineMode then
-              teSendChar(#10, true, csKeyboard);                       {!!.04}
+              teSendChar(#10, True, csKeyboard);                       {!!.04}
           end
           else if (Ch = #27) then begin
-            teSendChar(#27, false, csKeyboard);                        {!!.04}
-            IsEscSeq := true;
+            teSendChar(#27, False, csKeyboard);                        {!!.04}
+            IsEscSeq := True;
           end
           else
             teSendChar(Ch, not IsEscSeq, csKeyboard);                  {!!.04}
         end
         else {it's not \e or \xhh} begin
-          teSendChar('\', true, csKeyboard);                           {!!.04}
-          teSendChar(Ch, true, csKeyboard);                            {!!.04}
+          teSendChar('\', True, csKeyboard);                           {!!.04}
+          teSendChar(Ch, True, csKeyboard);                            {!!.04}
         end;
-        EscChar := false;
+        EscChar := False;
       end
       {if the previous character was the x in \xhh, ignore this one:
        we've already interpreted it with the \x}
       else if HexChar1 then begin
-        HexChar1 := false;
-        HexChar2 := true;
+        HexChar1 := False;
+        HexChar2 := True;
       end
       {if the previous character was the first h in \xhh, ignore this
        one: we've already interpreted it with the \x}
       else if HexChar2 then begin
-        HexChar2 := false;
+        HexChar2 := False;
       end
       {if this character is a '\' we're starting an escaped character}
       else if (Ch = '\') then
-        EscChar := true
+        EscChar := True
       {otherwise there's nothing special about this character}
       else
         teSendChar(Ch, not IsEscSeq, csKeyboard);                      {!!.04}
@@ -5351,30 +5356,30 @@ begin
   {on a key press, send the key to the host; for a CR character we
    either send CR (NewLineMode is OFF) or a CR/LF (NewLineMode is on}
   if (Key = #13) then begin
-    teSendChar(Key, true, csKeyboard);                                 {!!.04}
+    teSendChar(Key, True, csKeyboard);                                 {!!.04}
     if NewLineMode then
-      teSendChar(#10, true, csKeyboard);                               {!!.04}
+      teSendChar(#10, True, csKeyboard);                               {!!.04}
   end
   else
-    teSendChar(Key, true, csKeyboard);                                 {!!.04}
+    teSendChar(Key, True, csKeyboard);                                 {!!.04}
 end;
 {--------}
 procedure TAdVT100Emulator.LazyPaint;
 var
   DirtyRect : TRect;
-  Row       : integer;
+  Row       : Integer = 0;
 begin
   {the LazyPaint method is called by the terminal, if and only if
    either of the lazy timers expired; in other words, either a certain
    amount of data has been received by the terminal, or a certain time
    has elapsed since the last update}
-
+  DirtyRect := Default(TRect);
   {if we have to refresh the display, do it, and throw away all the
    'dirty' data}
   if FRefresh then begin
-    FRefresh := false;
+    FRefresh := False;
     for Row := 1 to Buffer.RowCount do
-      vttDrawChars(Row, 1, Buffer.ColCount, true, false);
+      vttDrawChars(Row, 1, Buffer.ColCount, True, False);
     while Buffer.GetInvalidRect(DirtyRect) do {nothing};
   end
   else begin
@@ -5386,7 +5391,7 @@ begin
         Inc (DirtyRect.Bottom, Terminal.FScrollVertInfo.nPos + 1);
       end;
       for Row := DirtyRect.Top to DirtyRect.Bottom do
-        vttDrawChars(Row, DirtyRect.Left, DirtyRect.Right, true, false);
+        vttDrawChars(Row, DirtyRect.Left, DirtyRect.Right, True, False);
     end;
   end;
 end;
@@ -5394,7 +5399,7 @@ end;
 procedure TAdVT100Emulator.Paint;
 var
   DirtyRect : TRect;
-  Row       : integer;
+  Row       : Integer = 0;
 begin
   {the Paint method is called by the terminal, if and only if the
    terminal component received a WM_PAINT message}
@@ -5416,7 +5421,7 @@ begin
     Inc (DirtyRect.Bottom, Terminal.FScrollVertInfo.nPos + 1);
   end;
   for Row := DirtyRect.Top to DirtyRect.Bottom do
-    vttDrawChars(Row, DirtyRect.Left, DirtyRect.Right, true, false);
+    vttDrawChars(Row, DirtyRect.Left, DirtyRect.Right, True, False);
 end;
 {--------}
 procedure TAdVT100Emulator.ProcessBlock (aData      : pointer;          {!!.04}
@@ -5424,11 +5429,11 @@ procedure TAdVT100Emulator.ProcessBlock (aData      : pointer;          {!!.04}
                                          CharSource : TAdCharSource);   {!!.04}
 var
   DataAsChar : PChar absolute aData;
-  i          : integer;
-  j          : Integer;                                                {!!.04}
-  Ch         : Char;                                                   {!!.04}
-  Str        : string;                                                 {!!.04}
-  StrLen     : Integer;                                                {!!.04}
+  i          : Integer = 0;
+  j          : Integer = 0;                                            {!!.04}
+  Ch         : Char = #0;                                              {!!.04}
+  Str        : string = '';                                            {!!.04}
+  StrLen     : Integer = 0;                                            {!!.04}
 
 begin
   for i := 0 to pred(aDataLen) do begin
@@ -5483,7 +5488,7 @@ begin
   Buffer.EraseAll;
 end;
 {--------}
-function TAdVT100Emulator.teGetNeedsUpdate : boolean;
+function TAdVT100Emulator.teGetNeedsUpdate : Boolean;
 begin
   Result := Buffer.HasDisplayChanged or FRefresh or
             Buffer.HasCursorMoved;
@@ -5500,19 +5505,19 @@ end;
 {--------}
 procedure TAdVT100Emulator.vttCalcBlinkScript;
 var
-  RowInx       : integer;
-  ColInx       : integer;
-  StartColInx  : integer;
-  Temp         : PBlinkNode;
-  Attrs        : TAdTerminalCharAttrs;
-  AttrArray    : PByteArray;
-  InBlinkRegion: boolean;
+  RowInx       : Integer = 0;
+  ColInx       : Integer = 0;
+  StartColInx  : Integer = 0;
+  Temp         : PBlinkNode = nil;
+  Attrs        : TAdTerminalCharAttrs = [];
+  AttrArray    : PByteArray = nil;
+  InBlinkRegion: Boolean = False;
 begin
   if Buffer.HasDisplayChanged then begin
     {clear the current script of blink regions}
     vttClearBlinkScript;
     {search for the current blink regions in the buffer}
-    InBlinkRegion := false;
+    InBlinkRegion := False;
     StartColInx := 0;
     with Buffer do
       for RowInx := Terminal.ClientOriginRow to
@@ -5522,7 +5527,7 @@ begin
           Attrs := TAdTerminalCharAttrs(AttrArray^[ColInx]);
           if InBlinkRegion then begin
             if not (tcaBlink in Attrs) then begin
-              InBlinkRegion := false;
+              InBlinkRegion := False;
               Temp := vttNewBlinkNode;
               Temp^.bnRow := RowInx;
               Temp^.bnStartCh := succ(StartColInx);
@@ -5533,7 +5538,7 @@ begin
           end
           else {not tracking blink region} begin
             if (tcaBlink in Attrs) then begin
-              InBlinkRegion := true;
+              InBlinkRegion := True;
               StartColInx := ColInx;
             end;
           end;
@@ -5554,7 +5559,8 @@ end;
 {--------}
 procedure TAdVT100Emulator.vttClearBlinkScript;
 var
-  Walker, Temp : PBlinkNode;
+  Walker : PBlinkNode = nil;
+  Temp : PBlinkNode = nil;
 begin
   Walker := PBlinkNode(FBlinkers);
   while (Walker <> nil) do begin
@@ -5566,14 +5572,14 @@ begin
 end;
 {--------}
 procedure TAdVT100Emulator.vttDrawBlinkOffCycle(
-                                    aRow, aStartCh, aEndCh : integer);
+                                    aRow, aStartCh, aEndCh : Integer);
 var
-  ChNum      : integer;
+  ChNum      : Integer = 0;
   BackColor  : TColor;
-  BackColors : PadtLongArray;
+  BackColors : PadtLongArray = nil;
   WorkRect   : TRect;
-  CharWidth  : integer;
-  OriginCh   : integer;
+  CharWidth  : Integer = 0;
+  OriginCh   : Integer = 0;
 begin
   {get the character width}
   if (TAdLineAttrArray(FLineAttrArray).Attr[aRow] = ltNormal) then begin
@@ -5624,24 +5630,24 @@ begin
   end;
 end;
 {--------}
-procedure TAdVT100Emulator.vttDrawChars(aRow, aStartVal, aEndVal : integer;
-                                        aVisible : boolean;
-                                        aCharValues : boolean);
+procedure TAdVT100Emulator.vttDrawChars(aRow, aStartVal, aEndVal : Integer;
+                                        aVisible : Boolean;
+                                        aCharValues : Boolean);
 var
-  ChNum     : integer;
-  StartChNum : integer;
-  StartChar  : integer;
-  EndChar    : integer;
+  ChNum     : Integer = 0;
+  StartChNum : Integer = 0;
+  StartChar  : Integer = 0;
+  EndChar    : Integer = 0;
   BackColor  : TColor;
   ForeColor  : TColor;
-  Attr       : TAdTerminalCharAttrs;
-  CharSet    : byte;
-  ForeColors : PadtLongArray;
-  BackColors : PadtLongArray;
-  Attrs      : PByteArray;
-  CharSets   : PByteArray;
-  Script     : PPaintNode;
-  PaintNode  : PPaintNode;
+  Attr       : TAdTerminalCharAttrs = [];
+  CharSet    : byte = 0;
+  ForeColors : PadtLongArray = nil;
+  BackColors : PadtLongArray = nil;
+  Attrs      : PByteArray = nil;
+  CharSets   : PByteArray = nil;
+  Script     : PPaintNode = nil;
+  PaintNode  : PPaintNode = nil;
   LineAttr   : TAdVT100LineAttr;
 begin
   {ASSUMPTION: aStartVal <= aEndVal}
@@ -5652,8 +5658,8 @@ begin
           (or cell) in width it doesn't matter whether we talk about
           characters or columns. If the characters are double width,
           it *does* matter, since 1 character unit is then equivalent
-          to two column units. aCharValues true means that aStartVal
-          and aEndVal are character values; false means that they are
+          to two column units. aCharValues True means that aStartVal
+          and aEndVal are character values; False means that they are
           column values. In the latter case, if the row consists of
           double-width characters then we'll have to convert the
           column values to character values.}
@@ -5694,7 +5700,7 @@ begin
   {if this point is reached, we have to paint *something*}
 
   {there will be calls to this method that are just drawing blinking
-   characters for the 'off' cycle (aVisible = false), so make this a
+   characters for the 'off' cycle (aVisible = False), so make this a
    special case}
   if not aVisible then begin
     vttDrawBlinkOffCycle(aRow, aStartVal, aEndVal);
@@ -5779,36 +5785,39 @@ begin
   end;                                                                      // SWB
 end;
 {--------}
-procedure TAdVT100Emulator.vttExecutePaintScript(aRow    : integer;
+procedure TAdVT100Emulator.vttExecutePaintScript(aRow    : Integer;
                                                  aScript : pointer);
 var
   Canvas       : TCanvas;
   Font         : TFont;
-  Walker, Temp : PPaintNode;
+  Walker       : PPaintNode = nil;
+  Temp         : PPaintNode = nil;
   ForeColor    : TColor;
   BackColor    : TColor;
-  CharWidth    : integer;
-  CharHeight   : integer;
-  OriginCol    : integer;
-  OffsetCol    : integer;
-  TextStrLen   : integer;
-  TextChars    : PAnsiChar;
-  PartTextLen  : integer;
-  TextCol      : integer;
-  FontName     : TadKeyString;
+  CharWidth    : Integer = 0;
+  CharHeight   : Integer = 0;
+  OriginCol    : Integer = 0;
+  OffsetCol    : Integer = 0;
+  TextStrLen   : Integer = 0;
+  TextChars    : PAnsiChar = nil;
+  PartTextLen  : Integer = 0;
+  TextCol      : Integer = 0;
+  FontName     : TadKeyString = '';
   WorkRect     : TRect;
-  Y            : integer;
-  R, G, B      : integer;
-  Reversed     : boolean;
-  DblHeight    : boolean;
+  Y            : Integer = 0;
+  R            : Integer = 0;
+  G            : Integer = 0;
+  B            : Integer = 0;
+  Reversed     : Boolean = False;
+  DblHeight    : Boolean = False;
 begin
   case TAdLineAttrArray(FLineAttrArray).Attr[aRow] of
-    ltNormal          : DblHeight := false;
-    ltDblHeightTop    : DblHeight := true;
-    ltDblHeightBottom : DblHeight := true;
-    ltDblWidth        : DblHeight := false;
+    ltNormal          : DblHeight := False;
+    ltDblHeightTop    : DblHeight := True;
+    ltDblHeightBottom : DblHeight := True;
+    ltDblWidth        : DblHeight := False;
   else
-    DblHeight := false;
+    DblHeight := False;
   end;
   {get some values as local variables}
   Canvas := Terminal.Canvas;
@@ -5857,15 +5866,15 @@ begin
     {check for bold}
     else if (tcaBold in Walker^.pnAttr) then begin
       if Reversed then begin
-        R := MinI(integer(GetRValue(BackColor)) + $80, $FF);
-        G := MinI(integer(GetGValue(BackColor)) + $80, $FF);
-        B := MinI(integer(GetBValue(BackColor)) + $80, $FF);
+        R := MinI(Integer(GetRValue(BackColor)) + $80, $FF);
+        G := MinI(Integer(GetGValue(BackColor)) + $80, $FF);
+        B := MinI(Integer(GetBValue(BackColor)) + $80, $FF);
         BackColor := RGB(R, G, B);
       end
       else begin
-        R := MinI(integer(GetRValue(ForeColor)) + $80, $FF);
-        G := MinI(integer(GetGValue(ForeColor)) + $80, $FF);
-        B := MinI(integer(GetBValue(ForeColor)) + $80, $FF);
+        R := MinI(Integer(GetRValue(ForeColor)) + $80, $FF);
+        G := MinI(Integer(GetGValue(ForeColor)) + $80, $FF);
+        B := MinI(Integer(GetBValue(ForeColor)) + $80, $FF);
         ForeColor := RGB(R, G, B);
       end;
     end;
@@ -5946,7 +5955,8 @@ end;
 {--------}
 procedure TAdVT100Emulator.vttFreeAllBlinkNodes;
 var
-  Walker, Temp : PBlinkNode;
+  Walker : PBlinkNode = nil;
+  Temp : PBlinkNode = nil;
 begin
   Walker := FBlinkFreeList;
   while (Walker <> nil) do begin
@@ -5959,12 +5969,13 @@ end;
 {--------}
 procedure TAdVT100Emulator.vttFreeAllPaintNodes;
 var
-  Walker, Temp : PPaintNode;
+  Walker : PBlinkNode = nil;
+  Temp : PBlinkNode = nil;
 begin
   Walker := FPaintFreeList;
   while (Walker <> nil) do begin
     Temp := Walker;
-    Walker := Walker^.pnNext;
+    Walker := Walker^.bnNext;
     Dispose(Temp);
   end;
   FPaintFreeList := nil;
@@ -5982,12 +5993,12 @@ begin
   FPaintFreeList := aNode;
 end;
 {--------}
-function TAdVT100Emulator.vttGenerateDECREPTPARM(aArg : integer) : string;
+function TAdVT100Emulator.vttGenerateDECREPTPARM(aArg : Integer) : string;
 var
-  par   : integer;
-  nbits : integer;
-  xspd  : integer;
-  rspd  : integer;
+  par   : Integer = 0;
+  nbits : Integer = 0;
+  xspd  : Integer = 0;
+  rspd  : Integer = 0;
 begin
   {calculate the parity}
   case Terminal.ComPort.Parity of
@@ -6019,7 +6030,7 @@ begin
                    [aArg+2, par, nbits, xspd, rspd, 1, 0]);
 end;
 {--------}
-procedure TAdVT100Emulator.vttInvalidateRow(aRow : integer);
+procedure TAdVT100Emulator.vttInvalidateRow(aRow : Integer);
 var
   InvRect : TRect;
 begin
@@ -6031,7 +6042,7 @@ begin
                    Terminal.GetTotalCharHeight;                          {!!.06}
     InvRect.Right := Terminal.ClientWidth;
     InvRect.Bottom := InvRect.Top + Terminal.GetTotalCharHeight;         {!!.06}
-    InvalidateRect(Terminal.Handle, @InvRect, false);
+    InvalidateRect(Terminal.Handle, @InvRect, False);
   end;
 end;
 {--------}
@@ -6062,7 +6073,7 @@ const
   CvtChars : array [FirstChar..LastChar] of AnsiChar =
              'aaaxuuukkuxkjjjkmvwtqnttmlvwtqnvvwwmmllnnjl';
 var
-  OldCharSet : byte;
+  OldCharSet : byte = 0;
 begin
   {convert the line draw characters from the OEM character set to the
    VT100 linedraw charset}
@@ -6076,11 +6087,11 @@ end;
 {--------}
 procedure TAdVT100Emulator.vttProcessCommand;
 var
-  i   : integer;
-  Arg : integer;
-  Arg2: integer;
-  OldDefChar : AnsiChar;
-  Attrs      : TAdTerminalCharAttrs;
+  i   : Integer = 0;
+  Arg : Integer = 0;
+  Arg2: Integer = 0;
+  OldDefChar : AnsiChar = #0;
+  Attrs      : TAdTerminalCharAttrs = [];
 begin
   {assumption: this method is called immediately Parser.ProcessChar
                returns pctComplete. Hence Parser.ArgumentCount,
@@ -6101,7 +6112,7 @@ begin
           if (Arg = 0) then
             Arg := 1;
           for i := 1 to Arg do
-            Buffer.MoveCursorUp(false);
+            Buffer.MoveCursorUp(False);
         end;
       end;
     eDown {or eCUD, eIND, eVPR} :
@@ -6111,7 +6122,7 @@ begin
           if (Arg = 0) then
             Arg := 1;
           for i := 1 to Arg do
-            Buffer.MoveCursorDown(false);
+            Buffer.MoveCursorDown(False);
         end;
       end;
     eRight {or eCUF, eHPR} :
@@ -6121,7 +6132,7 @@ begin
           if (Arg = 0) then
             Arg := 1;
           for i := 1 to Arg do
-            Buffer.MoveCursorRight(false, false);
+            Buffer.MoveCursorRight(False, False);
         end;
       end;
     eLeft {or eCUB} :
@@ -6131,7 +6142,7 @@ begin
           if (Arg = 0) then
             Arg := 1;
           for i := 1 to Arg do
-            Buffer.MoveCursorLeft(false, false);
+            Buffer.MoveCursorLeft(False, False);
         end;
       end;
     eSetMode {or eSM} :
@@ -6139,37 +6150,37 @@ begin
         if (Parser.ArgumentCount = 1) then begin
           case Parser.Argument[0] of
              4 : begin
-                   InsertMode := true;
-                   Buffer.UseInsertMode := true;
+                   InsertMode := True;
+                   Buffer.UseInsertMode := True;
                  end;
             20 : begin
-                   NewLineMode := true;
-                   Buffer.UseNewLineMode := true;
+                   NewLineMode := True;
+                   Buffer.UseNewLineMode := True;
                  end;
           end;{case}
         end
         else if (Parser.ArgumentCount = 2) and
                 (Parser.Argument[0] = -2) then begin
           case Parser.Argument[1] of
-            1 : AppKeyMode := true;
-            2 : ANSIMode := true;
+            1 : AppKeyMode := True;
+            2 : ANSIMode := True;
             3 : begin
-                  Col132Mode := true;
+                  Col132Mode := True;
                 end;
-            4 : SmoothScrollMode := true;
+            4 : SmoothScrollMode := True;
             5 : begin
-                  RevScreenMode := true;
+                  RevScreenMode := True;
                 end;
             6 : begin
-                  RelOriginMode := true;
+                  RelOriginMode := True;
                 end;
             7 : begin
-                  WrapAround := true;
-                  Buffer.UseAutoWrap := true;
+                  WrapAround := True;
+                  Buffer.UseAutoWrap := True;
                 end;
-            8 : AutoRepeat := true;
-            9 : Interlace := true;
-            999 {apecial APRO value} : AppKeypadMode := true;
+            8 : AutoRepeat := True;
+            9 : Interlace := True;
+            999 {apecial APRO value} : AppKeypadMode := True;
           end;{case}
         end;
       end;
@@ -6365,7 +6376,7 @@ begin
       end;
     eRI :
       begin
-        Buffer.MoveCursorUp(true);
+        Buffer.MoveCursorUp(True);
       end;
     eRIS :
       begin
@@ -6385,7 +6396,7 @@ begin
         SmoothScrollMode := adc_VT100SmoothScrollMode;
         WrapAround := adc_VT100WrapAround;
 
-        FUsingG1 := false;
+        FUsingG1 := False;
         FG0CharSet := adc_VT100G0CharSet;
         FG1CharSet := adc_VT100G1CharSet;
       end;
@@ -6394,37 +6405,37 @@ begin
         if (Parser.ArgumentCount = 1) then begin
           case Parser.Argument[0] of
              4 : begin
-                   InsertMode := false;
-                   Buffer.UseInsertMode := false;
+                   InsertMode := False;
+                   Buffer.UseInsertMode := False;
                  end;
             20 : begin
-                   NewLineMode := false;
-                   Buffer.UseNewLineMode := false;
+                   NewLineMode := False;
+                   Buffer.UseNewLineMode := False;
                  end;
           end;{case}
         end
         else if (Parser.ArgumentCount = 2) and
                 (Parser.Argument[0] = -2) then begin
           case Parser.Argument[1] of
-            1 : AppKeyMode := false;
-            2 : ANSIMode := false;
+            1 : AppKeyMode := False;
+            2 : ANSIMode := False;
             3 : begin
-                  Col132Mode := false;
+                  Col132Mode := False;
                 end;
-            4 : SmoothScrollMode := false;
+            4 : SmoothScrollMode := False;
             5 : begin
-                  RevScreenMode := false;
+                  RevScreenMode := False;
                 end;
             6 : begin
-                  RelOriginMode := false;
+                  RelOriginMode := False;
                 end;
             7 : begin
-                  WrapAround := false;
-                  Buffer.UseAutoWrap := false;
+                  WrapAround := False;
+                  Buffer.UseAutoWrap := False;
                 end;
-            8 : AutoRepeat := false;
-            9 : Interlace := false;
-            999 {secial APRO value} : AppKeypadMode := false;
+            8 : AutoRepeat := False;
+            9 : Interlace := False;
+            999 {secial APRO value} : AppKeypadMode := False;
           end;{case}
         end;
       end;
@@ -6477,7 +6488,7 @@ begin
           Buffer.CharSet := 2
         else
           Buffer.Charset := FG1CharSet;
-        FUsingG1 := true;
+        FUsingG1 := True;
       end;
     eSI :
       begin
@@ -6485,11 +6496,11 @@ begin
           Buffer.CharSet := 0
         else
           Buffer.Charset := FG0CharSet;
-        FUsingG1 := false;
+        FUsingG1 := False;
       end;
     eIND2 :
       begin
-        Buffer.MoveCursorDown(true);
+        Buffer.MoveCursorDown(True);
       end;
     eDECALN :
       begin
@@ -6589,12 +6600,12 @@ begin
 end;
 {--------}
 procedure TAdVT100Emulator.vttScrollRowsHandler(aSender : TObject;
-                                     aCount, aTop, aBottom : integer);
+                                     aCount, aTop, aBottom : Integer);
 begin
   TAdLineAttrArray(FLIneAttrArray).Scroll(aCount, aTop, aBottom);
 end;
 {--------}
-procedure TAdVT100Emulator.vttSetCol132Mode(aValue : boolean);
+procedure TAdVT100Emulator.vttSetCol132Mode(aValue : Boolean);
 begin
   if (aValue <> Col132Mode) then begin
     FCol132Mode := aValue;
@@ -6605,7 +6616,7 @@ begin
   end;
 end;
 {--------}
-procedure TAdVT100Emulator.vttSetRelOriginMode(aValue : boolean);
+procedure TAdVT100Emulator.vttSetRelOriginMode(aValue : Boolean);
 begin
   if (aValue <> RelOriginMode) then begin
     FRelOriginMode := aValue;
@@ -6613,11 +6624,11 @@ begin
   end;
 end;
 {--------}
-procedure TAdVT100Emulator.vttSetRevScreenMode(aValue : boolean);
+procedure TAdVT100Emulator.vttSetRevScreenMode(aValue : Boolean);
 begin
   if (aValue <> RevScreenMode) then begin
     FRevScreenMode := aValue;
-    FRefresh := true;
+    FRefresh := True;
   end;
 end;
 {--------}
@@ -6625,6 +6636,7 @@ procedure TAdVT100Emulator.vttToggleNumLock;
 var
   NumLockState : TKeyboardState;
 begin
+  NumLockState := Default(TKeyboardState);
   GetKeyboardState(NumLockState);
   if ((NumLockState[VK_NUMLOCK] and $01) = 0) then begin
     NumLockState[VK_NUMLOCK] := NumLockState[VK_NUMLOCK] or $01;
@@ -6645,7 +6657,8 @@ end;
 {===Initialization/finalization======================================}
 procedure ADTrmEmuDone;
 var
-  Node, Temp : PTermEmuLink;
+  Node : PTermEmuLink = nil;
+  Temp : PTermEmuLink = nil;
 begin
   {dispose of active links}
   Node := TermEmuLink;

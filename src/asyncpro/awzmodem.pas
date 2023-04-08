@@ -152,25 +152,25 @@ const
   ZF0 = 3;                         {Flag byte 3}
   ZF1 = 2;                         {Flag byte 2}
   ZF2 = 1;                         {Flag byte 1}
-  ZF3 = 0;                         {Flag byte 0}
+//  ZF3 = 0;                         {Flag byte 0}
   ZP0 = 0;                         {Position byte 0}
   ZP1 = 1;                         {Position byte 1}
-  ZP2 = 2;                         {Position byte 1}
-  ZP3 = 3;                         {Position byte 1}
+//  ZP2 = 2;                         {Position byte 1}
+//  ZP3 = 3;                         {Position byte 1}
 
   {Bit masks for ZrInit}
   CanFdx  = $0001;           {Can handle full-duplex}
   CanOvIO = $0002;           {Can do disk and serial I/O overlaps}
   CanBrk  = $0004;           {Can send a break}
-  CanCry  = $0008;           {Can encrypt/decrypt, not supported}
-  CanLzw  = $0010;           {Can LZ compress, not supported}
+//  CanCry  = $0008;           {Can encrypt/decrypt, not supported}
+//  CanLzw  = $0010;           {Can LZ compress, not supported}
   CanFc32 = $0020;           {Can use 32 bit CRC}
   EscAll  = $0040;           {Escapes all control chars, not supported}
-  Esc8    = $0080;           {Escapes the 8th bit, not supported}
+//  Esc8    = $0080;           {Escapes the 8th bit, not supported}
 
   {Bit masks for ZsInit}
   TESCtl  = $0040;           {Sender asks for escaped ctl chars, not supported}
-  TESC8   = $0080;           {Sender asks for escaped hi bits, not supported}
+//  TESC8   = $0080;           {Sender asks for escaped hi bits, not supported}
 
   {Character constants}
   cDleHi  = Char(Ord(cDle) + $80);
@@ -196,15 +196,15 @@ const
   procedure zpPrepareWriting(P : PProtocolData);
     {-Prepare to save protocol blocks (usually opens a file)}
   var
-    FileExists     : Bool;
-    FileSkip       : Bool;
-    Result         : Cardinal;
-    FileLen        : Integer;
-    FileDate       : Integer;
-    SeekPoint      : Integer;
-    FileStartOfs   : Integer;
-    YMTSrcFileDate : Integer;
-    FileOpt        : Byte;
+    FileExists     : Bool = False;
+    FileSkip       : Bool = False;
+    Result         : Cardinal = 0;
+    FileLen        : Integer = 0;
+    FileDate       : Integer = 0;
+    SeekPoint      : Integer = 0;
+    FileStartOfs   : Integer = 0;
+    YMTSrcFileDate : Integer = 0;
+    FileOpt        : Byte = 0;
 
     procedure ErrorCleanup;
     begin
@@ -365,9 +365,9 @@ const
   procedure zpFinishWriting(P : PProtocolData);
     {-Cleans up after saving all protocol blocks}
   var
-    BytesToWrite : Integer;
-    BytesWritten : Integer;
-    Result       : Cardinal;
+    BytesToWrite : Integer = 0;
+    BytesWritten : Integer = 0;
+    Result       : Cardinal = 0;
   begin
     with P^ do begin
       if aFileOpen then begin
@@ -457,7 +457,8 @@ const
   const
     MinSize : array[Boolean] of Cardinal = (2048+30, 16384+30);
   var
-    InSize, OutSize : Cardinal;
+    InSize : Cardinal = 0;
+    OutSize : Cardinal = 0;
   begin
     {Check for adequate output buffer size}
     H.ValidDispatcher.BufferSizes(InSize, OutSize);
@@ -601,8 +602,8 @@ const
   procedure zpPutCharEscaped(P : PProtocolData; C : Char);
     {-Transmit with C with escaping as required}
   var
-    C1 : Char;
-    C2 : Char;
+    C1 : Char = #0;
+    C2 : Char = #0;
   begin
     with P^ do begin
       {Check for chars to escape}
@@ -652,7 +653,7 @@ const
   type
     QB = array[1..4] of char;
   var
-    I : Byte;
+    I : Byte = 0;
   begin
     with P^ do
       if zUseCrc32 then begin
@@ -698,8 +699,8 @@ const
     CancelStr : array[0..16] of Char =
       #24#24#24#24#24#24#24#24#8#8#8#8#8#8#8#8#0;
   var
-    TotalOverhead : Cardinal;
-    OutBuff : Cardinal;
+    TotalOverhead : Cardinal = 0;
+    OutBuff : Cardinal = 0;
   begin
     with P^ do begin
       if aHC.Open then begin
@@ -765,7 +766,7 @@ const
   procedure zpPutAttentionString(P : PProtocolData);
     {-Puts a string (#221 = Break, #222 = Delay)}
   var
-    I  : Cardinal;
+    I  : Cardinal = 0;
   begin
     with P^ do begin
       I := 1;
@@ -799,10 +800,10 @@ const
   const
     HexHeaderStr : array[0..4] of Char = ZPad+ZPad+ZDle+ZHex;
   var
-    SaveCrc32 : Bool;
-    Check     : Cardinal;
-    I         : Byte;
-    C         : Char;
+    SaveCrc32 : Bool = False;
+    Check     : Cardinal = 0;
+    I         : Byte = 0;
+    C         : Char = #0;
   begin
     with P^ do begin
       {Initialize the aBlockCheck value}
@@ -923,7 +924,7 @@ Escape:
     function NextHexNibble : Byte;
       {-Gets the next char, returns it as a hex nibble}
     var
-      C : Char;
+      C : Char = #0;
     begin
       with P^ do begin
         {Get the next char, assume it's ascii hex character}
@@ -961,7 +962,7 @@ Hex:
   function zpCollectHexHeader(P : PProtocolData) : Bool;
     {-Gets the data and trailing portions of a hex header}
   var
-    C : Char;
+    C : Char = #0;
   begin
     with P^ do begin
       {Assume the header isn't ready}
@@ -1010,7 +1011,7 @@ Hex:
   function zpCollectBinaryHeader(P : PProtocolData; Crc32 : Bool) : Bool;
     {-Collects a binary header, returns True when ready}
   var
-    C : Char;
+    C : Char = #0;
   begin
     with P^ do begin
       {Assume the header isn't ready}
@@ -1072,7 +1073,7 @@ Hex:
   procedure zpCheckForHeader(P : PProtocolData);
     {-Samples input stream for start of header}
   var
-    C : Char;
+    C : Char = #0;
   begin
     with P^ do begin
       {Assume no header ready}
@@ -1194,7 +1195,7 @@ Hex:
                           var Block : TDataBlock) : Bool;
     {-Get a binary data subpacket, return True when block complete (or error)}
   var
-    C : Char;
+    C : Char = #0;
   begin
     with P^ do begin
       {Assume the block isn't ready}
@@ -1273,14 +1274,14 @@ Hex:
   procedure zpExtractFileInfo(P : PProtocolData);
     {-Extracts file information into fields}
   var
-    BlockPos  : Cardinal;
-    I         : Integer;
-    Code      : Integer;
-    S         : String;
-    SLen      : Byte;
-    S1        : ShortString;
+    BlockPos  : Cardinal = 0;
+    I         : Integer = 0;
+    Code      : Integer = 0;
+    S         : String = '';
+    SLen      : Byte = 0;
+    S1        : ShortString = '';
     S1Len     : Byte absolute S1;
-    Name      : ShortString;
+    Name      : ShortString = '';
     NameExt   : array[0..255] of Char;
   begin
     with P^ do begin
@@ -1357,7 +1358,7 @@ Hex:
   procedure zpWriteDataBlock(P : PProtocolData);
     {-Call WriteProtocolBlock for the last received DataBlock}
   var
-    Failed : Bool;
+    Failed : Bool = False;
   begin
     with P^ do begin
       {Write this block}
@@ -1402,10 +1403,10 @@ Hex:
     ExitPoint;
   var
     TriggerID   : Cardinal absolute wParam;
-    P           : PProtocolData;
-    Finished    : Bool;
-    C           : Char;
-    StatusTicks : Integer;
+    P           : PProtocolData = nil;
+    Finished    : Bool = False;
+    C           : Char = #0;
+    StatusTicks : Integer = 0;
     Dispatcher      : TApdBaseDispatcher;
   begin
     Finished := False;                                                   {!!.01}
@@ -2068,7 +2069,7 @@ Hex:
   procedure zpPutBinaryHeader(P : PProtocolData; FrameType : Char);
     {-Sends a binary header (Crc16 or Crc32)}
   var
-    I : Integer;
+    I : Integer = 0;
   begin
     with P^ do begin
       zUseCrc32 := zCanCrc32;
@@ -2107,8 +2108,8 @@ Hex:
   function zpEscapeChar(P : PProtocolData; C : Char) : Boolean;
     {-Return True if C needs to be escaped}
   var
-    C1 : Char;
-    C2 : Char;
+    C1 : Char = #0;
+    C2 : Char = #0;
   begin
     with P^ do begin
       {Check for chars to escape}
@@ -2140,8 +2141,8 @@ Hex:
                           BLen : Cardinal);
     {-Escape data from Block into zWorkBlock}
   var
-    I : Cardinal;
-    C : Char;
+    I : Cardinal = 0;
+    C : Char = #0;
   begin
     with P^ do begin
       {Initialize aBlockCheck}
@@ -2219,11 +2220,11 @@ Hex:
   procedure zpInsertFileInfo(P : PProtocolData);
     {-Build a ZFile data subpacket}
   var
-    I    : Cardinal;
-    Name : string[fsName];
+    I    : Cardinal = 0;
+    Name : string[fsName] = '';
     CA   : TCharArray;
-    S    : String[fsPathname];
-    Len  : Byte;
+    S    : String[fsPathname] = '';
+    Len  : Byte = 0;
   begin
     with P^ do begin
       {Make a file header record}
@@ -2274,7 +2275,8 @@ Hex:
   const
     MinSize : array[Boolean] of Cardinal = (2048+30, 16384+30);
   var
-    InSize, OutSize : Cardinal;
+    InSize : Cardinal = 0;
+    OutSize : Cardinal = 0;
   begin
     with P^ do begin
       {Check buffer sizes (again)}
@@ -2358,15 +2360,15 @@ Hex:
     FreeMargin = 60;
   var
     TriggerID   : Cardinal absolute wParam;
-    NewInterval : Cardinal;
-    Finished    : Bool;
-    Crc32       : Integer;
-    P           : PProtocolData;
-    Secs        : Integer;
-    StatusTicks : Integer;
-    StartTick   : DWORD;
+    NewInterval : Cardinal = 0;
+    Finished    : Bool = False;
+    Crc32       : Integer = 0;
+    P           : PProtocolData = nil;
+    Secs        : Integer = 0;
+    StatusTicks : Integer = 0;
+    StartTick   : DWORD = 0;
     Dispatcher  : TApdBaseDispatcher;
-    saveCrc32   : Boolean;                                                  // SWB
+    saveCrc32   : Boolean = False;                                          // SWB
 
     { BCB compiler bug workaround }
     procedure CheckFinished;

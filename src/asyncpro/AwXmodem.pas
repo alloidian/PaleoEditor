@@ -187,7 +187,8 @@ const
                   Options : Cardinal) : Integer;
     {-Allocates and initializes a protocol control block with options}
   var
-    InSize, OutSize : Cardinal;
+    InSize : Cardinal = 0;
+    OutSize : Cardinal = 0;
   begin
     {Check for adequate output buffer size}
     H.ValidDispatcher.BufferSizes(InSize, OutSize);
@@ -222,7 +223,7 @@ const
   function xpSetCRCMode(P : PProtocolData; Enable : Boolean) : Integer;
     {-Enable/disable CRC mode}
   var
-    Y : Bool;
+    Y : Bool = False;
   begin
     with P^ do begin
       {Check protocol type}
@@ -261,7 +262,7 @@ const
   function xpSet1KMode(P : PProtocolData; Enable : Boolean) : Integer;
     {-Enable/disable Xmodem1K}
   var
-    Y : Bool;
+    Y : Bool = False;
   begin
     with P^ do begin
       {Check the protocol type}
@@ -298,7 +299,7 @@ const
   function xpSetGMode(P : PProtocolData; Enable : Boolean) : Integer;
     {-Enable/disable streaming}
   var
-    Y : Bool;
+    Y : Bool = False;
   begin
     with P^ do begin
       {Check the protocol type}
@@ -414,7 +415,7 @@ const
   function xpProcessHandshake(P : PProtocolData) : Boolean;
     {-Process handshake, return true if OK}
   var
-    C : Char;
+    C : Char = #0;
   begin
     with P^ do begin
       {If we get here we know a character is waiting}
@@ -460,7 +461,7 @@ const
   function xpProcessBlockReply(P : PProtocolData) : Boolean;
     {-Process reply to last block; return True for ack}
   var
-    C : Char;
+    C : Char = #0;
   begin
     with P^ do begin
       {Handle GMode (all blocks are assumed to succeed)}
@@ -521,7 +522,7 @@ const
                             BLen : Cardinal; BType : Char);
     {-Transmits one data block}
   var
-    I : Integer;
+    I : Integer = 0;
   begin
     with P^ do begin
       if aBlockErrors > xMaxBlockErrors then
@@ -591,7 +592,7 @@ const
   function ProcessEotReply(P : PProtocolData) : Boolean;
     {-Get a response to an EOT, return True for ack or cancel}
   var
-    C : Char;
+    C : Char = #0;
   begin
     with P^ do begin
       {Get the response}
@@ -717,8 +718,8 @@ const
   function xpCollectBlock(P : PProtocolData; var Block : TDataBlock) : Boolean;
     {-Collect received data into DataBlock, return True for full block}
   var
-    TotalLen : Cardinal;
-    C : Char;
+    TotalLen : Cardinal = 0;
+    C : Char = #0;
   begin
     with P^ do begin
       xHandshake := cNak;
@@ -740,9 +741,10 @@ const
       L,H : Char;
     end;
   var
-    R1, R2 : Byte;
-    I      : Cardinal;
-    Check  : Word;
+    R1: Byte = 0;
+    R2 : Byte = 0;
+    I      : Cardinal = 0;
+    Check  : Word = 0;
   begin
     with P^ do begin
       {Get and compare block sequence numbers}
@@ -850,12 +852,12 @@ const
     {-Perform one increment of an Xmodem transmit}
   var
     TriggerID   : Cardinal absolute wParam;
-    P           : PProtocolData;
-    Wait        : Cardinal;
-    BufSize     : Cardinal;
-    Finished    : Bool;
-    C           : Char;
-    StatusTicks : Integer;
+    P           : PProtocolData = nil;
+    Wait        : Cardinal = 0;
+    BufSize     : Cardinal = 0;
+    Finished    : Bool = False;
+    C           : Char = #0;
+    StatusTicks : Integer = 0;
     ValidDispatcher      : TApdBaseDispatcher;
 
     procedure PrepSendBlock;
@@ -1237,11 +1239,11 @@ const
     ExitPoint;
   var
     TriggerID   : Cardinal absolute wParam;
-    P           : PProtocolData;
-    DataPtr     : PDataBlock;
-    Finished    : Boolean;
-    C           : Char;
-    StatusTicks : Integer;
+    P           : PProtocolData = nil;
+    DataPtr     : PDataBlock = nil;
+    Finished    : Boolean = False;
+    C           : Char = #0;
+    StatusTicks : Integer = 0;
     ValidDispatcher      : TApdBaseDispatcher;
 
     procedure Cleanup(DisposeBuffers : Boolean);

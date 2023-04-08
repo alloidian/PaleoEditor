@@ -199,6 +199,7 @@ function TApdWin32Dispatcher.CloseCom : Integer;
 var
     ET          : EventTimer;
 begin
+    ET := Default(EventTimer);
     // Under certain circumstances, it is possible that CloseCom can be called
     // recursively.  In that event, we don't want to be re-executing this code.
     // So, set a flag to show that we are inside this method and check it
@@ -336,7 +337,7 @@ end;
 // Get the current error and status
 function TApdWin32Dispatcher.GetComError(var Stat: TComStat): Integer;
 var
-    Errors      : DWORD;
+    Errors      : DWORD = 0;
 begin
     if (ClearCommError(CidEx, Errors, @Stat)) then
         Result := Errors
@@ -430,9 +431,9 @@ end;
 function TApdWin32Dispatcher.ReadCom(Buf : PChar; Size: Integer) : Integer;
 var
     bfr         : TIOBuffer;
-    len         : Integer;
-    bytesToRead : Integer;
-    done        : Boolean;
+    len         : Integer = 0;
+    bytesToRead : Integer = 0;
+    done        : Boolean = False;
 begin
     len := Size;
     done := False;
@@ -565,8 +566,8 @@ type
     PBArray = ^TBArray;
     TBArray = array[0..pred(High(Integer))] of Byte;
 var
-    SizeAtEnd   : Integer;
-    LeftOver    : Integer;
+    SizeAtEnd   : Integer = 0;
+    LeftOver    : Integer = 0;
 begin
     {Add the data to the output queue}
     OutputSection.Enter;
@@ -655,8 +656,8 @@ end;
 //  see if the dispatcher has been shutdown.
 function  TApdWin32Thread.WaitForOverlapped(ovl : POverlapped) : Integer;
 var
-    stat        : DWORD;
-    bytesRead   : Cardinal;
+    stat        : DWORD = 0;
+    bytesRead   : Cardinal = 0;
 begin
     repeat
         stat := WaitForSingleObject(ovl.hEvent, 100);
@@ -684,13 +685,15 @@ end;
 procedure TReadThread.Execute;
 var
     dbfr        : TDataBuffer;
-    bytesRead   : Integer;
+    bytesRead   : Integer = 0;
     stat        : TWaitResult;
     rovl        : TOverlapped;
     Timeouts    : TCommTimeouts;
-    istat       : Integer;
+    istat       : Integer = 0;
 begin
     ThreadStart(Self);
+    rovl := Default(TOverlapped);
+    Timeouts := Default(TCommTimeouts);
 {$IFDEF DebugThreads}
     if (DLoggingOn) then
         AddDispatchEntry(dtThread, dstThreadStart, 1, nil, 0);
@@ -797,8 +800,8 @@ function  TReadThread.ReadSerial(Buf : PChar;
                                  Size : Integer;
                                  ovl : POverlapped) : Integer;
 var
-    bytesRead   : Cardinal;
-    istat       : Integer;
+    bytesRead   : Cardinal = 0;
+    istat       : Integer = 0;
 begin
     if (not ReadFile(ComHandle, Buf^, Size, bytesRead, ovl)) then
     begin
@@ -840,11 +843,12 @@ end;
 procedure TWriteThread.Execute;
 var
     outEvents       : array [0..1] of THandle;
-    stat            : DWORD;
+    stat            : DWORD = 0;
     ovl             : TOverlapped;
-    istat       : Integer;
+    istat       : Integer = 0;
 begin
     ThreadStart(Self);
+    ovl := Default(TOverlapped);
 {$IFDEF DebugThreads}
     if (DLoggingOn) then
         AddDispatchEntry(dtThread, dstThreadStart, 3, nil, 0);
@@ -930,11 +934,11 @@ end;
 // faster and to make buffer flush requests easier to handle properly.
 function  TWriteThread.WriteSerial(ovl : POverlapped) : Integer;
 var
-    numToWrite      : Integer;
-    numWritten      : Cardinal;
-    count           : Integer;
-    tempBuff        : POBuffer;
-    stat            : Integer;
+    numToWrite      : Integer = 0;
+    numWritten      : Cardinal = 0;
+    count           : Integer = 0;
+    tempBuff        : POBuffer = nil;
+    stat            : Integer = 0;
 begin
     tempBuff := nil;
     try
@@ -1052,8 +1056,8 @@ end;
 function  TWriteThread.WaitForOverlapped(ovl : POverlapped) : Integer;
 var
     waitEvents      : array [0..1] of THandle;
-    stat            : DWORD;
-    bytesWritten    : Cardinal;
+    stat            : DWORD = 0;
+    bytesWritten    : Cardinal = 0;
 begin
     waitEvents[0] := ovl.hEvent;
     waitEvents[1] := OutFlushEvent;
@@ -1088,13 +1092,14 @@ end;
 //  for processing by the dispatcher thread.
 procedure TStatusThread.Execute;
 var
-    evt         : DWORD;
-    stat        : Integer;
+    evt         : DWORD = 0;
+    stat        : Integer = 0;
     wovl        : TOverlapped;
     sbfr        : TStatusBuffer;
-    istat       : Integer;
+    istat       : Integer = 0;
 begin
     ThreadStart(Self);
+    wovl := Default(TOverlapped);
 {$IFDEF DebugThreads}
     if (DLoggingOn) then
         AddDispatchEntry(dtThread, dstThreadStart, 4, nil, 0);
@@ -1187,8 +1192,8 @@ end;
 function  TStatusThread.WaitSerialEvent(var EvtMask : DWORD;
                                         ovl : POverlapped) : Integer;
 var
-    bStat       : Boolean;
-    istat       : Integer;
+    bStat       : Boolean = False;
+    istat       : Integer = 0;
 begin
     EvtMask := 0;
     bStat := WaitCommEvent(ComHandle, EvtMask, ovl);

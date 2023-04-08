@@ -258,10 +258,10 @@ const
                               Options : Cardinal) : Integer;
     {-Allocates and initializes a protocol control block with options}
   var
-    Parity   : Word;
-    Baud     : Integer;
-    DataBits : TDataBits;
-    StopBits : TStopBits;
+    Parity   : Word = 0;
+    Baud     : Integer = 0;
+    DataBits : TDataBits = 8;
+    StopBits : TStopBits = 1;
   begin
     {Allocate TProtocolData}
     P := AllocMem(SizeOf(TProtocolData));
@@ -362,8 +362,8 @@ const
   type
     PWord = ^Cardinal;
   var
-    MaxList : Cardinal;
-    NewP    : PChar;
+    MaxList : Cardinal = 0;
+    NewP    : PChar = nil;
   begin
     with P^ do begin
       {First Cardinal of list is size}
@@ -405,7 +405,7 @@ const
   const
     AnyFileButDir = faAnyFile and not (faDirectory or faVolumeID);
   var
-    DosError : Integer;
+    DosError : Integer = 0;
     PName    : array[0..255] of Char;
   begin
     with P^ do begin
@@ -469,10 +469,10 @@ const
   const
     MaxLen = 79;
   var
-    MaxSize : Cardinal;
-    MaxNext : Cardinal;
-    I       : Cardinal;
-    Len     : Cardinal;
+    MaxSize : Cardinal = 0;
+    MaxNext : Cardinal = 0;
+    I       : Cardinal = 0;
+    Len     : Cardinal = 0;
   begin
     with P^ do begin
       aProtocolError := ecOK;
@@ -524,9 +524,9 @@ const
   function apGetBytesTransferred(P : PProtocolData) : Integer;
     {-Returns bytes already transferred}
   var
-    TotalOverhead : Cardinal;
-    OutBuff       : Cardinal;
-    BT            : Integer;
+    TotalOverhead : Cardinal = 0;
+    OutBuff       : Cardinal = 0;
+    BT            : Integer = 0;
   begin
     with P^ do begin
       if aHC = nil then begin
@@ -553,7 +553,7 @@ const
   function apGetBytesRemaining(P : PProtocolData) : Integer;
     {-Return bytes not yet transferred}
   var
-    BR : Integer;
+    BR : Integer = 0;
   begin
     with P^ do begin
       BR := aSrcFileLen - apGetBytesTransferred(P);
@@ -578,8 +578,8 @@ const
   function apEstimateTransferSecs(P : PProtocolData; Size : Integer) : Integer;
     {-Return estimated seconds to transfer Size bytes}
   var
-    Efficiency   : Integer;
-    EffectiveCPS : Integer;
+    Efficiency   : Integer = 0;
+    EffectiveCPS : Integer = 0;
   begin
     with P^ do begin
       if Size = 0 then
@@ -690,11 +690,11 @@ const
   procedure apSetActualBPS(P : PProtocolData; BPS : Integer);
     {-Sets actual BPS rate (only needed if modem differs from port)}
   var
-    Baud     : Integer;
-    Parity   : Word;
-    Bits     : Word;
-    Databits : TDatabits;
-    Stopbits : TStopbits;
+    Baud     : Integer = 0;
+    Parity   : Word = 0;
+    Bits     : Word = 0;
+    Databits : TDatabits = 8;
+    Stopbits : TStopbits = 1;
   begin
     if (P^.aHC = nil) or not P^.aHC.Open then
       Bits := 10
@@ -741,7 +741,7 @@ const
                             ProtFunc : TProtocolFunc);
     {-Setup standard protocol triggers}
   var
-    lParam : Integer;
+    lParam : Integer = 0;
   begin
     with P^ do begin
       {Note the protocol}
@@ -915,7 +915,7 @@ const
     {-Send finish message to parent window}
   var
     DT: TDispatchType;
-    ErrMsg: String;
+    ErrMsg: String = '';
   begin
     with P^ do begin
       apStopProtocol(P);
@@ -957,7 +957,7 @@ const
   procedure aapPrepareReading(P : PProtocolData);
     {-Prepare to send protocol blocks (usually opens a file)}
   var
-    Res : Cardinal;
+    Res : Cardinal = 0;
   begin
     with P^ do begin
       aProtocolError := ecOK;
@@ -1026,10 +1026,10 @@ const
                                 var BlockSize : Cardinal) : Bool;
     {-Return with a block to transmit (True to quit)}
   var
-    BytesRead   : Integer;
-    BytesToMove : Integer;
-    BytesToRead : Integer;
-    Res         : Cardinal;
+    BytesRead   : Integer = 0;
+    BytesToMove : Integer = 0;
+    BytesToRead : Integer = 0;
+    Res         : Cardinal = 0;
   begin
     with P^ do begin
       if aFileOfs >= aSrcFileLen then begin
@@ -1098,10 +1098,10 @@ const
   procedure aapPrepareWriting(P : PProtocolData);
     {-Prepare to save protocol blocks (usually opens a file)}
   var
-    Res  : Cardinal;
-    S    : string[fsPathName];
-    Dir  : string[fsDirectory];
-    Name : string[fsName];
+    Res  : Cardinal = 0;
+    S    : string[fsPathName] = '';
+    Dir  : string[fsDirectory] = '';
+    Name : string[fsName] = '';
   label
     ExitPoint;
   begin
@@ -1172,9 +1172,9 @@ ExitPoint:
   procedure aapFinishWriting(P : PProtocolData);
     {-Cleans up after saving all protocol blocks}
   var
-    Res          : Cardinal;
-    BytesToWrite : Integer;
-    BytesWritten : Integer;
+    Res          : Cardinal = 0;
+    BytesToWrite : Integer = 0;
+    BytesWritten : Integer = 0;
   begin
     with P^ do begin
       if aFileOpen then begin
@@ -1206,9 +1206,9 @@ ExitPoint:
                                  BlockSize : Cardinal) : Bool;
     {-Write a protocol block (return True to quit)}
   var
-    Res          : Cardinal;
-    BytesToWrite : Integer;
-    BytesWritten : Integer;
+    Res          : Cardinal = 0;
+    BytesToWrite : Integer = 0;
+    BytesWritten : Integer = 0;
 
     procedure BlockWriteRTS;
       {-Set RTS before BlockWrite}
@@ -1298,7 +1298,7 @@ ExitPoint:
   procedure apProtocolError(P : PProtocolData; ErrorCode : Integer);
     {-Sends message and sets aProtocolError}
   var
-    Res : DWORD;
+    Res : DWORD = 0;
   begin
     with P^ do begin
       SendMessageTimeout(aHWindow, apw_ProtocolError, Cardinal(ErrorCode),
@@ -1310,7 +1310,8 @@ ExitPoint:
 
   function apTrimZeros(S: string): String;
   var
-    I, J : Integer;
+    I : Integer = 0;
+    J : Integer = 0;
   begin
     I := Length(S);
     while (I > 0) and (S[I] <= ' ') do
@@ -1326,8 +1327,9 @@ ExitPoint:
   const
     Digits : array[0..7] of Char = '01234567';
   var
-    I : Cardinal;
+    I : Cardinal = 0;
   begin
+    Result := Default(String);
     SetLength(Result, 12);
     for I := 0 to 11 do begin
       apOctalStr[12-I] := Digits[L and 7];
@@ -1342,11 +1344,11 @@ ExitPoint:
     Magnitude : array[1..HiMag] of Integer = (1, 8, 64, 512, 4096,
       32768, 262144, 2097152, 16777216, 134217728, 1073741824);
   var
-    Len  : Byte;
-    I    : Integer;
-    J    : Integer;
-    Part : Integer;
-    Res  : Integer;
+    Len  : Byte = 0;
+    I    : Integer = 0;
+    J    : Integer = 0;
+    Part : Integer = 0;
+    Res  : Integer = 0;
   begin
     {Assume failure}
     apOctalStr2Long := 0;
@@ -1375,9 +1377,9 @@ ExitPoint:
   function apPackToYMTimeStamp(RawTime : Integer) : Integer;
     {-Return date/time stamp as seconds since 1/1/1970 00:00 GMT}
   var
-    Days  : Integer;
-    Secs  : Integer;
-    DT    : TDateTime;
+    Days  : Integer = 0;
+    Secs  : Integer = 0;
+    DT    : TDateTime = 0.0;
   begin
     try
       {Get file date as Delphi-style date/time}
@@ -1395,7 +1397,7 @@ ExitPoint:
   function apYMTimeStampToPack(YMTime : Integer) : Integer;
     {-Return a file time stamp in packed format from a Ymodem time stamp}
   var
-    DT : TDateTime;
+    DT : TDateTime = 0.0;
   begin
     try
       {Convert to Delphi style date, add in unix base}
@@ -1422,10 +1424,10 @@ ExitPoint:
   type
     BufArray = array[1..BufSize] of Byte;
   var
-    I         : Cardinal;
-    BytesRead : Integer;
-    Res       : Cardinal;
-    FileLoc   : Integer;
+    I         : Cardinal = 0;
+    BytesRead : Integer = 0;
+    Res       : Cardinal = 0;
+    FileLoc   : Integer = 0;
     Buffer    : ^BufArray;
     F         : File;
 
@@ -1486,7 +1488,7 @@ ExitPoint:
   procedure apMsgStatus(P : PProtocolData; Options : Cardinal);
     {-Send an apw_ProtocolStatus message to the protocol window}
   var
-    Res : DWORD;
+    Res : DWORD = 0;
   begin
     with P^ do
       SendMessageTimeout(aHWindow, apw_ProtocolStatus, Options,
@@ -1497,7 +1499,7 @@ ExitPoint:
   function apMsgNextFile(P : PProtocolData; FName : PChar) : Bool;
     {-Virtual method for calling NextFile procedure}
   var
-    Res : DWORD;
+    Res : DWORD = 0;
   begin
     with P^ do begin
       SendMessageTimeout(aHWindow, apw_ProtocolNextFile, 0,
@@ -1511,7 +1513,7 @@ ExitPoint:
   procedure apMsgLog(P : PProtocolData; Log : Cardinal);
     {-Send an apw_ProtocolLog message to the protocol window}
   var
-    Res : DWORD;
+    Res : DWORD = 0;
   begin
     with P^ do
       SendMessageTimeout(aHWindow, apw_ProtocolLog,
@@ -1523,7 +1525,7 @@ ExitPoint:
   function apMsgAcceptFile(P : PProtocolData; FName : PChar) : Bool;
     {-Send apw_ProtocolAcceptFile message to TProtocolWindow}
   var
-    Res : DWORD;
+    Res : DWORD = 0;
   begin
     with P^ do begin
       SendMessageTimeout(aHWindow, apw_ProtocolAcceptFile,
@@ -1550,8 +1552,8 @@ ExitPoint:
   function apUpdateCrcKermit(CurByte : Byte; CurCrc : Cardinal) : Cardinal;
     {-Returns an updated Crc16 (kermit style)}
   var
-    I    : Integer;
-    Temp : Cardinal;
+    I    : Integer = 0;
+    Temp : Cardinal = 0;
   begin
     for I := 0 to 7 do begin
       Temp := CurCrc xor CurByte;
@@ -1625,9 +1627,9 @@ ExitPoint:
 
 procedure InitializeUnit;
 var
-  TmpDateSeparator : Char;
-  TmpDateFormat : String;
-  TmpDateTime : TDateTime;
+  TmpDateSeparator : Char = #0;
+  TmpDateFormat : String = '';
+  TmpDateTime : TDateTime = 0.0;
 begin
   {Set Unix days base}
   TmpDateFormat := ShortDateFormat;

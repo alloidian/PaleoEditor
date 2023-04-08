@@ -297,7 +297,7 @@ type
 const
   {Compile-time configurations}
   MaxComHandles = 50;               {Max comm ports open at once}
-  DispatchBufferSize = 8192;        {Size of each port's dispatch buffer}
+  DispatchBufferSize: Cardinal = 8192;        {Size of each port's dispatch buffer}
   MaxMessageLen = 80;               {All error and status strings less than 80}
 
   {For skipping line parameter changes}
@@ -2912,8 +2912,8 @@ end;
 
 function TLineReader.NextLine : string;
 var
-  EOL : PChar;
-  Done : Boolean;
+  EOL : PChar = #0;
+  Done : Boolean = False;
 begin
   Result := '';
   repeat
@@ -2935,7 +2935,7 @@ end;
 
 procedure TLineReader.ReadPage;
 var
-  BytesRead : Integer;
+  BytesRead : Integer = 0;
 begin
   BytesRead := fStream.Read(Buffer,LineBufferSize);
   inc(fBytesRead,BytesRead);
@@ -2978,8 +2978,8 @@ end;
 
 procedure TAdStr.Append(const Text: string);
 var
-  NewLen: Integer;
-  Buff: PChar;
+  NewLen: Integer = 0;
+  Buff: PChar = #0;
 begin
   if Text = '' then Exit;         { nothing to append }
 
@@ -2996,7 +2996,7 @@ end;
 
 procedure TAdStr.AppendBuff(Buff: PChar);
 var
-  BuffLen: Integer;
+  BuffLen: Integer = 0;
 begin
   BuffLen := StrLen(Buff);
   if BuffLen = 0 then Exit;
@@ -3037,8 +3037,8 @@ end;
 
 function TAdStr.Copy(Index, SegLen: Integer): string;
 var
-  P:PChar;
-  NewLen: Integer;
+  P:PChar = #0;
+  NewLen: Integer = 0;
 begin
   if (Index = 0) or (SegLen = 0) or (Index > FLen) then begin
     Result := '';
@@ -3059,8 +3059,8 @@ end;
 
 procedure TAdStr.Delete(Index, SegLen: Integer);
 var
-  Src: PChar;
-  SrcLen: Cardinal;
+  Src: PChar = #0;
+  SrcLen: Cardinal = 0;
 begin
   if (Index = 0) or (SegLen = 0) or (Index > FLen) then Exit;
 
@@ -3113,8 +3113,8 @@ end;
 
 procedure TAdStr.Insert(const Text: string; Index: Integer);
 var
-  Buff: PChar;
-  NewLen: Integer;
+  Buff: PChar = #0;
+  NewLen: Integer = 0;
 begin
   if (Index = 0) or (Index > FLen) or (Text = '') then Exit;
 
@@ -3137,8 +3137,8 @@ end;
 
 procedure TAdStr.Resize(NewLen: Integer);
 var
-  Temp: PChar;
-  TempLen: Cardinal;
+  Temp: PChar = #0;
+  TempLen: Cardinal = 0;
 begin
   Temp := StrNew(FString);
   if (NewLen - 1) < FLen then
@@ -3169,7 +3169,7 @@ end;
 
 function TAdStr.Pos(const SubStr: string): Cardinal;
 var
-  Buff: PChar;
+  Buff: PChar = #0;
 begin
   Buff := StrAlloc(Length(SubStr) + 1);
   StrPCopy(Buff,SubStr);
@@ -3184,7 +3184,7 @@ end;
 
 function TAdStr.PosIdx(const SubStr: string; Index: Integer): Cardinal;
 var
-  Buff: PChar;
+  Buff: PChar = #0;
 begin
   if (Index = 0) or (Index > FLen) then begin
     Result := 0 ;
@@ -3290,7 +3290,7 @@ end;
 const
   DosDelimSet : set of Char = ['\', ':', #0];
 
-  MaxPCharLen = $7FFFFFFF;
+//  MaxPCharLen = $7FFFFFFF;
 
   function SafeYield : Integer;
     {-Allow other processes a chance to run}
@@ -3298,6 +3298,7 @@ const
     Msg : TMsg;
   begin
     SafeYield := 0;
+    Msg := Default(TMsg);
     if PeekMessage(Msg, 0, 0, 0, PM_REMOVE) then begin
       if Msg.Message = wm_Quit then
         {Re-post quit message so main message loop will terminate}
@@ -3357,7 +3358,7 @@ const
   function TimerExpired(ET : EventTimer) : Bool;
     {-Returns True if ET has expired}
   var
-    CurTicks : Integer;
+    CurTicks : Integer = 0;
   begin
     with ET do begin
       {Get current Ticks; assume timer has expired}
@@ -3379,7 +3380,7 @@ const
   function ElapsedTime(ET : EventTimer) : Integer;
     {-Returns elapsed time, in Ticks, for this timer}
   var
-    CurTicks : Integer;
+    CurTicks : Integer = 0;
   begin
     with ET do begin
       CurTicks := AdTimeGetTime div 55;
@@ -3401,8 +3402,8 @@ const
   function RemainingTime(ET : EventTimer) : Integer;
     {-Returns remaining time, in Ticks, for this timer}
   var
-    CurTicks : Integer;
-    RemainingTicks : Integer;
+    CurTicks : Integer = 0;
+    RemainingTicks : Integer = 0;
   begin
     with ET do begin
       CurTicks := AdTimeGetTime div 55;
@@ -3429,8 +3430,9 @@ const
     {-Delay for Ticks ticks}
   var
     ET : EventTimer;
-    Res : Integer;
+    Res : Integer = 0;
   begin
+    ET := Default(EventTimer);
     if Ticks <= 0 then begin
       DelayTicks := 0;
       Exit;
@@ -3450,7 +3452,7 @@ const
   function Long2StrZ(Dest : PChar; L : Integer) : PChar;
     {-Convert a long/Cardinal/integer/byte/shortint to a string}
   var
-    S : string;
+    S : string = '';
   begin
     Str(L, S);
     Result := StrPCopy(Dest, S);
@@ -3459,16 +3461,13 @@ const
 
 const
   MaxLen  = 255;
-  ExtLen = 3;
-
-type
-  TSmallArray = Array[0..MaxLen-1] of Char;
+//  ExtLen = 3;
 
   {$IFNDEF PrnDrv}
   function Str2LongZ(S : PChar; var I : Integer) : Bool;
     {-Convert a string to a Integer, returning true if successful}
   var
-    Err : Integer;
+    Err : Integer = 0;
   begin
     Val(StrPas(S),I,Err);
     Result := Err = 0;
@@ -3478,7 +3477,7 @@ type
   function JustPathnameZ(Dest : PChar; PathName : PChar) : PChar;
     {-Return just the drive:directory portion of a pathname}
   var
-    I : Integer;                                                      
+    I : Integer = 0;
 
   begin
     I := StrLen(PathName);
@@ -3509,7 +3508,7 @@ type
   function JustFilenameZ(Dest : PChar; PathName : PChar) : PChar;
     {-Return just the filename of a pathname}
   var
-    I : Cardinal;
+    I : Cardinal = 0;
   begin
     I := StrLen(PathName);
     while (I > 0) and (not (PathName[I-1] in DosDelimSet)) do
@@ -3521,7 +3520,7 @@ type
   {$IFNDEF PrnDrv}
   function JustExtensionZ(Dest : PChar; Name : PChar) : PChar;
   var
-    X : string[4];
+    X : string[4] = '';
   begin
     X := ExtractFileExt(StrPas(Name));
     if X = '' then
@@ -3534,7 +3533,7 @@ type
 
   function StrStCopy(Dest : PChar; S : PChar; Pos, Count : Cardinal) : PChar;
   var
-    Len : Cardinal;
+    Len : Cardinal = 0;
 
   begin
     Len := StrLen(S);
@@ -3551,7 +3550,7 @@ type
   function AddBackSlashZ(Dest : PChar; DirName : PChar) : PChar;
     {-Add a default backslash to a directory name}
   var
-    L : Cardinal;
+    L : Cardinal = 0;
   begin
     Result := Dest;
     StrCopy(Dest, DirName);
@@ -3576,7 +3575,7 @@ type
 
   function DefaultExtensionZ(Dest : PChar; Name, Ext : PChar) : PChar;
   var
-    S : string;
+    S : string = '';
   begin
     S := StrPas(Name);
     if ExtractFileExt(S) = '' then
@@ -3620,9 +3619,9 @@ type
 
   function DelayMS(MS : Cardinal) : Cardinal;
   var
-    CDelay: Cardinal;
-    CTime: Integer;
-    LTime: Integer;
+    CDelay: Cardinal = 0;
+    CTime: Integer = 0;
+    LTime: Integer = 0;
   begin
     {Always return the delayed MS value}
     DelayMS := MS;
@@ -3643,7 +3642,7 @@ type
   function JustName(PathName : string) : string;
     {-Return just the name (no extension, no path) of a pathname}
   var
-    DotPos : Byte;
+    DotPos : Byte = 0;
   begin
     PathName := ExtractFileName(PathName);
     DotPos := Pos('.', PathName);
@@ -3655,7 +3654,7 @@ type
   function AddBackSlash(const DirName : String) : String;
     {-Add a default backslash to a directory name}
   var                                                                  
-    IsQuoted : Boolean;                                                
+    IsQuoted : Boolean = False;
   begin
     Result := DirName;
     if DirName = '' then Exit;
@@ -3747,11 +3746,13 @@ function ApWinExecAndWait32(FileName : PChar; CommandLine : PChar;
 var
   zAppName:array[0..512] of char;
   zCurDir:array[0..255] of char;
-  WorkDir:ShortString;
+  WorkDir:ShortString = '';
   StartupInfo:TStartupInfo;
   ProcessInfo:TProcessInformation;
-  Temp : DWORD;
+  Temp : DWORD = 0;
 begin
+  StartupInfo := Default(TStartupInfo);
+  ProcessInfo := Default(TProcessInformation);
   StrCopy(zAppName, FileName);
   if assigned(CommandLine) then                                        
     StrCat(zAppName, CommandLine);                                     

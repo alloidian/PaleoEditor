@@ -167,12 +167,12 @@ const
   adc_TermBufColCount = 80;
   adc_TermBufRowCount = 24;
   adc_TermBufScrollRowCount = 50;
-  adc_TermBufUseAbsAddress = true; {use absolute rows/col values}
-  adc_TermBufUseAutoWrap = true; {chars wrap at end of line}
-  adc_TermBufUseAutoWrapDelay = true; {..but delay slightly}
-  adc_TermBufUseInsertMode = false; {no insert mode}
-  adc_TermBufUseNewLineMode = false; {LF char is a pure linefeed}
-  adc_TermBufUseScrollRegion = false; {no scroll region used}
+  adc_TermBufUseAbsAddress = True; {use absolute rows/col values}
+  adc_TermBufUseAutoWrap = True; {chars wrap at end of line}
+  adc_TermBufUseAutoWrapDelay = True; {..but delay slightly}
+  adc_TermBufUseInsertMode = False; {no insert mode}
+  adc_TermBufUseNewLineMode = False; {LF char is a pure linefeed}
+  adc_TermBufUseScrollRegion = False; {no scroll region used}
 
 type
   TadtWordArray = array [0..MaxInt div sizeof(word) - 1] of word;
@@ -192,57 +192,57 @@ type
 
   TAdScrollRowsNotifyEvent =
      procedure (aSender : TObject;
-                aCount, aTop, aBottom : integer) of object;
+                aCount, aTop, aBottom : Integer) of object;
 
   TAdOnCursorMovedEvent =                                              
      procedure (ASender  : TObject;                                    
-                Row, Col : integer) of object;                         
+                Row, Col : Integer) of object;                         
 
   TadTerminalArray = class
     private
-      FActColCount : integer;
-      FColCount    : integer;
+      FActColCount : Integer;
+      FColCount    : Integer;
       FDefaultItem : Integer;
       FItems       : PAnsiChar;
-      FItemSize    : integer;
-      FRowCount    : integer;
+      FItemSize    : Integer;
+      FRowCount    : Integer;
     protected
-      procedure taSetColCount(aNewCount : integer);
-      procedure taSetRowCount(aNewCount : integer);
+      procedure taSetColCount(aNewCount : Integer);
+      procedure taSetRowCount(aNewCount : Integer);
 
       procedure taClearRows(aBuffer : PAnsiChar;
-                            aActColCount : integer;
-                            aStartRow, aEndRow : integer);
+                            aActColCount : Integer;
+                            aStartRow, aEndRow : Integer);
       procedure taGrowArray(aRowCount,
-                            aColCount, aActColCount : integer);
+                            aColCount, aActColCount : Integer);
     public
-      constructor Create(aItemSize : integer);
+      constructor Create(aItemSize : Integer);
       destructor Destroy; override;
 
       procedure Clear;
         {-clear the entire array, filling with DefaultItem}
 
-      procedure ClearItems(aRow : integer;
-                           aFromCol, aToCol : integer);
+      procedure ClearItems(aRow : Integer;
+                           aFromCol, aToCol : Integer);
         {-clear the row in between the two inclusive columns, filling
           with DefaultItem (equivalent to 'erase')}
 
-      procedure DeleteItems(aCount : integer;
-                            aRow   : integer;
-                            aCol   : integer);
+      procedure DeleteItems(aCount : Integer;
+                            aRow   : Integer;
+                            aCol   : Integer);
         {-delete aCount default items at aRow , aCol; items currently
           beyond these positions are pulled left, and their original
           positions filled with default items; this action does not
           extend beyond the row}
 
 
-      function GetItemPtr(aRow, aCol : integer) : pointer;
+      function GetItemPtr(aRow, aCol : Integer) : pointer;
         {-return a pointer to the item at aRow, aCol; caller must
           properly dereference, and not memory overread}
 
-      procedure InsertItems(aCount : integer;
-                            aRow   : integer;
-                            aCol   : integer);
+      procedure InsertItems(aCount : Integer;
+                            aRow   : Integer;
+                            aCol   : Integer);
         {-insert aCount default items at aRow , aCol; items currently
           in these positions are pushed right, but not beyond the row
           boundary}
@@ -255,28 +255,28 @@ type
         {-define the default item to be used to fill new items, eg,
           during scrolling, clearing or resizing}
 
-      procedure ScrollRows(aCount : integer;
-                           aStartRow, aEndRow : integer);
+      procedure ScrollRows(aCount : Integer;
+                           aStartRow, aEndRow : Integer);
         {-scroll the data by aCount rows, filling new rows with
           DefaultItem; scroll just between aStartRow and aEndRow
           inclusive; if aCount is +ve it means scroll upwards (ie, the
           usual sense), if -ve scroll downwards}
 
       procedure WriteItems(aItems : pointer;
-                           aCount : integer;
-                           aRow, aCol : integer);
+                           aCount : Integer;
+                           aRow, aCol : Integer);
         {-write aCount items to aRow, aCol, without wrapping at the
           end of the row}
 
       procedure WriteDupItems(aItem  : pointer;
-                              aCount : integer;
-                              aRow, aCol : integer);
+                              aCount : Integer;
+                              aRow, aCol : Integer);
         {-write aCount copies of aItem to aRow, aCol, without wrapping
           at the end of the row}
 
-      property ColCount : integer read FColCount write taSetColCount;
-      property ItemSize : integer read FItemSize;
-      property RowCount : integer read FRowCount write taSetRowCount;
+      property ColCount : Integer read FColCount write taSetColCount;
+      property ItemSize : Integer read FItemSize;
+      property RowCount : Integer read FRowCount write taSetRowCount;
   end;
 
 type
@@ -284,37 +284,37 @@ type
     private
       FAttr         : TAdTerminalCharAttrs; {current attributes}
       FBackColor    : TColor;   {current background color}
-      FBeyondMargin : boolean;  {true if cursor's beyond right margin}
+      FBeyondMargin : Boolean;  {True if cursor's beyond right margin}
       FCharSet      : byte;     {current charset}
-      FColCount     : integer;  {count of columns in both views}
-      FCursorCol    : integer;  {current internal cursor col position}
-      FCursorMoved  : boolean;  {true if cursor has moved}
-      FCursorRow    : integer;  {current internal cursor row position}
+      FColCount     : Integer;  {count of columns in both views}
+      FCursorCol    : Integer;  {current internal cursor col position}
+      FCursorMoved  : Boolean;  {True if cursor has moved}
+      FCursorRow    : Integer;  {current internal cursor row position}
       FDefAnsiChar  : AnsiChar; {default ANSI character}
       FDefAttr      : TAdTerminalCharAttrs; {default attributes}
       FDefCharSet   : byte;     {default charset}
       FDefBackColor : TColor;   {default background color}
       FDefForeColor : TColor;   {default foreground color}
       FDefWideChar  : WideChar; {default wide character}
-      FDisplayOriginCol : integer; {column origin of addressable area}
-      FDisplayOriginRow : integer; {row origin of addressable area}
-      FDisplayColCount  : integer; {column count in addressable area}
-      FDisplayRowCount  : integer; {row count in addressable area}
+      FDisplayOriginCol : Integer; {column origin of addressable area}
+      FDisplayOriginRow : Integer; {row origin of addressable area}
+      FDisplayColCount  : Integer; {column count in addressable area}
+      FDisplayRowCount  : Integer; {row count in addressable area}
       FForeColor    : TColor;   {current foreground color}
       FHorzTabStops : PByteArray; {bitset of horizontal tab stops}
       FInvRectList  : pointer;  {list of invalid rects}
       FOnScrollRows : TAdScrollRowsNotifyEvent;
-      FRowCount     : integer;  {count of rows in display view}
-      FSRStartRow   : integer;  {start row of scrolling region}
-      FSREndRow     : integer;  {end row of scrolling region}
-      FSVRowCount   : integer;  {count of rows in scrollback view}
-      FUseAbsAddress: boolean; {true if absolute values for row/col}
-      FUseAutoWrap  : boolean;  {true if chars wrap to next line}
-      FUseAutoWrapDelay: boolean; {true if cursor stays at last col}
-      FUseInsertMode   : boolean; {true if insert rather than replace}
-      FUseNewLineMode  : boolean; {true if LF means CR+LF}
-      FUseScrollRegion : boolean; {true if limit to scroll region}
-      FUseWideChars : boolean;  {true if expecting UNICODE chars}
+      FRowCount     : Integer;  {count of rows in display view}
+      FSRStartRow   : Integer;  {start row of scrolling region}
+      FSREndRow     : Integer;  {end row of scrolling region}
+      FSVRowCount   : Integer;  {count of rows in scrollback view}
+      FUseAbsAddress: Boolean; {True if absolute values for row/col}
+      FUseAutoWrap  : Boolean;  {True if chars wrap to next line}
+      FUseAutoWrapDelay: Boolean; {True if cursor stays at last col}
+      FUseInsertMode   : Boolean; {True if insert rather than replace}
+      FUseNewLineMode  : Boolean; {True if LF means CR+LF}
+      FUseScrollRegion : Boolean; {True if limit to scroll region}
+      FUseWideChars : Boolean;  {True if expecting UNICODE chars}
       FVertTabStops : PByteArray; {bitset of vertical tab stops}
 
       FCharMatrix   : TAdTerminalArray;    {matrix of chars}
@@ -327,10 +327,10 @@ type
       FTerminalHandle : THandle; {Handle of owning terminal}             {!!.05}     
 
     protected
-      function tbGetCol : integer;
-      function tbGetOriginCol : integer;
-      function tbGetOriginRow : integer;
-      function tbGetRow : integer;
+      function tbGetCol : Integer;
+      function tbGetOriginCol : Integer;
+      function tbGetOriginRow : Integer;
+      function tbGetRow : Integer;
 
       procedure tbSetBackColor(aValue : TColor);
       procedure tbSetCharSet(aValue : byte);
@@ -338,38 +338,38 @@ type
       procedure tbSetDefBackColor(aValue : TColor);            
       procedure tbSetDefForeColor(aValue : TColor);            
       procedure tbSetForeColor(aValue : TColor);
-      procedure tbSetSVRowCount(aNewCount : integer);
-      procedure tbSetCol(aCol : integer);
-      procedure tbSetColCount(aNewCount : integer);
-      procedure tbSetRow(aRow : integer);
-      procedure tbSetRowCount(aNewCount : integer);
-      procedure tbSetUseScrollRegion(aValue : boolean);
+      procedure tbSetSVRowCount(aNewCount : Integer);
+      procedure tbSetCol(aCol : Integer);
+      procedure tbSetColCount(aNewCount : Integer);
+      procedure tbSetRow(aRow : Integer);
+      procedure tbSetRowCount(aNewCount : Integer);
+      procedure tbSetUseScrollRegion(aValue : Boolean);
 
       procedure tbInvalidateRect(aFromRow, aFromCol,
-                                 aToRow, aToCol : integer);
+                                 aToRow, aToCol : Integer);
 
-      function tbCvtToInternalCol(aCol : integer;
-                                  aAbsolute : boolean) : integer;
-      function tbCvtToInternalRow(aRow : integer;
-                                  aAbsolute : boolean) : integer;
-      function tbCvtToExternalCol(aCol : integer;
-                                  aAbsolute : boolean) : integer;
-      function tbCvtToExternalRow(aRow : integer;
-                                  aAbsolute : boolean) : integer;
+      function tbCvtToInternalCol(aCol : Integer;
+                                  aAbsolute : Boolean) : Integer;
+      function tbCvtToInternalRow(aRow : Integer;
+                                  aAbsolute : Boolean) : Integer;
+      function tbCvtToExternalCol(aCol : Integer;
+                                  aAbsolute : Boolean) : Integer;
+      function tbCvtToExternalRow(aRow : Integer;
+                                  aAbsolute : Boolean) : Integer;
 
-      function tbAtLastColumn : boolean;
-      procedure tbMoveCursorLeftRight(aDirection : integer;
-                                      aWrap      : boolean;
-                                      aScroll    : boolean);
-      procedure tbMoveCursorUpDown(aDirection : integer;
-                                   aScroll    : boolean);
-      procedure tbReallocBuffers(aNewRowCount : integer;
-                                 aNewColCount : integer);
-      procedure tbScrollRows(aCount, aTop, aBottom : integer);
+      function tbAtLastColumn : Boolean;
+      procedure tbMoveCursorLeftRight(aDirection : Integer;
+                                      aWrap      : Boolean;
+                                      aScroll    : Boolean);
+      procedure tbMoveCursorUpDown(aDirection : Integer;
+                                   aScroll    : Boolean);
+      procedure tbReallocBuffers(aNewRowCount : Integer;
+                                 aNewColCount : Integer);
+      procedure tbScrollRows(aCount, aTop, aBottom : Integer);
       procedure tbFireOnCursorMovedEvent;                              
 
     public
-      constructor Create(aUseWideChars : boolean);
+      constructor Create(aUseWideChars : Boolean);
       destructor Destroy; override;
 
       {---METHODS---}
@@ -380,21 +380,21 @@ type
       procedure SetCharAttrs(const aValue : TAdTerminalCharAttrs);
 
       {cursor movement}
-      procedure MoveCursorDown(aScroll : boolean);
-      procedure MoveCursorLeft(aWrap : boolean; aScroll : boolean);
-      procedure MoveCursorRight(aWrap : boolean; aScroll : boolean);
-      procedure MoveCursorUp(aScroll : boolean);
-      procedure SetCursorPosition(aRow, aCol : integer);
+      procedure MoveCursorDown(aScroll : Boolean);
+      procedure MoveCursorLeft(aWrap : Boolean; aScroll : Boolean);
+      procedure MoveCursorRight(aWrap : Boolean; aScroll : Boolean);
+      procedure MoveCursorUp(aScroll : Boolean);
+      procedure SetCursorPosition(aRow, aCol : Integer);
 
       {insertion/deletion}
-      procedure DeleteChars(aCount : integer);
-      procedure DeleteLines(aCount : integer);
-      procedure InsertChars(aCount : integer);
-      procedure InsertLines(aCount : integer);
+      procedure DeleteChars(aCount : Integer);
+      procedure DeleteLines(aCount : Integer);
+      procedure InsertChars(aCount : Integer);
+      procedure InsertLines(aCount : Integer);
 
       {erasing}
       procedure EraseAll;
-      procedure EraseChars(aCount : integer);
+      procedure EraseChars(aCount : Integer);
       procedure EraseFromBOW;
       procedure EraseFromBOL;
       procedure EraseLine;
@@ -417,7 +417,7 @@ type
       procedure DoBackVertTab;
 
       {scrolling regions}
-      procedure SetScrollRegion(aTopRow, aBottomRow : integer);
+      procedure SetScrollRegion(aTopRow, aBottomRow : Integer);
 
       {write character/string}
       procedure WriteChar(aCh : char);
@@ -430,16 +430,16 @@ type
       procedure Reset;
 
       {get buffer information}
-      function GetLineCharPtr(aRow : integer) : pointer;
-      function GetLineAttrPtr(aRow : integer) : pointer;
-      function GetLineForeColorPtr(aRow : integer) : pointer;
-      function GetLineBackColorPtr(aRow : integer) : pointer;
-      function GetLineCharSetPtr(aRow : integer) : pointer;
+      function GetLineCharPtr(aRow : Integer) : pointer;
+      function GetLineAttrPtr(aRow : Integer) : pointer;
+      function GetLineForeColorPtr(aRow : Integer) : pointer;
+      function GetLineBackColorPtr(aRow : Integer) : pointer;
+      function GetLineCharSetPtr(aRow : Integer) : pointer;
 
       {getting information about changes}
-      function HasCursorMoved : boolean;
-      function HasDisplayChanged : boolean;
-      function GetInvalidRect(var aRect : TRect) : boolean;
+      function HasCursorMoved : Boolean;
+      function HasDisplayChanged : Boolean;
+      function GetInvalidRect(var aRect : TRect) : Boolean;
 
       {Misc. Internal}
       procedure RegisterTerminalHandle (AHandle : THandle);              {!!.05}
@@ -456,29 +456,29 @@ type
       property ForeColor : TColor read FForeColor write tbSetForeColor;
 
       {scrollback view extent}
-      property SVRowCount : integer read FSVRowCount write tbSetSVRowCount;
+      property SVRowCount : Integer read FSVRowCount write tbSetSVRowCount;
 
       {display view properties}
-      property Col : integer read tbGetCol write tbSetCol;
-      property ColCount : integer read FColCount write tbSetColCount;
-      property OriginCol : integer read tbGetOriginCol;
-      property OriginRow : integer read tbGetOriginRow;
-      property Row : integer read tbGetRow write tbSetRow;
-      property RowCount : integer read FRowCount write tbSetRowCount;
+      property Col : Integer read tbGetCol write tbSetCol;
+      property ColCount : Integer read FColCount write tbSetColCount;
+      property OriginCol : Integer read tbGetOriginCol;
+      property OriginRow : Integer read tbGetOriginRow;
+      property Row : Integer read tbGetRow write tbSetRow;
+      property RowCount : Integer read FRowCount write tbSetRowCount;
 
-      property UseAbsAddress : boolean
+      property UseAbsAddress : Boolean
                   read FUseAbsAddress write FUseAbsAddress;
-      property UseAutoWrap : boolean
+      property UseAutoWrap : Boolean
                   read FUseAutoWrap write FUseAutoWrap;
-      property UseAutoWrapDelay : boolean
+      property UseAutoWrapDelay : Boolean
                   read FUseAutoWrapDelay write FUseAutoWrapDelay;
-      property UseInsertMode : boolean
+      property UseInsertMode : Boolean
                   read FUseInsertMode write FUseInsertMode;
-      property UseNewLineMode : boolean
+      property UseNewLineMode : Boolean
                   read FUseNewLineMode write FUseNewLineMode;
-      property UseScrollRegion : boolean
+      property UseScrollRegion : Boolean
                   read FUseScrollRegion write tbSetUseScrollRegion;
-      property UseWideChars : boolean read FUseWideChars;
+      property UseWideChars : Boolean read FUseWideChars;
 
       property OnScrollRows : TAdScrollRowsNotifyEvent
                   read FOnScrollRows write FOnScrollRows;
@@ -518,14 +518,14 @@ procedure RaiseTerminalException(aClass : EAdTerminalClass;
                                  aIntParam2 : Integer;
                                  aIntParam3 : Integer);
 begin
-  raise aClass.Create(aErrorCode, false);
+  raise aClass.Create(aErrorCode, False);
 end;
 {====================================================================}
 
 
 
 {===TadTerminalArray=================================================}
-constructor TadTerminalArray.Create(aItemSize : integer);
+constructor TadTerminalArray.Create(aItemSize : Integer);
 begin
   inherited Create;
   {save a valid item size}
@@ -552,12 +552,12 @@ begin
     taClearRows(FItems, FActColCount, 0, pred(RowCount));
 end;
 {--------}
-procedure TadTerminalArray.ClearItems(aRow : integer;
-                                      aFromCol, aToCol : integer);
+procedure TadTerminalArray.ClearItems(aRow : Integer;
+                                      aFromCol, aToCol : Integer);
 var
-  Walker    : PAnsiChar;
-  Value     : Integer;
-  i         : integer;
+  Walker    : PAnsiChar = nil;
+  Value     : Integer = 0;
+  i         : Integer = 0;
 begin
   Walker := @FItems[((aRow * FActColCount) + aFromCol) * ItemSize];
   case ItemSize of
@@ -579,16 +579,16 @@ begin
   end;{case}
 end;
 {--------}
-procedure TadTerminalArray.DeleteItems(aCount : integer;
-                                       aRow   : integer;
-                                       aCol   : integer);
+procedure TadTerminalArray.DeleteItems(aCount : Integer;
+                                       aRow   : Integer;
+                                       aCol   : Integer);
 var
-  ItemCount : integer;
-  Distance  : integer;
-  FromPtr   : PAnsiChar;
-  ToPtr     : PAnsiChar;
-  Value     : Integer;
-  i         : integer;
+  ItemCount : Integer = 0;
+  Distance  : Integer = 0;
+  FromPtr   : PAnsiChar = nil;
+  ToPtr     : PAnsiChar = nil;
+  Value     : Integer = 0;
+  i         : Integer = 0;
 begin
   {$IFDEF UseRangeChecks}
   {Range check aRow and aCol}
@@ -640,7 +640,7 @@ begin
   end;{case}
 end;
 {--------}
-function TadTerminalArray.GetItemPtr(aRow, aCol : integer) : pointer;
+function TadTerminalArray.GetItemPtr(aRow, aCol : Integer) : pointer;
 begin
   {$IFDEF UseRangeChecks}
   {Range check aRow and aCol}
@@ -663,16 +663,16 @@ begin
   end;
 end;
 {--------}
-procedure TadTerminalArray.InsertItems(aCount : integer;
-                                       aRow   : integer;
-                                       aCol   : integer);
+procedure TadTerminalArray.InsertItems(aCount : Integer;
+                                       aRow   : Integer;
+                                       aCol   : Integer);
 var
-  ItemCount : integer;
-  Distance  : integer;
-  FromPtr   : PAnsiChar;
-  ToPtr     : PAnsiChar;
-  Value     : Integer;
-  i         : integer;
+  ItemCount : Integer = 0;
+  Distance  : Integer = 0;
+  FromPtr   : PAnsiChar = nil;
+  ToPtr     : PAnsiChar = nil;
+  Value     : Integer = 0;
+  i         : Integer = 0;
 begin
   {$IFDEF UseRangeChecks}
   {Range check aRow and aCol}
@@ -725,11 +725,11 @@ procedure TadTerminalArray.ReplaceItems(aOldItem : pointer;
                                         aNewItem : pointer);
                                                            {new !!.02}
 var
-  Walker    : PAnsiChar;
-  OldValue  : Integer;
-  NewValue  : Integer;
-  Row       : integer;
-  i         : integer;
+  Walker    : PAnsiChar = nil;
+  OldValue  : Integer = 0;
+  NewValue  : Integer = 0;
+  Row       : Integer = 0;
+  i         : Integer = 0;
 begin
   case ItemSize of
     1 : begin
@@ -772,13 +772,13 @@ begin
   end;
 end;
 {--------}
-procedure TadTerminalArray.ScrollRows(aCount : integer;
-                                      aStartRow, aEndRow : integer);
+procedure TadTerminalArray.ScrollRows(aCount : Integer;
+                                      aStartRow, aEndRow : Integer);
 var
-  ThisRow : integer;
-  FromPtr : PAnsiChar;
-  ToPtr   : PAnsiChar;
-  i       : integer;
+  ThisRow : Integer = 0;
+  FromPtr : PAnsiChar = nil;
+  ToPtr   : PAnsiChar = nil;
+  i       : Integer = 0;
 begin
   {$IFDEF UseRangeChecks}
   {Range check aStartRow and aEndRow}
@@ -848,13 +848,13 @@ begin
 end;
 {--------}
 procedure TadTerminalArray.taClearRows(aBuffer : PAnsiChar;
-                                       aActColCount : integer;
-                                       aStartRow, aEndRow : integer);
+                                       aActColCount : Integer;
+                                       aStartRow, aEndRow : Integer);
 var
-  Walker     : PAnsiChar;
-  Value      : Integer;
-  DWORDCount : integer;
-  i          : integer;
+  Walker     : PAnsiChar = nil;
+  Value      : Integer = 0;
+  DWORDCount : Integer = 0;
+  i          : Integer = 0;
 begin
   Walker := @aBuffer[aStartRow * aActColCount * ItemSize];
   if (ItemSize = 1) then
@@ -879,14 +879,14 @@ end;
 {--------}
 procedure TadTerminalArray.taGrowArray(aRowCount,
                                        aColCount,
-                                       aActColCount : integer);
+                                       aActColCount : Integer);
 var
-  NewArray : PAnsiChar;
-  RowSize  : integer;
-  NumRows  : integer;
-  FromPtr  : PAnsiChar;
-  ToPtr    : PAnsiChar;
-  i        : integer;
+  NewArray : PAnsiChar = nil;
+  RowSize  : Integer = 0;
+  NumRows  : Integer = 0;
+  FromPtr  : PAnsiChar = nil;
+  ToPtr    : PAnsiChar = nil;
+  i        : Integer = 0;
 begin
   {make sure we have the new actual column count: this is the external
    column count rounded up so that the actual length of a row in bytes
@@ -947,7 +947,7 @@ begin
   FActColCount := aActColCount;
 end;
 {--------}
-procedure TadTerminalArray.taSetColCount(aNewCount : integer);
+procedure TadTerminalArray.taSetColCount(aNewCount : Integer);
 begin
   {$IFDEF UseRangeChecks}
   {Range check aNewCount}
@@ -961,7 +961,7 @@ begin
   end;
 end;
 {--------}
-procedure TadTerminalArray.taSetRowCount(aNewCount : integer);
+procedure TadTerminalArray.taSetRowCount(aNewCount : Integer);
 begin
   {$IFDEF UseRangeChecks}
   {Range check aNewCount}
@@ -976,13 +976,13 @@ begin
 end;
 {--------}
 procedure TadTerminalArray.WriteDupItems(aItem  : pointer;
-                                         aCount : integer;
-                                         aRow, aCol : integer);
+                                         aCount : Integer;
+                                         aRow, aCol : Integer);
 var
-  Walker    : PAnsiChar;
-  Value     : Integer;
-  i         : integer;
-  ItemCount : integer;
+  Walker    : PAnsiChar = nil;
+  Value     : Integer = 0;
+  i         : Integer = 0;
+  ItemCount : Integer = 0;
 begin
   {$IFDEF UseRangeChecks}
   {Range check aRow and aCol}
@@ -1019,10 +1019,10 @@ begin
 end;
 {--------}
 procedure TadTerminalArray.WriteItems(aItems : pointer;
-                                      aCount : integer;
-                                      aRow, aCol : integer);
+                                      aCount : Integer;
+                                      aRow, aCol : Integer);
 var
-  ItemCount : integer;
+  ItemCount : Integer = 0;
 begin
   {$IFDEF UseRangeChecks}
   {Range check aRow and aCol}
@@ -1052,27 +1052,27 @@ end;
 
 
 {===Bitset routines==================================================}
-procedure ADTClearAllBits(aBitset : PByteArray; aBitCount : integer);
+procedure ADTClearAllBits(aBitset : PByteArray; aBitCount : Integer);
 begin
   FillChar(aBitset^, (aBitCount+7) shr 3, 0);
 end;
 {--------}
-procedure ADTClearBit(aBitset : PByteArray; aBit : integer);
+procedure ADTClearBit(aBitset : PByteArray; aBit : Integer);
 var
   BS : PAnsiChar absolute aBitset;
-  P  : PAnsiChar;
-  M  : byte;
+  P  : PAnsiChar = nil;
+  M  : byte = 0;
 begin
   P := BS + (aBit shr 3);
   M := 1 shl (byte(aBit) and 7);
   P^ := char(byte(P^) and not M);
 end;
 {--------}
-function ADTIsBitSet(aBitset : PByteArray; aBit : integer) : boolean;
+function ADTIsBitSet(aBitset : PByteArray; aBit : Integer) : Boolean;
 var
   BS : PAnsiChar absolute aBitset;
-  P  : PAnsiChar;
-  M  : byte;
+  P  : PAnsiChar = nil;
+  M  : byte  = 0;
 begin
   P := BS + (aBit shr 3);
   M := 1 shl (byte(aBit) and 7);
@@ -1080,10 +1080,10 @@ begin
 end;
 {--------}
 function ADTReallocBitset(aBitset      : PByteArray;
-                          aOldBitCount : integer;
-                          aNewBitCount : integer) : PByteArray;
+                          aOldBitCount : Integer;
+                          aNewBitCount : Integer) : PByteArray;
 var
-  XferBitCount : integer;
+  XferBitCount : Integer = 0;
 begin
   if (aNewBitCount = 0) then
     Result := nil
@@ -1102,17 +1102,17 @@ begin
 end;
 {--------}
 (***** not used yet
-procedure ADTSetAllBits(aBitset : PByteArray; aBitCount : integer);
+procedure ADTSetAllBits(aBitset : PByteArray; aBitCount : Integer);
 begin
   FillChar(aBitset^, (aBitCount+7) shr 3, $FF);
 end;
 *****)
 {--------}
-procedure ADTSetBit(aBitset : PByteArray; aBit : integer);
+procedure ADTSetBit(aBitset : PByteArray; aBit : Integer);
 var
   BS : PAnsiChar absolute aBitSet;
-  P  : PAnsiChar;
-  M  : byte;
+  P  : PAnsiChar = nil;
+  M  : byte = 0;
 begin
   P := BS + (aBit shr 3);
   M := 1 shl (byte(aBit) and 7);
@@ -1136,8 +1136,8 @@ type
     irpRects : array [0.. pred(RectsPerPage)] of TInvRect;
   end;
 var
-  InvRectFreeList : PInvRect;
-  InvRectPageList : PInvRectPage;
+  InvRectFreeList : PInvRect = nil;
+  InvRectPageList : PInvRectPage = nil;
 {--------}
 procedure ADTFreeInvRect(P : PInvRect);
 begin
@@ -1148,8 +1148,8 @@ end;
 {--------}
 procedure ADTAllocInvRectPage;
 var
-  NewPage : PInvRectPage;
-  i       : integer;
+  NewPage : PInvRectPage = nil;
+  i       : Integer = 0;
 begin
   {alloc new page and add it to front of page list}
   New(NewPage);
@@ -1171,7 +1171,7 @@ end;
 {--------}
 procedure ADTFreeInvRectPages;
 var
-  Temp : PInvRectPage;
+  Temp : PInvRectPage = nil;
 begin
   {dispose of all rect pages}
   while (InvRectPageList <> nil) do begin
@@ -1186,7 +1186,7 @@ end;
 procedure ADTAddInvalidRect(var aInvRectList : PInvRect;
                        const aRect        : TRect);
 var
-  NewRect : PInvRect;
+  NewRect : PInvRect = nil;
 begin
   NewRect := ADTAllocInvRect;
   NewRect^.irNext := aInvRectList;
@@ -1195,14 +1195,14 @@ begin
 end;
 {--------}
 function ADTRemoveInvalidRect(var aInvRectList : PInvRect;
-                           var aRect        : TRect) : boolean;
+                           out aRect        : TRect) : Boolean;
 var
-  TopRect : PInvRect;
+  TopRect : PInvRect = nil;
 begin
   if (aInvRectList = nil) then
-    Result := false
+    Result := False
   else begin
-    Result := true;
+    Result := True;
     TopRect := aInvRectList;
     aInvRectList := TopRect^.irNext;
     aRect := TopRect^.irRect;
@@ -1211,20 +1211,20 @@ begin
 end;
 {--------}
 function ADTPeekInvalidRect(aInvRectList : PInvRect;
-                     var aRect        : TRect) : boolean;
+                     out aRect        : TRect) : Boolean;
 begin
   if (aInvRectList = nil) then
-    Result := false
+    Result := False
   else begin
-    Result := true;
+    Result := True;
     aRect := aInvRectList^.irRect;
   end;
 end;
 {--------}
 procedure ADTMergeInvalidRects(aInvRectList : PInvRect);
 var
-  Temp    : PInvRect;
-  Walker  : PInvRect;
+  Temp    : PInvRect = nil;
+  Walker  : PInvRect = nil;
   MinRect : TRect;
 begin
   if (aInvRectList = nil) then
@@ -1259,9 +1259,9 @@ end;
 
 
 {===TAdTerminalBuffer================================================}
-constructor TAdTerminalBuffer.Create(aUseWideChars : boolean);
+constructor TAdTerminalBuffer.Create(aUseWideChars : Boolean);
 var
-  i : integer;
+  i : Integer = 0;
 begin
   inherited Create;
 
@@ -1346,7 +1346,7 @@ begin
   FCursorCol := 0;
 
   {add the whole screen as an invalid rect}
-  FCursorMoved := true;
+  FCursorMoved := True;
   tbInvalidateRect(FCursorRow, 0,
                    pred(SVRowCount), pred(ColCount));
   tbFireOnCursorMovedEvent;                                            
@@ -1394,11 +1394,11 @@ begin
     ADTClearBit(FVertTabStops, FCursorRow);
 end;
 {--------}
-procedure TAdTerminalBuffer.DeleteChars(aCount : integer);
+procedure TAdTerminalBuffer.DeleteChars(aCount : Integer);
 var
-  CharCount : integer;
+  CharCount : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {$IFDEF UseRangeCheck}
   if (aCount <= 0) then
     raise Exception.Create('TAdTerminalBuffer.DeleteChars: count must be positive');
@@ -1422,11 +1422,11 @@ begin
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.DeleteLines(aCount : integer);
+procedure TAdTerminalBuffer.DeleteLines(aCount : Integer);
 var
-  MaxRow : integer;
+  MaxRow : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {deleting lines is equivalent to a scroll up to the current cursor
    position; we take account of any scroll region, of course}
   {$IFDEF UseRangeCheck}
@@ -1447,7 +1447,7 @@ end;                                                                     {!!.05}
 {--------}
 procedure TAdTerminalBuffer.DoBackHorzTab;
 var
-  NewCol : integer;
+  NewCol : Integer = 0;
 begin
   if (ColCount > 0) then begin
     NewCol := FCursorCol;
@@ -1468,9 +1468,9 @@ end;
 {--------}
 procedure TAdTerminalBuffer.DoBackVertTab;
 var
-  NewRow : integer;
+  NewRow : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   if (RowCount > 0) then begin
     NewRow := FCursorRow;
     while (NewRow > FDisplayOriginRow) do begin
@@ -1490,9 +1490,9 @@ end;
 {--------}
 procedure TAdTerminalBuffer.DoBackspace;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   if (FCursorCol > FDisplayOriginCol) then begin
-    FCursorMoved := true;
+    FCursorMoved := True;
     dec(FCursorCol);
     tbFireOnCursorMovedEvent;                                          
   end;
@@ -1500,7 +1500,7 @@ end;
 {--------}
 procedure TAdTerminalBuffer.DoCarriageReturn;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   FCursorMoved := FCursorMoved or (FCursorCol <> FDisplayOriginCol);
   FCursorCol := FDisplayOriginCol;
   tbFireOnCursorMovedEvent;                                            
@@ -1508,10 +1508,10 @@ end;
 {--------}
 procedure TAdTerminalBuffer.DoHorzTab;
 var
-  NewCol : integer;
-  MaxCol : integer;
+  NewCol : Integer = 0;
+  MaxCol : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   if (ColCount > 0) then begin
     NewCol := FCursorCol;
     MaxCol := FDisplayOriginCol + FDisplayColCount - 1;
@@ -1532,18 +1532,18 @@ end;
 {--------}
 procedure TAdTerminalBuffer.DoLineFeed;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   if UseNewLineMode then
     DoCarriageReturn;
-  MoveCursorDown(true);
+  MoveCursorDown(True);
 end;
 {--------}
 procedure TAdTerminalBuffer.DoVertTab;
 var
-  NewRow : integer;
-  MaxRow : integer;
+  NewRow : Integer = 0;
+  MaxRow : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   if (RowCount > 0) then begin
     NewRow := FCursorRow;
     MaxRow := FDisplayOriginRow + FDisplayRowCount - 1;
@@ -1566,7 +1566,7 @@ procedure TAdTerminalBuffer.EraseAll;
 begin
   {WARNING: this DOES NOT use the scroll region, if defined, it blanks
             out everything in the scrollback buffer}
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   FCharMatrix.Clear;
   FCharSetMatrix.Clear;
   FAttrMatrix.Clear;
@@ -1578,18 +1578,18 @@ begin
                    pred(SVRowCount), pred(ColCount));
 end;
 {--------}
-procedure TAdTerminalBuffer.EraseChars(aCount : integer);
+procedure TAdTerminalBuffer.EraseChars(aCount : Integer);
 var
-  CharCount : integer;
-  ToColNum  : integer;
-  CurRow    : integer;
-  CurCol    : integer;
-  MaxCol    : integer;
-  MaxRow    : integer;
+  CharCount : Integer = 0;
+  ToColNum  : Integer = 0;
+  CurRow    : Integer = 0;
+  CurCol    : Integer = 0;
+  MaxCol    : Integer = 0;
+  MaxRow    : Integer = 0;
 begin
   {WARNING: this uses the scroll region, if defined}
 
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {$IFDEF UseRangeChecks}
   if (aCount <= 0) then
     raise Exception.CreateFmt('TAdTerminalBuffer.EraseChars: Count (%d) must be +ve', [aCount]);
@@ -1626,7 +1626,7 @@ procedure TAdTerminalBuffer.EraseFromBOL;
 begin
   {WARNING: this uses the scroll region, if defined}
 
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {set all characters from the beginning of the line, up to and
    including the cursor position, to blanks}
   FCharMatrix.ClearItems(FCursorRow, FDisplayOriginCol, FCursorCol);
@@ -1640,13 +1640,13 @@ end;
 {--------}
 procedure TAdTerminalBuffer.EraseFromBOW;
 var
-  DisplayStartRow : integer;
+  DisplayStartRow : Integer = 0;
 begin
   {WARNING: this DOES NOT use the scroll region, if defined, it blanks
             out everything on the window up to and including the
             cursor position}
 
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {set all characters from the beginning of the line, up to and
    including the cursor position, to blanks}
   FCharMatrix.ClearItems(FCursorRow, 0, FCursorCol);
@@ -1668,11 +1668,11 @@ end;
 {--------}
 procedure TAdTerminalBuffer.EraseLine;
 var
-  MaxCol : integer;
+  MaxCol : Integer = 0;
 begin
   {WARNING: this uses the scroll region, if defined}
 
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {set all characters from the beginning to the end of the line to
    blanks}
   MaxCol := FDisplayOriginCol + FDisplayColCount - 1;
@@ -1690,7 +1690,7 @@ begin
   {WARNING: this DOES NOT use the scroll region, if defined, it blanks
             out everything on the window}
 
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {scroll the entire scrollback view by RowCount lines: this will have
    the effect of clearing the display view and of setting up the
    scrollback buffer with the previous screen}
@@ -1701,11 +1701,11 @@ end;
 {--------}
 procedure TAdTerminalBuffer.EraseToEOL;
 var
-  MaxCol : integer;
+  MaxCol : Integer = 0;
 begin
   {WARNING: this uses the scroll region, if defined}
 
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {set all characters from and including the cursor position to the
    end of the line to blanks}
   MaxCol := FDisplayOriginCol + FDisplayColCount - 1;
@@ -1724,7 +1724,7 @@ begin
             out everything from and including the cursor position up
             to the end of the screen}
 
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {set all characters from and including the cursor position to the
    end of the line to blanks}
   FCharMatrix.ClearItems(FCursorRow, FCursorCol, pred(ColCount));
@@ -1753,10 +1753,10 @@ begin
   aValue := FDefAttr;
 end;
 {--------}
-function TAdTerminalBuffer.GetInvalidRect(var aRect : TRect) : boolean;
+function TAdTerminalBuffer.GetInvalidRect(var aRect : TRect) : Boolean;
 begin
   if (FInvRectList = nil) then
-    Result := false
+    Result := False
   else begin
     {if there is more than one invalid rect, merge them all into one}
     if (PInvRect(FInvRectList)^.irNext <> nil) then
@@ -1766,12 +1766,12 @@ begin
   end;
 end;
 {--------}
-function TAdTerminalBuffer.GetLineAttrPtr(aRow : integer) : pointer;
+function TAdTerminalBuffer.GetLineAttrPtr(aRow : Integer) : pointer;
 var
-  OurRow : integer;
+  OurRow : Integer = 0;
 begin
   {normalize the row number to our internal system}
-  OurRow := tbCvtToInternalRow(aRow, true);
+  OurRow := tbCvtToInternalRow(aRow, True);
   {$IFDEF UseRangeChecks}
   if (OurRow < 0) or
      (OurRow >= FSVRowCount) then
@@ -1782,12 +1782,12 @@ begin
   Result := FAttrMatrix.GetItemPtr(OurRow, FDisplayOriginCol);
 end;
 {--------}
-function TAdTerminalBuffer.GetLineBackColorPtr(aRow : integer) : pointer;
+function TAdTerminalBuffer.GetLineBackColorPtr(aRow : Integer) : pointer;
 var
-  OurRow : integer;
+  OurRow : Integer = 0;
 begin
   {normalize the row number to our internal system}
-  OurRow := tbCvtToInternalRow(aRow, true);
+  OurRow := tbCvtToInternalRow(aRow, True);
   {$IFDEF UseRangeChecks}
   if (OurRow < 0) or
      (OurRow >= FSVRowCount) then
@@ -1798,12 +1798,12 @@ begin
   Result := FBackColorMatrix.GetItemPtr(OurRow, FDisplayOriginCol);
 end;
 {--------}
-function TAdTerminalBuffer.GetLineCharPtr(aRow : integer) : pointer;
+function TAdTerminalBuffer.GetLineCharPtr(aRow : Integer) : pointer;
 var
-  OurRow : integer;
+  OurRow : Integer = 0;
 begin
   {normalize the row number to our internal system}
-  OurRow := tbCvtToInternalRow(aRow, true);
+  OurRow := tbCvtToInternalRow(aRow, True);
   {$IFDEF UseRangeChecks}
   if (OurRow < 0) or
      (OurRow >= FSVRowCount) then
@@ -1814,12 +1814,12 @@ begin
   Result := FCharMatrix.GetItemPtr(OurRow, FDisplayOriginCol)
 end;
 {--------}
-function TAdTerminalBuffer.GetLineCharSetPtr(aRow : integer) : pointer;
+function TAdTerminalBuffer.GetLineCharSetPtr(aRow : Integer) : pointer;
 var
-  OurRow : integer;
+  OurRow : Integer = 0;
 begin
   {normalize the row number to our internal system}
-  OurRow := tbCvtToInternalRow(aRow, true);
+  OurRow := tbCvtToInternalRow(aRow, True);
   {$IFDEF UseRangeChecks}
   if (OurRow < 0) or
      (OurRow >= FSVRowCount) then
@@ -1830,12 +1830,12 @@ begin
   Result := FCharSetMatrix.GetItemPtr(OurRow, FDisplayOriginCol)
 end;
 {--------}
-function TAdTerminalBuffer.GetLineForeColorPtr(aRow : integer) : pointer;
+function TAdTerminalBuffer.GetLineForeColorPtr(aRow : Integer) : pointer;
 var
-  OurRow : integer;
+  OurRow : Integer = 0;
 begin
   {normalize the row number to our internal system}
-  OurRow := tbCvtToInternalRow(aRow, true);
+  OurRow := tbCvtToInternalRow(aRow, True);
   {$IFDEF UseRangeChecks}
   if (OurRow < 0) or
      (OurRow >= FSVRowCount) then
@@ -1846,26 +1846,26 @@ begin
   Result := FForeColorMatrix.GetItemPtr(OurRow, FDisplayOriginCol)
 end;
 {--------}
-function TAdTerminalBuffer.HasCursorMoved : boolean;
+function TAdTerminalBuffer.HasCursorMoved : Boolean;
 begin
   {return whether the cursor has moved since the last time this
    function was called; reset the internal variable}
   Result := FCursorMoved;
-  FCursorMoved := false;
+  FCursorMoved := False;
 end;
 {--------}
-function TAdTerminalBuffer.HasDisplayChanged : boolean;
+function TAdTerminalBuffer.HasDisplayChanged : Boolean;
 var
   DummyRect : TRect;
 begin
   Result := ADTPeekInvalidRect(PInvRect(FInvRectList), DummyRect);
 end;
 {--------}
-procedure TAdTerminalBuffer.InsertChars(aCount : integer);
+procedure TAdTerminalBuffer.InsertChars(aCount : Integer);
 var
-  CharCount : integer;
+  CharCount : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {$IFDEF UseRangeCheck}
   if (aCount <= 0) then
     raise Exception.CreateFmt('TAdTerminalBuffer.InsertChars: count (%d) must be positive', []);
@@ -1888,11 +1888,11 @@ begin
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.InsertLines(aCount : integer);
+procedure TAdTerminalBuffer.InsertLines(aCount : Integer);
 var
-  MaxRow : integer;
+  MaxRow : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {inserting lines is equivalent to a scroll down from the current
    cursor position; we take account of any scroll region, of course}
   {$IFDEF UseRangeCheck}
@@ -1906,29 +1906,29 @@ begin
                    MaxRow, pred(FDisplayOriginCol + FDisplayColCount));
 end;
 {--------}
-procedure TAdTerminalBuffer.MoveCursorDown(aScroll : boolean);
+procedure TAdTerminalBuffer.MoveCursorDown(aScroll : Boolean);
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   tbMoveCursorUpDown(1, aScroll);
 end;
 {--------}
-procedure TAdTerminalBuffer.MoveCursorLeft(aWrap   : boolean;
-                                           aScroll : boolean);
+procedure TAdTerminalBuffer.MoveCursorLeft(aWrap   : Boolean;
+                                           aScroll : Boolean);
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   tbMoveCursorLeftRight(-1, aWrap, aScroll);
 end;
 {--------}
-procedure TAdTerminalBuffer.MoveCursorRight(aWrap   : boolean;
-                                            aScroll : boolean);
+procedure TAdTerminalBuffer.MoveCursorRight(aWrap   : Boolean;
+                                            aScroll : Boolean);
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   tbMoveCursorLeftRight(1, aWrap, aScroll);
 end;
 {--------}
-procedure TAdTerminalBuffer.MoveCursorUp(aScroll : boolean);
+procedure TAdTerminalBuffer.MoveCursorUp(aScroll : Boolean);
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   tbMoveCursorUpDown(-1, aScroll);
 end;
 {--------}
@@ -1939,7 +1939,7 @@ end;                                                                     {!!.05}
 {--------}
 procedure TAdTerminalBuffer.Reset;
 var
-  i : integer;
+  i : Integer = 0;
 begin
   {set the attributes, the colors, and the charset}
   FAttr := FDefAttr;
@@ -1986,7 +1986,7 @@ begin
   UseScrollRegion := adc_TermBufUseScrollRegion;
 
   {reset the cursor position}
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   Row := 1;
   Col := 1;
 end;
@@ -2002,18 +2002,18 @@ begin
   FDefAttr := aValue;
 end;
 {--------}
-procedure TAdTerminalBuffer.SetCursorPosition(aRow, aCol : integer);
+procedure TAdTerminalBuffer.SetCursorPosition(aRow, aCol : Integer);
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   Row := aRow;
   Col := aCol;
 end;
 {--------}
-procedure TAdTerminalBuffer.SetScrollRegion(aTopRow, aBottomRow : integer);
+procedure TAdTerminalBuffer.SetScrollRegion(aTopRow, aBottomRow : Integer);
 var
-  Temp : integer;
+  Temp : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   {if the top row is greater than the bottom row, they're out of
    order, so switch 'em round}
   if (aTopRow > aBottomRow) then begin
@@ -2038,13 +2038,13 @@ begin
   if (aBottomRow > RowCount) then                                        {!!.06}
     aBottomRow := RowCount;                                              {!!.06}
   {$ENDIF}
-  FSRStartRow := tbCvtToInternalRow(aTopRow, true);
-  FSREndRow := tbCvtToInternalRow(aBottomRow, true);
+  FSRStartRow := tbCvtToInternalRow(aTopRow, True);
+  FSREndRow := tbCvtToInternalRow(aBottomRow, True);
   {force the scroll region to be used}
   if UseScrollRegion then
-    UseScrollRegion := false;
+    UseScrollRegion := False;
   if (aTopRow <> 1) or (aBottomRow <> RowCount) then
-    UseScrollRegion := true;
+    UseScrollRegion := True;
 end;
 {--------}
 procedure TAdTerminalBuffer.SetHorzTabStop;
@@ -2059,16 +2059,16 @@ begin
     ADTSetBit(FVertTabStops, FCursorRow);
 end;
 {--------}
-function TAdTerminalBuffer.tbAtLastColumn : boolean;
+function TAdTerminalBuffer.tbAtLastColumn : Boolean;
 var
-  MaxCol : integer;
+  MaxCol : Integer = 0;
 begin
   MaxCol := FDisplayOriginCol + FDisplayColCount - 1;
   Result := FCursorCol = MaxCol;
 end;
 {--------}
-function TAdTerminalBuffer.tbCvtToExternalCol(aCol : integer;
-                                              aAbsolute : boolean) : integer;
+function TAdTerminalBuffer.tbCvtToExternalCol(aCol : Integer;
+                                              aAbsolute : Boolean) : Integer;
 begin
   {aCol is an internal reference (ie. zero-based and absolute), we
    need the external value (ie, one-based and relative to the start of
@@ -2079,8 +2079,8 @@ begin
     Result := aCol - FDisplayOriginCol + 1;
 end;
 {--------}
-function TAdTerminalBuffer.tbCvtToExternalRow(aRow : integer;
-                                              aAbsolute : boolean) : integer;
+function TAdTerminalBuffer.tbCvtToExternalRow(aRow : Integer;
+                                              aAbsolute : Boolean) : Integer;
 begin
   {aRow is an internal reference (ie. zero-based and absolute), we
    need the external value (ie, one-based and relative to the start of
@@ -2091,8 +2091,8 @@ begin
     Result := aRow - FDisplayOriginRow + 1;
 end;
 {--------}
-function TAdTerminalBuffer.tbCvtToInternalCol(aCol : integer;
-                                              aAbsolute : boolean) : integer;
+function TAdTerminalBuffer.tbCvtToInternalCol(aCol : Integer;
+                                              aAbsolute : Boolean) : Integer;
 begin
   {aCol is an external reference (ie, one-based and relative to the
    start of the addressable area), we need the internal value (ie.
@@ -2103,8 +2103,8 @@ begin
     Result := aCol - 1 + FDisplayOriginCol;
 end;
 {--------}
-function TAdTerminalBuffer.tbCvtToInternalRow(aRow : integer;
-                                              aAbsolute : boolean) : integer;
+function TAdTerminalBuffer.tbCvtToInternalRow(aRow : Integer;
+                                              aAbsolute : Boolean) : Integer;
 begin
   {aRow is an external reference (ie, one-based and relative to the
    start of the addressable area), we need the internal value (ie.
@@ -2121,28 +2121,28 @@ begin
     FOnCursorMoved (Self, Row, Col);                                   
 end;                                                                   
 {--------}
-function TAdTerminalBuffer.tbGetCol : integer;
+function TAdTerminalBuffer.tbGetCol : Integer;
 begin
   Result := tbCvtToExternalCol(FCursorCol, UseAbsAddress);
 end;
 {--------}
-function TAdTerminalBuffer.tbGetOriginCol : integer;
+function TAdTerminalBuffer.tbGetOriginCol : Integer;
 begin
-  Result := tbCvtToExternalCol(FDisplayOriginCol, true);
+  Result := tbCvtToExternalCol(FDisplayOriginCol, True);
 end;
 {--------}
-function TAdTerminalBuffer.tbGetOriginRow : integer;
+function TAdTerminalBuffer.tbGetOriginRow : Integer;
 begin
-  Result := tbCvtToExternalRow(FDisplayOriginRow, true);
+  Result := tbCvtToExternalRow(FDisplayOriginRow, True);
 end;
 {--------}
-function TAdTerminalBuffer.tbGetRow : integer;
+function TAdTerminalBuffer.tbGetRow : Integer;
 begin
   Result := tbCvtToExternalRow(FCursorRow, UseAbsAddress);
 end;
 {--------}
 procedure TAdTerminalBuffer.tbInvalidateRect(aFromRow, aFromCol,
-                                             aToRow, aToCol : integer);
+                                             aToRow, aToCol : Integer);
 var
   OurRect : TRect;
 begin
@@ -2156,13 +2156,13 @@ begin
     PostMessage (FTerminalHandle, apw_TermNeedsUpdate, 0, 0);            {!!.05}
 end;
 {--------}
-procedure TAdTerminalBuffer.tbMoveCursorLeftRight(aDirection : integer;
-                                                  aWrap      : boolean;
-                                                  aScroll    : boolean);
+procedure TAdTerminalBuffer.tbMoveCursorLeftRight(aDirection : Integer;
+                                                  aWrap      : Boolean;
+                                                  aScroll    : Boolean);
 var
-  MaxCol   : integer;
-  MaxRow   : integer;
-  StartRow : integer;
+  MaxCol   : Integer = 0;
+  MaxRow   : Integer = 0;
+  StartRow : Integer = 0;
 begin
   {if wrap is off, we just advance or retard the cursor position by
    one without extending beyond the left or right margin; scrolling is
@@ -2171,14 +2171,14 @@ begin
   if not aWrap then begin
     if (aDirection < 0) then begin
       if (FCursorCol > FDisplayOriginCol) then begin
-        FCursorMoved := true;
+        FCursorMoved := True;
         dec(FCursorCol);
         tbFireOnCursorMovedEvent;                                      
       end;
     end
     else begin
       if (FCursorCol < MaxCol) then begin
-        FCursorMoved := true;
+        FCursorMoved := True;
         inc(FCursorCol);
         tbFireOnCursorMovedEvent;
       end;
@@ -2193,28 +2193,28 @@ begin
      2. if the current cursor position is 0 and we're moving left...
         a. if we're not on the top display row, move the cursor to
            the last column of the previous row
-        b. if aScroll is false and we're on the top row, leave
+        b. if aScroll is False and we're on the top row, leave
            the cursor where it is
-        c. if aScroll is true and we're on the top row, scroll the
+        c. if aScroll is True and we're on the top row, scroll the
            display down and move the cursor to the last column of the
            new top row
      3. if the current cursor position is on the last column and we're
         moving right...
         a. if we're not on the bottom display row, move the cursor to
            the first column of the next row
-        b. if aScroll is false and we're on the bottom row, leave the
+        b. if aScroll is False and we're on the bottom row, leave the
            cursor where it is
-        c. if aScroll is true and we're on the bottom, scroll the
+        c. if aScroll is True and we're on the bottom, scroll the
            display up and move the cursor to the first column of the
            new bottom row}
   if (aDirection < 0) then begin {moving left}
     if (FCursorCol > FDisplayOriginCol) then begin
-      FCursorMoved := true;
+      FCursorMoved := True;
       dec(FCursorCol);
       tbFireOnCursorMovedEvent;                                        
     end
     else if (FCursorRow > FDisplayOriginRow) then begin
-      FCursorMoved := true;
+      FCursorMoved := True;
       FCursorCol := MaxCol;
       dec(FCursorRow);
       tbFireOnCursorMovedEvent;                                        
@@ -2222,19 +2222,19 @@ begin
     else if aScroll then begin
       tbScrollRows(-1, FDisplayOriginRow, MaxRow);
       tbInvalidateRect(FDisplayOriginRow, 0, MaxRow, pred(ColCount));
-      FCursorMoved := true;
+      FCursorMoved := True;
       FCursorCol := MaxCol;
       tbFireOnCursorMovedEvent;                                        
     end;
   end
   else {Direction > 0} begin {moving right}
     if (FCursorCol < MaxCol) then begin
-      FCursorMoved := true;
+      FCursorMoved := True;
       inc(FCursorCol);
       tbFireOnCursorMovedEvent;                                        
     end
     else if (FCursorRow < MaxRow) then begin
-      FCursorMoved := true;
+      FCursorMoved := True;
       FCursorCol := FDisplayOriginCol;
       inc(FCursorRow);
       tbFireOnCursorMovedEvent;                                        
@@ -2246,23 +2246,23 @@ begin
         StartRow := 0;
       tbScrollRows(1, StartRow, MaxRow);
       tbInvalidateRect(FDisplayOriginRow, 0, MaxRow, pred(ColCount));
-      FCursorMoved := true;
+      FCursorMoved := True;
       FCursorCol := FDisplayOriginCol;
       tbFireOnCursorMovedEvent;                                        
     end;
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbMoveCursorUpDown(aDirection : integer;
-                                               aScroll    : boolean);
+procedure TAdTerminalBuffer.tbMoveCursorUpDown(aDirection : Integer;
+                                               aScroll    : Boolean);
 var
-  MaxRow   : integer;
-  StartRow : integer;
+  MaxRow   : Integer = 0;
+  StartRow : Integer = 0;
 begin
   MaxRow := FDisplayOriginRow + FDisplayRowCount - 1;
   if (aDirection < 0) then begin
     if (FCursorRow > FDisplayOriginRow) then begin
-      FCursorMoved := true;
+      FCursorMoved := True;
       dec(FCursorRow);
       tbFireOnCursorMovedEvent;                                        
     end
@@ -2273,7 +2273,7 @@ begin
   end
   else {Direction > 0} begin
     if (FCursorRow < MaxRow) then begin
-      FCursorMoved := true;
+      FCursorMoved := True;
       inc(FCursorRow);
       tbFireOnCursorMovedEvent;                                        
     end
@@ -2288,8 +2288,8 @@ begin
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbReallocBuffers(aNewRowCount : integer;
-                                             aNewColCount : integer);
+procedure TAdTerminalBuffer.tbReallocBuffers(aNewRowCount : Integer;
+                                             aNewColCount : Integer);
 begin
   {check for changes in row count}
   if (aNewRowCount <> SVRowCount) then begin
@@ -2311,7 +2311,7 @@ begin
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbScrollRows(aCount, aTop, aBottom : integer);
+procedure TAdTerminalBuffer.tbScrollRows(aCount, aTop, aBottom : Integer);
 begin
   FCharMatrix.ScrollRows(aCount, aTop, aBottom);
   FCharSetMatrix.ScrollRows(aCount, aTop, aBottom);
@@ -2340,24 +2340,24 @@ begin
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbSetCol(aCol : integer);
+procedure TAdTerminalBuffer.tbSetCol(aCol : Integer);
 var
-  OurCol : integer;
+  OurCol : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   if (aCol <> Col) then begin
     OurCol := tbCvtToInternalCol(aCol, UseAbsAddress);
     if (OurCol < 0) then                                                 
       OurCol := 0                                                        
     else if (OurCol >= ColCount) then                                    
       OurCol := pred(ColCount);
-    FCursorMoved := true;
+    FCursorMoved := True;
     FCursorCol := OurCol;
     tbFireOnCursorMovedEvent;                                          
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbSetColCount(aNewCount : integer);
+procedure TAdTerminalBuffer.tbSetColCount(aNewCount : Integer);
 begin
   {only do something if the value changes}
   if (aNewCount <> ColCount) then begin
@@ -2379,7 +2379,7 @@ begin
       tbInvalidateRect(SVRowCount - RowCount, 0,
                        pred(SVRowCount), pred(aNewCount));
       if UseScrollRegion then
-        UseScrollRegion := false
+        UseScrollRegion := False
       else begin
         FCursorRow := SVRowCount - RowCount;
         FCursorCol := 0;
@@ -2423,24 +2423,24 @@ begin
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbSetRow(aRow : integer);
+procedure TAdTerminalBuffer.tbSetRow(aRow : Integer);
 var
-  OurRow : integer;
+  OurRow : Integer = 0;
 begin
-  FBeyondMargin := false;
+  FBeyondMargin := False;
   if (aRow <> Row) then begin
     OurRow := tbCvtToInternalRow(aRow, UseAbsAddress);
     if (OurRow < 0) then                                                 
       OurRow := 0                                                        
     else if (OurRow >= SVRowCount) then                                  
       OurRow := pred(SVRowCount);                                        
-    FCursorMoved := true;
+    FCursorMoved := True;
     FCursorRow := OurRow;
       tbFireOnCursorMovedEvent;                                        
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbSetRowCount(aNewCount : integer);
+procedure TAdTerminalBuffer.tbSetRowCount(aNewCount : Integer);
 begin
   {only do something if the value changes, and changes to something
    not greater than the scrollback view count}
@@ -2451,7 +2451,7 @@ begin
       raise Exception.Create('TAdTerminalBuffer.tbSetRowCount: new count too small');
     {changing the row count resets the scroll region}
     if UseScrollRegion then
-      UseScrollRegion := false;
+      UseScrollRegion := False;
     {reallocate the tab positions bitset}
     FVertTabStops :=
        ADTReallocBitset(FVertTabStops, RowCount, aNewCount);
@@ -2465,7 +2465,7 @@ begin
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbSetSVRowCount(aNewCount : integer);
+procedure TAdTerminalBuffer.tbSetSVRowCount(aNewCount : Integer);
 begin
   {only do something if the value changes}
   if (aNewCount <> SVRowCount) then begin
@@ -2494,7 +2494,7 @@ begin
   end;
 end;
 {--------}
-procedure TAdTerminalBuffer.tbSetUseScrollRegion(aValue : boolean);
+procedure TAdTerminalBuffer.tbSetUseScrollRegion(aValue : Boolean);
 begin
   if (aValue <> UseScrollRegion) then begin
     {calculate the limits beyond which the cursor cannot move}
@@ -2511,7 +2511,7 @@ begin
       FDisplayRowCount  := RowCount;
     end;
     {rest the cursor to the top left corner of the allowed region}
-    FCursorMoved := true;
+    FCursorMoved := True;
     FCursorCol := FDisplayOriginCol;
     FCursorRow := FDisplayOriginRow;
       tbFireOnCursorMovedEvent;                                        
@@ -2532,7 +2532,7 @@ begin
    scroll will occur}
   if FBeyondMargin then begin
     MoveCursorRight(UseAutoWrap, True);                                
-    FBeyondMargin := false;
+    FBeyondMargin := False;
   end;
   if UseInsertMode then begin
     FCharMatrix.InsertItems(1, FCursorRow, FCursorCol);
@@ -2551,12 +2551,12 @@ begin
   if (not UseAutoWrapDelay) or (not tbAtLastColumn) then
     MoveCursorRight(UseAutoWrap, True)                                 
   else
-    FBeyondMargin := true;
+    FBeyondMargin := True;
 end;
 {--------}
 procedure TAdTerminalBuffer.WriteString(const aSt : string);
 var
-  i : integer;
+  i : Integer = 0;
 begin
   for i := 1 to length(aSt) do begin
     WriteChar(aSt[i]);

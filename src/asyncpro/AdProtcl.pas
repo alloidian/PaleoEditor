@@ -791,7 +791,7 @@ uses
 
 const
   FileSkipMask = $80;   {Skip file if dest doesn't exist}
-  FileRecover  = $03;   {Resume interrupted file transfer}
+//  FileRecover  = $03;   {Resume interrupted file transfer}
 
 const
   {Table of protocol preparation procedures}
@@ -828,8 +828,8 @@ var
   function LeftPad(const S : String; Len : Byte) : String;
     {-Return a string left-padded to length len}
   var
-    o : String;
-    SLen : Byte;
+    o : String = '';
+    SLen : Byte = 0;
   begin
     SLen := Length(S);
     if SLen >= Len then
@@ -851,7 +851,7 @@ var
 
     function FindStatusDisplay(const C : TComponent) : TApdAbstractStatus;
     var
-      I  : Integer;
+      I  : Integer = 0;
     begin
       Result := nil;
       if not Assigned(C) then
@@ -882,7 +882,7 @@ var
 
     function FindProtocolLog(const C : TComponent) : TApdProtocolLog;
     var
-      I  : Integer;
+      I  : Integer = 0;
     begin
       Result := nil;
       if not Assigned(C) then
@@ -913,7 +913,7 @@ var
   function FindProtocol(Handle : TApdHwnd) : TApdCustomProtocol;
     {-Return protocol object for this window handle}
   var
-    I : Integer;
+    I : Integer = 0;
   begin
     for I := 0 to ProtList.Count-1 do begin
       with PProtocolWindowNode(ProtList.Items[I])^ do begin
@@ -932,8 +932,8 @@ var
     {-Window function for all apw_ProtXxx messages}
   var
     P : TApdCustomProtocol;
-    Accept : Boolean;
-    FName : TPassString;
+    Accept : Boolean = False;
+    FName : TPassString = '';
     Temp : TWriteFailAction;
 
   begin
@@ -1022,7 +1022,7 @@ var
   procedure TApdCustomProtocol.CreateMessageHandler;
     {-Create message handler window}
   var
-    Node : PProtocolWindowNode;
+    Node : PProtocolWindowNode = nil;
     hInstance : THandle;
   begin
     {$IFDEF VERSION3}
@@ -1132,7 +1132,7 @@ var
                                const NewProtocol : TProtocolType);
     {-Set a new protocol type}
   var
-    Status : Integer;
+    Status : Integer = 0;
   begin
     if (NewProtocol <> FProtocolType) or
        (csLoading in ComponentState) then begin
@@ -1246,7 +1246,7 @@ var
   procedure TApdCustomProtocol.SetFileMask(const NewFileMask : TFileName);
     {-Set a new file mask}
   var
-    S : TFileName;
+    S : TFileName = '';
   begin
     with PData^ do
       {$IFDEF Win32}
@@ -1382,7 +1382,7 @@ var
     {-Set/change the incoming file name}
   var
     P : array[0..255] of Char;
-    S : String;
+    S : String = '';
   begin
     {Allow changes only when WorkFile is *not* open}
     case TFileRec(PData^.aWorkFile).Mode of
@@ -1498,7 +1498,7 @@ var
                                const NewOpt : TZmodemFileOptions);
     {-Set new file management options}
   var
-    OldSkip : Boolean;
+    OldSkip : Boolean = False;
   begin
     if (NewOpt <> FZmodemFileOption) or Force then begin
 
@@ -1834,8 +1834,8 @@ var
   function TApdCustomProtocol.GetKermitLongBlocks : Boolean;
     {-Return True if long blocks are requested or negotiated}
   var
-    Dummy : Cardinal;
-    InUse : Bool;
+    Dummy : Cardinal = 0;
+    InUse : Bool = False;
   begin
     if PData^.aCurProtocol = Ord(ptKermit) then begin
       kpGetLPStatus(PData, InUse, Dummy);
@@ -2291,12 +2291,15 @@ var
   procedure TApdCustomProtocol.apwProtocolNextFile(CP : TObject;
                                                    var FName : TPassString);
     {-Internal event handling}
+  type
+    TP = array[0..255] of Char;
   var
-    P : array[0..255] of Char;
+    P : TP;
   begin
     if Assigned(FOnProtocolNextFile) then
       FOnProtocolNextFile(CP, FName)
     else begin
+      P := Default(TP);
       FillChar(P, SizeOf(P), 0);
       if apNextFileMask(PData, P) then
         FName := StrPas(P)
@@ -2421,8 +2424,8 @@ var
   destructor TApdCustomProtocol.Destroy;
     {-Destroy the object instance}
   var
-    I : Cardinal;
-    P : PProtocolWindowNode;
+    I : Cardinal = 0;
+    P : PProtocolWindowNode = nil;
   begin
     {Get rid of msg handler window and node}
     if not (csDesigning in ComponentState) then
@@ -2723,7 +2726,7 @@ var
   procedure TApdProtocolLog.UpdateLog(const Log : Cardinal);
     {-Update the standard log}
   var
-    CPS : Cardinal;
+    CPS : Cardinal = 0;
     HisFile : TextFile;
 
     function DirectionString : String;
@@ -2850,7 +2853,8 @@ var
   function FormatMinSec(const TotalSecs : Integer) : String;
     {-Format TotalSecs as minutes:seconds, leftpadded to 6}
   var
-    Min, Sec : Integer;
+    Min : Integer = 0;
+    Sec : Integer = 0;
     S : String;
   begin
     Min := TotalSecs div 60;

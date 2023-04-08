@@ -195,7 +195,7 @@ end;
 // when the dispatcher is requested to flush the buffers.
 procedure TIOQueue.Clear;
 var
-    i           : Integer;
+    i           : Integer = 0;
 begin
     if (Assigned(FLock)) then
         FLock.Acquire;

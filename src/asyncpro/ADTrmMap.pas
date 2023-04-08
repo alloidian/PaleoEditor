@@ -90,17 +90,17 @@ type
   TAdKeyboardMapping = class
     private
       FTable : TList;
-      FCount : integer;
+      FCount : Integer;
     protected
       function kbmFindPrim(const aKey  : TAdKeyString;
-                             var aInx  : integer;
-                             var aNode : pointer) : boolean;
+                             var aInx  : Integer;
+                             var aNode : pointer) : Boolean;
     public
       constructor Create;
       destructor Destroy; override;
 
       function Add(const aKey   : TAdKeyString;
-                   const aValue : TAdKeyString) : boolean;
+                   const aValue : TAdKeyString) : Boolean;
       procedure Clear;
       function Get(const aKey : TAdKeyString) : TAdKeyString;
 
@@ -113,7 +113,7 @@ type
       procedure DebugPrint(const aFileName : string);
       {$ENDIF}
 
-      property Count : integer read FCount;
+      property Count : Integer read FCount;
   end;
 
 type
@@ -121,7 +121,7 @@ type
     private
       FTable     : TList;
       FCharQueue : pointer;
-      FCount     : integer;
+      FCount     : Integer;
       FScript    : pointer;
       FScriptEnd : pointer;
       FScriptFreeList : pointer;
@@ -129,8 +129,8 @@ type
       procedure csmAddScriptNode(aFont : PadKeyString);
       function csmFindPrim(const aCharSet : TAdKeyString;
                                  aChar    : AnsiChar;
-                             var aInx     : integer;
-                             var aNode    : pointer) : boolean;
+                             var aInx     : Integer;
+                             var aNode    : pointer) : Boolean;
       procedure csmFreeScript;
 
     public
@@ -141,7 +141,7 @@ type
                          aFromCh  : AnsiChar;
                          aToCh    : AnsiChar;
                    const aFont    : TAdKeyString;
-                         aGlyph   : AnsiChar) : boolean;
+                         aGlyph   : AnsiChar) : Boolean;
       procedure Clear;
 
       procedure GetFontNames(aList : TStrings);
@@ -149,7 +149,7 @@ type
       procedure GenerateDrawScript(const aCharSet : TAdKeyString;
                                          aText    : PAnsiChar);
       function GetNextDrawCommand(var aFont : TAdKeyString;
-                                      aText : PAnsiChar) : boolean;
+                                      aText : PAnsiChar) : Boolean;
 
       procedure LoadFromFile(const aFileName : string);
       procedure LoadFromRes(aInstance : THandle;
@@ -160,7 +160,7 @@ type
       procedure DebugPrint(const aFileName : string);
       {$ENDIF}
 
-      property Count : integer read FCount;
+      property Count : Integer read FCount;
   end;
 
 implementation
@@ -240,7 +240,7 @@ end;
 {--------}
 procedure TCharQueue.Add(aCh : AnsiChar);
 var
-  NewQ : PAnsiChar;
+  NewQ : PAnsiChar = nil;
 begin
   if (FLen = FSize-1) then begin
     GetMem(NewQ, FSize + CharQueueDelta);
@@ -274,8 +274,8 @@ end;
        They're modified to suit this implementation.}
 function HashELF(const S : TAdKeyString) : Integer;
 var
-  G : Integer;
-  i : integer;
+  G : Integer = 0;
+  i : Integer = 0;
 begin
   Result := 0;
   for i := 1 to length(S) do begin
@@ -290,8 +290,8 @@ end;
 function HashELFPlusChar(const S : TAdKeyString;
                                C : AnsiChar) : Integer;
 var
-  G : Integer;
-  i : integer;
+  G : Integer = 0;
+  i : Integer = 0;
 begin
   Result := ord(C);
   G := Result and Integer($F0000000);
@@ -324,39 +324,39 @@ function ProcessCharSetLine(const aLine : ShortString;
                               var aFromCh  : AnsiChar;
                               var aToCh    : AnsiChar;
                               var aFontName: TAdKeyString;
-                              var aGlyph   : AnsiChar) : boolean;
+                              var aGlyph   : AnsiChar) : Boolean;
 var
-  InWord    : boolean;
-  CharInx   : integer;
-  StartCh   : integer;
-  QuoteMark : AnsiChar;
+  InWord    : Boolean = False;
+  CharInx   : integer = 0;
+  StartCh   : integer = 0;
+  QuoteMark : AnsiChar = #0;
   WordStart : array [0..4] of integer;
   WordEnd   : array [0..4] of integer;
-  WordCount : integer;
-  WordLen   : integer;
+  WordCount : integer = 0;
+  WordLen   : integer = 0;
   Chars     : array [0..4] of AnsiChar;
-  i         : integer;
-  AsciiCh   : integer;
-  ec        : integer;
-  TestSt    : string[3];
+  i         : integer = 0;
+  AsciiCh   : integer = 0;
+  ec        : integer = 0;
+  TestSt    : string[3] = '';
 begin
   {assumption: the line has had trailing spaces stripped, the line is
    not the empty string, the line starts with a ' ' character
 
   {assume we'll fail to parse the line properly}
-  Result := false;
+  Result := False;
 
   {extract out the 5 words; if there are not at least 5 words, exit}
   QuoteMark := ' '; {needed to fool the compiler}
   StartCh := 0;     {needed to fool the compiler}
-  InWord := false;
+  InWord := False;
   WordCount := 0;
   CharInx := 1;
   while CharInx <= length(aLine) do begin
     if InWord then begin
       if (QuoteMark = ' ') then begin
         if (aLine[CharInx] = ' ') then begin
-          InWord := false;
+          InWord := False;
           WordStart[WordCount] := StartCh;
           WordEnd[WordCount] := pred(CharInx);
           inc(WordCount);
@@ -371,7 +371,7 @@ begin
     end
     else {not in a word} begin
       if (aLine[CharInx] <> ' ') then begin
-        InWord := true;
+        InWord := True;
         StartCh := CharInx;
         QuoteMark := aLine[CharInx];
         if (QuoteMark <> '''') and (QuoteMark <> '"') then
@@ -429,7 +429,7 @@ begin
   aGlyph := Chars[4];
   aCharSet := Copy(aLine, WordStart[0], succ(WordEnd[0] - WordStart[0]));
   aFontName := Copy(aLine, WordStart[3], succ(WordEnd[3] - WordStart[3]));
-  Result := true;
+  Result := True;
 end;
 {====================================================================}
 
@@ -452,15 +452,15 @@ begin
 end;
 {--------}
 function TAdKeyboardMapping.Add(const aKey   : TAdKeyString;
-                             const aValue : TAdKeyString) : boolean;
+                             const aValue : TAdKeyString) : Boolean;
 var
-  Inx  : integer;
-  Node : PKBHashNode;
+  Inx  : integer = 0;
+  Node : PKBHashNode = nil;
 begin
   if kbmFindPrim(aKey, Inx, pointer(Node)) then
-    Result := false
+    Result := False
   else begin
-    Result := true;
+    Result := True;
     New(Node);
     Node^.kbnNext := FTable[Inx];
     Node^.kbnKey := AllocKeyString(aKey);
@@ -472,9 +472,9 @@ end;
 {--------}
 procedure TAdKeyboardMapping.Clear;
 var
-  i    : integer;
-  Node : PKBHashNode;
-  Temp : PKBHashNode;
+  i    : integer = 0;
+  Node : PKBHashNode = nil;
+  Temp : PKBHashNode = nil;
 begin
   for i := 0 to pred(KBHashTableSize) do begin
     Node := FTable[i];
@@ -494,8 +494,8 @@ end;
 procedure TAdKeyboardMapping.DebugPrint(const aFileName : string);
 var
   F    : text;
-  i    : integer;
-  Node : PKBHashNode;
+  i    : integer = 0;
+  Node : PKBHashNode = nil;
 begin
   System.Assign(F, aFileName);
   System.Rewrite(F);
@@ -518,8 +518,8 @@ end;
 {--------}
 function TAdKeyboardMapping.Get(const aKey : TAdKeyString) : TAdKeyString;
 var
-  Inx  : integer;
-  Node : PKBHashNode;
+  Inx  : integer = 0;
+  Node : PKBHashNode = nil;
 begin
   if kbmFindPrim(aKey, Inx, pointer(Node)) then
     Result := Node^.kbnValue^
@@ -529,12 +529,12 @@ end;
 {--------}
 function TAdKeyboardMapping.kbmFindPrim(const aKey  : TAdKeyString;
                                           var aInx  : integer;
-                                          var aNode : pointer) : boolean;
+                                          var aNode : pointer) : Boolean;
 var
-  Node : PKBHashNode;
+  Node : PKBHashNode = nil;
 begin
   {assume we won't find aKey}
-  Result := false;
+  Result := False;
   aNode := nil;
   {calculate the index, ie hash, of the key}
   aInx := HashELF(aKey) mod KBHashTableSize;
@@ -543,7 +543,7 @@ begin
   Node := FTable[aInx];
   while (Node <> nil) do begin
     if (aKey = Node^.kbnKey^) then begin
-      Result := true;
+      Result := True;
       aNode := Node;
       Exit;
     end;
@@ -554,15 +554,15 @@ end;
 procedure TAdKeyboardMapping.LoadFromFile(const aFileName : string);
 var
   Lines     : TStringList;
-  ActualLen : integer;
-  i         : integer;
-  LineInx   : integer;
-  Word1Start: integer;
-  Word1End  : integer;
-  Word2Start: integer;
-  Word2End  : integer;
-  LookingForStart : boolean;
-  Line      : string[255];
+  ActualLen : integer = 0;
+  i         : integer = 0;
+  LineInx   : integer = 0;
+  Word1Start: integer = 0;
+  Word1End  : integer = 0;
+  Word2Start: integer = 0;
+  Word2End  : integer = 0;
+  LookingForStart : Boolean = False;
+  Line      : string[255] = '';
 begin
   {clear the hash table, ready for loading}
   Clear;
@@ -587,12 +587,12 @@ begin
         {identify the first 'word'}
         Word1Start := 0;
         Word1End := 0;
-        LookingForStart := true;
+        LookingForStart := True;
         for i := 1 to ActualLen do begin
           if LookingForStart then begin
             if (Line[i] <> ' ') then begin
               Word1Start := i;
-              LookingForStart := false;
+              LookingForStart := False;
             end;
           end
           else {looking for end} begin
@@ -609,12 +609,12 @@ begin
           {identify the second 'word'}
           Word2Start := 0;
           Word2End := 0;
-          LookingForStart := true;
+          LookingForStart := True;
           for i := succ(Word1End) to ActualLen do begin
             if LookingForStart then begin
               if (Line[i] <> ' ') then begin
                 Word2Start := i;
-                LookingForStart := false;
+                LookingForStart := False;
               end;
             end
             else {looking for end} begin
@@ -643,14 +643,14 @@ var
   MS        : TMemoryStream;
   ResInfo   : THandle;
   ResHandle : THandle;
-  ResNameZ  : PAnsiChar;
-  Res       : PByteArray;
-  i         : integer;
-  Sig       : Integer;
-  ResCount  : Integer;
-  BytesRead : Integer;
-  Key       : TAdKeyString;
-  Value     : TAdKeyString;
+  ResNameZ  : PAnsiChar = nil;
+  Res       : PByteArray = nil;
+  i         : integer = 0;
+  Sig       : Integer = 0;
+  ResCount  : Integer = 0;
+  BytesRead : Integer = 0;
+  Key       : TAdKeyString = '';
+  Value     : TAdKeyString = '';
 begin
   {Note: this code has been written to work with all versions of
    Delphi, both 16-bit and 32-bit. Hence it does not make use of any
@@ -718,8 +718,8 @@ end;
 procedure TAdKeyboardMapping.StoreToBinFile(const aFileName : string);
 var
   aFS  : TFileStream;
-  i    : integer;
-  Node : PKBHashNode;
+  i    : integer = 0;
+  Node : PKBHashNode = nil;
 begin
   {create a file stream}
   aFS := TFileStream.Create(aFileName, fmCreate);
@@ -757,7 +757,8 @@ end;
 {--------}
 destructor TAdCharSetMapping.Destroy;
 var
-  Temp, Walker : PScriptNode;
+  Temp : PScriptNode = nil;
+  Walker : PScriptNode = nil;
 begin
   {free the hash table}
   if (FTable <> nil) then begin
@@ -780,24 +781,24 @@ function TAdCharSetMapping.Add(const aCharSet : TAdKeyString;
                                      aFromCh  : AnsiChar;
                                      aToCh    : AnsiChar;
                                const aFont    : TAdKeyString;
-                                     aGlyph   : AnsiChar) : boolean;
+                                     aGlyph   : AnsiChar) : Boolean;
 var
-  Inx  : integer;
-  Node : PCSHashNode;
-  Ch   : AnsiChar;
-  Glyph: AnsiChar;
+  Inx  : integer = 0;
+  Node : PCSHashNode = nil;
+  Ch   : AnsiChar = #0;
+  Glyph: AnsiChar = #0;
 begin
   {we must do this in two stages: first, determine that we can add
    *all* the character mappings; second, do so}
 
   {stage one: check no mapping currently exists}
-  Result := false;
+  Result := False;
   for Ch := aFromCh to aToCh do begin
     if csmFindPrim(aCharSet, Ch, Inx, pointer(Node)) then
       Exit;
   end;
   {stage two: add all charset/char mappings}
-  Result := true;
+  Result := True;
   Glyph := aGlyph;
   for Ch := aFromCh to aToCh do begin
     Inx := HashELFPlusChar(aCharSet, Ch) mod CSHashTableSize;
@@ -815,9 +816,9 @@ end;
 {--------}
 procedure TAdCharSetMapping.Clear;
 var
-  i    : integer;
-  Node : PCSHashNode;
-  Temp : PCSHashNode;
+  i    : integer = 0;
+  Node : PCSHashNode = nil;
+  Temp : PCSHashNode = nil;
 begin
   {free the script: in a moment there's going to be no mapping}
   csmFreeScript;
@@ -838,7 +839,7 @@ end;
 {--------}
 procedure TAdCharSetMapping.csmAddScriptNode(aFont : PadKeyString);
 var
-  Node : PScriptNode;
+  Node : PScriptNode = nil;
 begin
   {allocate and set up the new node}
   if (FScriptFreeList = nil) then
@@ -862,12 +863,12 @@ end;
 function TAdCharSetMapping.csmFindPrim(const aCharSet : TAdKeyString;
                                              aChar    : AnsiChar;
                                          var aInx     : integer;
-                                         var aNode    : pointer) : boolean;
+                                         var aNode    : pointer) : Boolean;
 var
-  Node : PCSHashNode;
+  Node : PCSHashNode = nil;
 begin
   {assume we won't find aCharSet/aChar}
-  Result := false;
+  Result := False;
   aNode := nil;
   {calculate the index, ie hash, of the charset/char}
   aInx := HashELFPlusChar(aCharSet, aChar) mod CSHashTableSize;
@@ -879,7 +880,7 @@ begin
   while (Node <> nil) do begin
     if (aChar = Node^.csnChar) then begin
       if (aCharSet = Node^.csnCharSet^) then begin
-        Result := true;
+        Result := True;
         aNode := Node;
         Exit;
       end;
@@ -890,7 +891,8 @@ end;
 {--------}
 procedure TAdCharSetMapping.csmFreeScript;
 var
-  Walker, Temp : PScriptNode;
+  Walker : PScriptNode = nil;
+  Temp : PScriptNode = nil;
 begin
   Walker := FScript;
   FScript := nil;
@@ -909,8 +911,8 @@ end;
 procedure TAdCharSetMapping.DebugPrint(const aFileName : string);
 var
   F    : text;
-  i    : integer;
-  Node : PCSHashNode;
+  i    : integer = 0;
+  Node : PCSHashNode = nil;
 begin
   System.Assign(F, aFileName);
   System.Rewrite(F);
@@ -937,14 +939,14 @@ end;
 procedure TAdCharSetMapping.GenerateDrawScript(const aCharSet : TAdKeyString;
                                                      aText    : PAnsiChar);
 var
-  i    : integer;
-  Inx  : integer;
-  TextLen  : integer;
-  Node     : PCSHashNode;
-  Ch       : AnsiChar;
-  CurFont  : PadKeyString;
-  ThisFont : PadKeyString;
-  ThisChar : AnsiChar;
+  i    : integer = 0;
+  Inx  : integer = 0;
+  TextLen  : integer = 0;
+  Node     : PCSHashNode = nil;
+  Ch       : AnsiChar = #0;
+  CurFont  : PadKeyString = nil;
+  ThisFont : PadKeyString = nil;
+  ThisChar : AnsiChar = #0;
 begin
   {nothing to do if the string is empty}
   TextLen := StrLen(aText);
@@ -988,9 +990,9 @@ end;
 {--------}
 procedure TAdCharSetMapping.GetFontNames(aList : TStrings);
 var
-  i    : integer;
-  Node : PCSHashNode;
-  PrevFont : string;
+  i    : integer = 0;
+  Node : PCSHashNode = nil;
+  PrevFont : string = '';
 begin
   aList.Clear;
   PrevFont := '';
@@ -1008,17 +1010,17 @@ begin
 end;
 {--------}
 function TAdCharSetMapping.GetNextDrawCommand(var aFont : TAdKeyString;
-                                                  aText : PAnsiChar) : boolean;
+                                                  aText : PAnsiChar) : Boolean;
 var
-  Temp : PScriptNode;
+  Temp : PScriptNode = nil;
 begin
   {start off with the obvious case: there's no script}
   if (FScript = nil) then begin
-    Result := false;
+    Result := False;
     Exit;
   end;
   {we'll definitely return something}
-  Result := true;
+  Result := True;
   {return the data from the top node}
   aFont := PScriptNode(FScript)^.snFont^;
   StrCopy(aText, PScriptNode(FScript)^.snText);
@@ -1036,15 +1038,15 @@ end;
 procedure TAdCharSetMapping.LoadFromFile(const aFileName : string);
 var
   Lines     : TStringList;
-  ActualLen : integer;
-  i         : integer;
-  LineInx   : integer;
-  Line      : string[255];
-  CharSet   : TAdKeyString;
-  FontName  : TAdKeyString;
-  FromCh    : AnsiChar;
-  ToCh      : AnsiChar;
-  Glyph     : AnsiChar;
+  ActualLen : integer = 0;
+  i         : integer = 0;
+  LineInx   : integer = 0;
+  Line      : string[255] = '';
+  CharSet   : TAdKeyString = '';
+  FontName  : TAdKeyString = '';
+  FromCh    : AnsiChar = #0;
+  ToCh      : AnsiChar = #0;
+  Glyph     : AnsiChar = #0;
 begin
   {clear the hash table, ready for loading}
   Clear;
@@ -1081,16 +1083,16 @@ var
   MS        : TMemoryStream;
   ResInfo   : THandle;
   ResHandle : THandle;
-  ResNameZ  : PAnsiChar;
-  Res       : PByteArray;
-  i         : integer;
-  Sig       : Integer;
-  ResCount  : Integer;
-  BytesRead : Integer;
-  CharSet   : TAdKeyString;
-  Font      : TAdKeyString;
-  Ch        : AnsiChar;
-  Glyph     : AnsiChar;
+  ResNameZ  : PAnsiChar = nil;
+  Res       : PByteArray = nil;
+  i         : integer = 0;
+  Sig       : Integer = 0;
+  ResCount  : Integer = 0;
+  BytesRead : Integer = 0;
+  CharSet   : TAdKeyString = '';
+  Font      : TAdKeyString = '';
+  Ch        : AnsiChar = #0;
+  Glyph     : AnsiChar = #0;
 begin
   {Note: this code has been written to work with all versions of
    Delphi, both 16-bit and 32-bit. Hence it does not make use of any
@@ -1159,8 +1161,8 @@ end;
 procedure TAdCharSetMapping.StoreToBinFile(const aFileName : string);
 var
   aFS  : TFileStream;
-  i    : integer;
-  Node : PCSHashNode;
+  i    : integer = 0;
+  Node : PCSHashNode = nil;
 begin
   {create a file stream}
   aFS := TFileStream.Create(aFileName, fmCreate);

@@ -44,7 +44,7 @@ unit AdSelCom;
 interface
 
 uses
-  Windows, SysUtils, Classes, Messages, Graphics, Controls, Forms, Dialogs, StdCtrls, ExtCtrls,
+  Windows, SysUtils, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, ExtCtrls,
   Buttons, OoMisc, AwUser, {$IFNDEF UseAwWin32} LnsWin32; {$ELSE} AwWin32; {$ENDIF}
 
 type
@@ -85,7 +85,7 @@ function IsPortAvailable(ComNum : Cardinal) : Boolean;
 
 var
   ComName : array[0..12] of Char;
-  Res : Integer;
+  Res : Integer = 0;
   DeviceLayer : TApdBaseDispatcher;
 begin
   DeviceLayer := nil;
@@ -134,8 +134,8 @@ end;
 
 procedure TComSelectForm.FormCreate(Sender: TObject);
 var
-  I : Integer;
-  S : string;
+  I : Integer = 0;
+  S : string = '';
 begin
   for I := 1 to MaxComHandles do
     if IsPortAvailable(I) then begin
@@ -152,7 +152,7 @@ end;
 
 function TComSelectForm.SelectedComNum : Word;
 var
-  S : String;
+  S : String = '';
 begin
   S := PortsComboBox.Items[PortsComboBox.ItemIndex];
   S := Copy(S, 4, 255);

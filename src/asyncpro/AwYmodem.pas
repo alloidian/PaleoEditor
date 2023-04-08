@@ -99,7 +99,8 @@ const
                   Options : Cardinal) : Integer;
     {-Allocates and initializes a protocol control block with options}
   var
-    InSize, OutSize : Cardinal;
+    InSize : Cardinal = 0;
+    OutSize : Cardinal = 0;
   begin
     {Check for adequate output buffer size}
     H.ValidDispatcher.BufferSizes(InSize, OutSize);
@@ -186,17 +187,17 @@ const
     ExitPoint;
   var
     TriggerID   : Cardinal absolute wParam;
-    XState      : Cardinal;
-    Finished    : Boolean;
-    StatusTicks : Integer;
+    XState      : Cardinal = 0;
+    Finished    : Boolean = False;
+    StatusTicks : Integer = 0;
     ExitStateMachine : Boolean;
-    I           : Integer;
-    P           : PProtocolData;
-    Len         : Byte;
-    S2          : string[13];
+    I           : Integer = 0;
+    P           : PProtocolData= nil;
+    Len         : Byte = 0;
+    S2          : string[13] = '';
     S1          : TPathCharArray;
-    S           : string[fsPathname];
-    Name        : string[fsName];
+    S           : string[fsPathname] = '';
+    Name        : string[fsName] = '';
     Dispatcher      : TApdBaseDispatcher;
 
     function CheckErrors : Boolean;
@@ -566,24 +567,24 @@ const
     ExitPoint;
   var
     TriggerID   : Cardinal absolute wParam;
-    P           : PProtocolData;
-    Code        : Integer;
-    Res         : Cardinal;
-    XState      : Cardinal;
-    BlockSize   : Cardinal;
-    BlockPos    : Integer;
-    I           : Integer;
-    CurSize     : Integer;
-    Finished    : Boolean;
-    StatusTicks : Integer;
-    ExitStateMachine : Boolean;
-    C           : Char;
+    P           : PProtocolData = nil;
+    Code        : Integer = 0;
+    Res         : Cardinal = 0;
+    XState      : Cardinal = 0;
+    BlockSize   : Cardinal = 0;
+    BlockPos    : Integer = 0;
+    I           : Integer = 0;
+    CurSize     : Integer = 0;
+    Finished    : Boolean = False;
+    StatusTicks : Integer = 0;
+    ExitStateMachine : Boolean = False;
+    C           : Char = #0;
     F           : File;
-    S           : String;
-    SLen        : Byte;
-    S1          : ShortString;
+    S           : String = '';
+    SLen        : Byte = 0;
+    S1          : ShortString = '';
     S1Len       : Byte absolute S1;
-    Name        : String[fsName];
+    Name        : String[fsName] = '';
     NameExt     : array[0..fsName] of Char;
     Dispatcher      : TApdBaseDispatcher;
 
