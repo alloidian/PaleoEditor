@@ -37,7 +37,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source"/>
+            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source;PdfiumLib"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -79,10 +79,6 @@
             </CompilerMessages>
             <CustomOptions Value="-dDEBUG
 -dTERMINAL"/>
-            <OtherDefines Count="2">
-              <Define0 Value="DEBUG"/>
-              <Define1 Value="TERMINAL"/>
-            </OtherDefines>
           </Other>
         </CompilerOptions>
       </Item>
@@ -91,11 +87,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\bin\PaleoEditor32"/>
+            <Filename Value="..\bin\x86\PaleoEditor"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source"/>
+            <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source;PdfiumLib"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -138,11 +134,11 @@
           <Version Value="11"/>
           <PathDelim Value="\"/>
           <Target>
-            <Filename Value="..\bin\PaleoEditor64"/>
+            <Filename Value="..\bin\x64\PaleoEditor"/>
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="UnTerminal;HtmlViewer\source;MarkDown\source"/>
+            <OtherUnitFiles Value="UnTerminal;HtmlViewer\source;MarkDown\source;PdfiumLib"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <Parsing>
@@ -500,6 +496,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
+      <Unit>
+        <Filename Value="PdfEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="PdfEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -510,7 +513,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source"/>
+      <OtherUnitFiles Value="AsyncPro;UnTerminal;HtmlViewer\source;MarkDown\source;PdfiumLib"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

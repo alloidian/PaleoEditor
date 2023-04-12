@@ -1,7 +1,7 @@
 Except where otherwise noted, all of the documentation and software included in the Paleo Editor
 package is copyrighted by Steve Garcia. Terms of use is governed by the GNU GPL (See below).
 
-Copyright (C) 2022 Steve Garcia. All rights reserved.
+Copyright (C) 2022-2023 Steve Garcia. All rights reserved.
 
 This software is provided "as-is," without any express or implied warranty. In no event shall the
 author be held liable for any damages arising from the use of this software.

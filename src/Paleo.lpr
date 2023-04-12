@@ -35,7 +35,7 @@ uses
   Uploads, PackageEngines, AssemblyEditors, BatchEditors, SpinEditors,
   BasicEditors, PascalEditors, CustomPreviewEditors, HtmlEditors, MarkdownEditors,
   SynHighlighterMD, IntelHexEditors, SynHighlighterIntelHex, XmlEditors, 
-  JsonEditors, IniEditors, RichTextEditors;
+  JsonEditors, IniEditors, RichTextEditors, PdfEditors;
 
 {$R *.res}
 

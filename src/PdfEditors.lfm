@@ -1,0 +1,220 @@
+inherited PdfEditorFrame: TPdfEditorFrame
+  object ScrollBox: TScrollBox[1]
+    Left = 17
+    Height = 329
+    Top = 32
+    Width = 495
+    HorzScrollBar.Page = 1
+    VertScrollBar.Page = 1
+    Align = alClient
+    BorderStyle = bsNone
+    TabOrder = 1
+  end
+  object ButtonPanel: TPanel[2]
+    Left = 0
+    Height = 32
+    Top = 0
+    Width = 512
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 32
+    ClientWidth = 512
+    ParentColor = False
+    TabOrder = 2
+    object PageIndexEdit: TEdit
+      Left = 195
+      Height = 23
+      Top = 3
+      Width = 40
+      Alignment = taRightJustify
+      OnKeyPress = PageIndexEditKeyPress
+      TabOrder = 0
+    end
+    object PageCountEdit: TEdit
+      Left = 255
+      Height = 23
+      Top = 3
+      Width = 40
+      Alignment = taRightJustify
+      Color = clBtnFace
+      ReadOnly = True
+      TabStop = False
+      TabOrder = 6
+    end
+    object ScaleEdit: TComboBox
+      Left = 45
+      Height = 23
+      Top = 3
+      Width = 100
+      DropDownCount = 12
+      ItemHeight = 15
+      OnChange = ScaleEditChange
+      Style = csDropDownList
+      TabOrder = 1
+    end
+    object ScaleLabel: TLabel
+      Left = 10
+      Height = 15
+      Top = 6
+      Width = 30
+      Caption = 'Scale:'
+      FocusControl = ScaleEdit
+      ParentColor = False
+    end
+    object PageIndexLabel: TLabel
+      Left = 160
+      Height = 15
+      Top = 6
+      Width = 29
+      Caption = 'Page:'
+      FocusControl = PageIndexEdit
+      ParentColor = False
+    end
+    object OfLabel: TLabel
+      Left = 240
+      Height = 15
+      Top = 6
+      Width = 11
+      Alignment = taCenter
+      Caption = 'of'
+      FocusControl = PageIndexEdit
+      ParentColor = False
+    end
+    object PageCountLabel: TLabel
+      Left = 302
+      Height = 15
+      Top = 6
+      Width = 31
+      Caption = 'pages'
+      FocusControl = PageIndexEdit
+      ParentColor = False
+    end
+    object FirstPageButton: TBitBtn
+      Left = 407
+      Height = 22
+      Top = 5
+      Width = 23
+      Action = FirstPageAction
+      Anchors = [akTop, akRight]
+      Margin = 1
+      Images = Images
+      ImageIndex = 0
+      TabOrder = 2
+    end
+    object PrevPageButton: TBitBtn
+      Left = 432
+      Height = 22
+      Top = 5
+      Width = 23
+      Action = PrevPageAction
+      Anchors = [akTop, akRight]
+      Margin = 1
+      Images = Images
+      ImageIndex = 1
+      TabOrder = 3
+    end
+    object NextPageButton: TBitBtn
+      Left = 457
+      Height = 22
+      Top = 5
+      Width = 23
+      Action = NextPageAction
+      Anchors = [akTop, akRight]
+      Margin = 1
+      Images = Images
+      ImageIndex = 2
+      TabOrder = 4
+    end
+    object LastPageButton: TBitBtn
+      Left = 482
+      Height = 22
+      Top = 5
+      Width = 23
+      Action = LastPageAction
+      Anchors = [akTop, akRight]
+      Margin = 1
+      Images = Images
+      ImageIndex = 3
+      TabOrder = 5
+    end
+  end
+  object ScrollBar: TScrollBar[3]
+    Left = 0
+    Height = 329
+    Top = 32
+    Width = 17
+    Align = alLeft
+    Kind = sbVertical
+    Min = 1
+    PageSize = 0
+    Position = 1
+    TabOrder = 3
+    OnScroll = ScrollBarScroll
+  end
+  object ActionList: TActionList[4]
+    Images = Images
+    Left = 190
+    Top = 51
+    object FirstPageAction: TAction
+      ImageIndex = 0
+      OnExecute = FirstPageActionExecute
+      OnUpdate = PrevPageActionUpdate
+    end
+    object PrevPageAction: TAction
+      ImageIndex = 1
+      OnExecute = PrevPageActionExecute
+      OnUpdate = PrevPageActionUpdate
+    end
+    object NextPageAction: TAction
+      ImageIndex = 2
+      OnExecute = NextPageActionExecute
+      OnUpdate = NextPageActionUpdate
+    end
+    object LastPageAction: TAction
+      ImageIndex = 3
+      OnExecute = LastPageActionExecute
+      OnUpdate = NextPageActionUpdate
+    end
+  end
+  object Images: TImageList[5]
+    Left = 247
+    Top = 53
+    Bitmap = {
+      4C7A040000001000000010000000420400000000000078DAED97D14F53671887
+      77E13F3001059678B38B25C68B2D64D9EA9C1B32E6820B3112B36008B22A2CD8
+      D800C31181084C6A65C48AC4AE42D75A4B07548A2254BA4EB1756B188CB13920
+      4D11CAE96969E93AC465E1C22B7E7BBFE3421477F4B4DB054BBCF8AE9AE77CFD
+      DEF3FDDEF739005EC03A59B19E7AB015B59E40A4B3CAB5F6F7E93379EAE9A6BD
+      CB627C94D83F7FB663E9B6194153D963BCAFE9436273567C8DD910E3694FFC31
+      D687C55B06F0FAE255DEABCAD17086522CD85B30512313E5694FDC1FE941CCF9
+      25B8D60281F736EE3672ED2558B87E1691FE33F8A5729B284F7BE29EE76B44ED
+      6731DDBCCF35559F69F1EB0E2372BD0541AAC97CAF0AE38A2DA23CED89DFDD46
+      FC76E302BC8D590F78F3A7880C68C0771D87FF2B05F8EE131891A78BF2B4A7C0
+      3286CEB938673C8AF92BA7C05D2AC78C4E0EAEE3330CE7A78AF2ACB6D1C173E0
+      2D55EC9CEEB1D22DB6C986F710E8AAC65DDD21CC5D2C837BDF66519ED5367CED
+      0BCC198EB2730AF5F31C48B3DEA97A1BFE8B4ACCEA8F6028679328CF6A1BB29D
+      A4FF5ACCCEB9FAFE8831FFA87853F80F3732934579565BBEBB06BE7385EC9C8F
+      DD9FC19DC9A6E1C31970EC4812E5596D870BD2E0D99FCACEF9C4FDEDCFD8A81F
+      946D04D651E6FE0F8BD72BD47C5BF172222CD756ACE675F2157F4B7EDC75F76B
+      8B34E1CE6AC486DA31ADCE898B9F6939600C598E519EDA10756A3155BB5D324F
+      7DCE1230950B6CF8EAA9877DA362AB249EFA6330605020FA8D16A19E06CA6E05
+      42BD27315AFC9224DE5B9F3930AB3D88F040330294E3D9F64FC0530DD8BD96C2
+      8F956DDD30AE7CC5E6557D00DE5A8B990B2598A3FEF1B4DCFFD3F2143C9AFB52
+      0CED4E89FBFDB1DC8F2ADEC05DAD1CCE779313CA9D5D9664F21C7C0D0E5952C2
+      B9ED7BF545BD3DE379EEA52C9AE1CB34FFD5FFC621A2D6DA95A0B932A1674468
+      56DE1FE945B44F0D96FF78F9A04989A51FBA71EFBB0EB0FCB3F91F57AFA339BB
+      78FB12A28E5621FF7EDDC718AFD86691DC773479881117BA5C2FE47F9EE6A9F7
+      F41E0CCBD38392F2DF9845AED2824047A590FF203D63B22E8BE661DA80147EA2
+      EA75CC5F550B7D87E5FF4EF53B70E7A5DA1CD9291BA4F0E3CA97054F09741E07
+      CBFFD0DECDD678EA374A3398EB3846FEB183B98239DEF7E721BFF9A9FC2D38B3
+      534C89DC1F77EE26383293F5CFB3FCDF659FB938A72D029BE1CC519FE6FFD1AE
+      1ACA7E857A8D17BB16689EC56EB6E359FEFF30FBA7C1E9E49A47BCD8357FA591
+      32795E92FF2F7DDF09E60DBEA65CE3DF5EEC0A91574AF5FFD8B73AC46E19C1BE
+      397EAD9159684F57805C5EAAFF47A87745AE35093D843328993B3C603996EAFF
+      A1CB75D43B3E47B8BF19FEB612B6E72247FD40AAFF87AC75D4779AE055EFC1C8
+      A1741BEDE99E6E2D94ECFFEC9BC3AB7A1FC345E942F6998B7B9B3F92ECFFEC9B
+      837C6535FBCCC5A7547992FC7FB261173CF969A6351EE19AA8CF85EF7CE133FD
+      DFBD3FF589ECD39E2EE7CE6438B62761BDF9FF5FB5AE91F9
+    }
+  end
+end

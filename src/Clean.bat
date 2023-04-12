@@ -1,4 +1,4 @@
-@REM  Copyright ©2022 by Steve Garcia. All rights reserved.
+@REM  Copyright (C) 2022-2023 by Steve Garcia. All rights reserved.
 @REM
 @REM  This file is part of the Paleo Editor project.
 @REM
@@ -14,6 +14,8 @@
 @REM  Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
 @DEL /F /Q ..\bin\*.ex? > NUL 2>&1
+@DEL /F /Q ..\bin\x86\*.ex? > NUL 2>&1
+@DEL /F /Q ..\bin\x64\*.ex? > NUL 2>&1
 @DEL /F /Q ..\bin\*.7z > NUL 2>&1
 @DEL /F /S /Q .\Lib\*.* > NUL 2>&1
 @DEL /F /Q *.exe > NUL 2>&1

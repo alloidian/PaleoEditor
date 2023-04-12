@@ -104,7 +104,7 @@ implementation
 uses
   Masks, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
   SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors,
-  XmlEditors, JsonEditors, IniEditors, RichTextEditors;
+  XmlEditors, JsonEditors, IniEditors, RichTextEditors, PdfEditors;
 
 const
   OVERWRITE_PANEL = 0;
@@ -121,7 +121,7 @@ type
     Editor: TCustomEditorFrames;
   end;
 const
-  FACTORIES: array[0..57] of TFactory =
+  FACTORIES: array[0..58] of TFactory =
   ((Mask: '*.asm';     Editor: TAssemblyEditorFrame),
    (Mask: '*.z80';     Editor: TAssemblyEditorFrame),
    (Mask: '*.z80.sav'; Editor: TAssemblyEditorFrame),
@@ -179,7 +179,8 @@ const
    (Mask: '*.ini';     Editor: TIniEditorFrame),
    (Mask: '*.rtf';     Editor: TRichTextEditorFrame),
    (Mask: '*.prj';     Editor: TIniEditorFrame),
-   (Mask: '*.proj';    Editor: TIniEditorFrame));
+   (Mask: '*.proj';    Editor: TIniEditorFrame),
+   (Mask: '*.pdf';     Editor: TPdfEditorFrame));
 var
   I: Integer;
 begin
