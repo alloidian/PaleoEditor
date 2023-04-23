@@ -311,7 +311,7 @@ type
       MatchCase, MatchWholeWordOnly: Boolean);
   protected
     FFolderName: TFileName;
-    FConfigs: TCustomConfig;
+    FConfigs: TBaseConfig;
     FDirMonitor: TDirMonitor;
     procedure PopulateChildren(Node: TTreeNode; MasterList: TStringList = nil);
     procedure CleanDocuments;
@@ -337,7 +337,7 @@ type
     procedure RefreshConfig;
     property Filter: String read GetFilter write SetFilter;
     property ActiveEditor: TCustomEditorFrame read GetActiveEditor;
-    property Configs: TCustomConfig read FConfigs;
+    property Configs: TBaseConfig read FConfigs;
     property IsModified: Boolean read GetIsModified;
     property IsAllModified: Boolean read GetIsAllModified;
   published

@@ -45,7 +45,7 @@ type
     procedure SaveActionExecute(Sender: TObject);
   private
     FConfig: TConfig;
-    FPConfig: TCustomConfig;
+    FPConfig: TBaseConfig;
     FNavigatorConfig: TNavigatorConfigFrame;
     FProjectConfig: TProjectConfigFrame;
     FColorConfig: TColorConfigFrame;
@@ -54,11 +54,11 @@ type
     FTerminalConfig: TTerminalConfigFrame;
 {$ENDIF}
     procedure SetConfig(Value: TConfig);
-    procedure SetProjectConfig(Value: TCustomConfig);
+    procedure SetProjectConfig(Value: TBaseConfig);
     function GetIsModified: Boolean;
   public
     property Config: TConfig read FConfig write SetConfig;
-    property ProjectConfig: TCustomConfig read FPConfig write SetProjectConfig;
+    property ProjectConfig: TBaseConfig read FPConfig write SetProjectConfig;
     property IsModified: Boolean read GetIsModified;
   end;
 
@@ -149,7 +149,7 @@ begin
 {$ENDIF}
 end;
 
-procedure TConfigForm.SetProjectConfig(Value: TCustomConfig);
+procedure TConfigForm.SetProjectConfig(Value: TBaseConfig);
 begin
   FPConfig := Value;
   ProjectPage.TabVisible := Assigned(FPConfig);

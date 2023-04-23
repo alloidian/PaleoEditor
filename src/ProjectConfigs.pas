@@ -46,8 +46,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure ReadConfig(Config: TConfig); override; overload;
     procedure WriteConfig(Config: TConfig); override; overload;
-    procedure ReadConfig(Config: TCustomConfig); override; overload;
-    procedure WriteConfig(Config: TCustomConfig); override; overload;
+    procedure ReadConfig(Config: TBaseConfig); override; overload;
+    procedure WriteConfig(Config: TBaseConfig); override; overload;
     property ToolFolderName: TFileName read GetToolFolderName write SetToolFolderName;
   end;
 
@@ -114,7 +114,7 @@ begin
   // Do nothing
 end;
 
-procedure TProjectConfigFrame.ReadConfig(Config: TCustomConfig);
+procedure TProjectConfigFrame.ReadConfig(Config: TBaseConfig);
 begin
   if Assigned(Config) then begin
     ToolFolderName := Config.ToolFolderName;
@@ -122,7 +122,7 @@ begin
   end;
 end;
 
-procedure TProjectConfigFrame.WriteConfig(Config: TCustomConfig);
+procedure TProjectConfigFrame.WriteConfig(Config: TBaseConfig);
 begin
   if Assigned(Config) then begin
     Config.ToolFolderName := ToolFolderName;

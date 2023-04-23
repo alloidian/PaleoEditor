@@ -173,7 +173,16 @@ type
     property DownloadCommand: String read FDownloadCommand write FDownloadCommand;
   end;
 
-  TConfig = class(TObject)
+  TCustomConfig = class(TObject)
+  private
+    FConfigFileName: TFileName;
+  protected
+    property ConfigFileName: TFileName read FConfigFileName;
+  public
+    constructor Create; virtual;
+  end;
+
+  TConfig = class(TCustomConfig)
   private type
     TParamType = TDictionary<String, String>;
     TVersion = record
@@ -192,7 +201,6 @@ type
       FileVersion: String;
     end;
   private
-    FConfigFileName: TFileName;
     FVersion: TVersion;
     FTerminal: TTerminal;
     FEditFiles: String;
@@ -220,7 +228,7 @@ type
     function GetPrivateBuild: String;
     function GetSpecialBuild: String;
   public
-    constructor Create; virtual;
+    constructor Create; override;
     destructor Destroy; override;
     procedure ReadConfig; overload;
     procedure WriteConfig; overload;
@@ -250,7 +258,6 @@ type
     function IsReadonlyFile(const FileName: TFileName): Boolean;
     function IsExcludedFile(const FileName: TFileName): Boolean;
     function IsExcludedFolder(const FolderName: TFileName): Boolean;
-    property ConfigFileName: TFileName read FConfigFileName;
     property Version: TVersion read FVersion;
     property VersionText: String read GetVersionText;
     property Terminal: TTerminal read FTerminal;
@@ -277,9 +284,8 @@ type
     property RightMargin: Integer read FRightMargin write FRightMargin;
   end;
 
-  TCustomConfig = class(TObject)
+  TBaseConfig = class(TCustomConfig)
   private
-    FConfigFileName: TFileName;
   protected
     FFileName: TFileName;
     FHomeFolder: TFileName;
@@ -289,9 +295,8 @@ type
     FHasAssembler: Boolean;
     FAssemblerFileName: TFileName;
     procedure SetToolFolderName(const Value: TFileName);
-    property ConfigFileName: TFileName read FConfigFileName;
   public
-    constructor Create; virtual;
+    constructor Create; override;
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); virtual;
     procedure WriteConfig;
     property ToolFolderName: TFileName read FToolFolderName write SetToolFolderName;
@@ -300,13 +305,13 @@ type
     property AssemblerNameFile: TFileName read FAssemblerFileName;
   end;
 
-  TProjectConfig = class(TCustomConfig)
+  TProjectConfig = class(TBaseConfig)
   private
   public
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
   end;
 
-  TFolderConfig = class(TCustomConfig)
+  TFolderConfig = class(TBaseConfig)
   private
   public
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
@@ -773,6 +778,15 @@ begin
   Result := FLOW_CONTROLS[Value];
 end;
 
+{ TCustomConfig }
+
+constructor TCustomConfig.Create;
+begin
+  inherited Create;
+  FConfigFileName := GetEnvironmentVariable('APPDATA');
+  FConfigFileName := Format(INI_CONFIG, [FConfigFileName]);
+end;
+
 { TConfig }
 
 constructor TConfig.Create;
@@ -805,8 +819,6 @@ var
 begin
   inherited Create;
   FParams := TParamType.Create;
-  FConfigFileName := GetEnvironmentVariable('APPDATA');
-  FConfigFileName := Format(INI_CONFIG, [FConfigFileName]);
   VersionInfo := TVersionInfo.Create;
   try
     VersionInfo.Load(Application.Handle);
@@ -1254,13 +1266,11 @@ begin
     Result := IsMatch(FolderName, ExcludeFolders);
 end;
 
-{ TCustomConfig }
+{ TBaseConfig }
 
-constructor TCustomConfig.Create;
+constructor TBaseConfig.Create;
 begin
   inherited Create;
-  FConfigFileName := GetEnvironmentVariable('APPDATA');
-  FConfigFileName := Format(INI_CONFIG, [FConfigFileName]);
   FFileName := EmptyStr;
   FHomeFolder := EmptyStr;
   FToolFolderName := EmptyStr;
@@ -1270,7 +1280,7 @@ begin
   FAssemblerFileName := EmptyStr;
 end;
 
-procedure TCustomConfig.SetToolFolderName(const Value: TFileName);
+procedure TBaseConfig.SetToolFolderName(const Value: TFileName);
 begin
   FToolFolderName := ExcludeTrailingPathDelimiter(Value);
   FHasTools := DirectoryExists(FToolFolderName);
@@ -1284,12 +1294,13 @@ begin
   end;
 end;
 
-procedure TCustomConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
+procedure TBaseConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
 begin
-  // Do nothing
+  FHomeFolder := ExcludeTrailingPathDelimiter(FolderName);
+  FFileName := FileName;
 end;
 
-procedure TCustomConfig.WriteConfig;
+procedure TBaseConfig.WriteConfig;
 var
   Ini: TIniFile;
 begin
@@ -1308,7 +1319,6 @@ var
   Ini: TIniFile;
 begin
   inherited ReadConfig(FolderName, FileName);
-  FFileName := FileName;
   Ini := TIniFile.Create(ConfigFileName);
   try
     FHomeFolder := ExcludeTrailingPathDelimiter(FolderName);
@@ -1325,7 +1335,6 @@ var
   Ini: TIniFile;
 begin
   inherited ReadConfig(FolderName, FileName);
-  FFileName := FolderName;
   Ini := TIniFile.Create(ConfigFileName);
   try
     FHomeFolder := ExcludeTrailingPathDelimiter(FolderName);

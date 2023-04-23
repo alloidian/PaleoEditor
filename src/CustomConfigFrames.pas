@@ -33,8 +33,8 @@ type
   public
     procedure ReadConfig(Config: TConfig); virtual; abstract; overload;
     procedure WriteConfig(Config: TConfig); virtual; abstract; overload;
-    procedure ReadConfig(Config: TCustomConfig); virtual; overload;
-    procedure WriteConfig(Config: TCustomConfig); virtual; overload;
+    procedure ReadConfig(Config: TBaseConfig); virtual; overload;
+    procedure WriteConfig(Config: TBaseConfig); virtual; overload;
     property IsModified: Boolean read GetIsModified;
   end;
 
@@ -44,12 +44,12 @@ implementation
 
 { TCustomConfigFrame }
 
-procedure TCustomConfigFrame.ReadConfig(Config: TCustomConfig);
+procedure TCustomConfigFrame.ReadConfig(Config: TBaseConfig);
 begin
   // Do nothing
 end;
 
-procedure TCustomConfigFrame.WriteConfig(Config: TCustomConfig);
+procedure TCustomConfigFrame.WriteConfig(Config: TBaseConfig);
 begin
   // Do nothing
 end;
