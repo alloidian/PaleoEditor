@@ -34,6 +34,7 @@ const
   ITEM_BASIC_SYNTAX           = 'BASIC Syntax';
   ITEM_BATCH_SYNTAX           = 'Batch Syntax';
   ITEM_HTML_SYNTAX            = 'HTML Syntax';
+  ITEM_IMAGE_SYNTAX           = 'Image Syntax';
   ITEM_INI_SYNTAX             = 'INI Syntax';
   ITEM_INTEL_HEX_SYNTAX       = 'Intel Hex Syntax';
   ITEM_JSON_SYNTAX            = 'JSON Syntax';
@@ -71,6 +72,8 @@ const
   ITEM_BASIC_SYNTAX_DEF       = '*.bas';
   ITEM_BATCH_SYNTAX_DEF       = '*.bat;*.cmd';
   ITEM_HTML_SYNTAX_DEF        = '*.html;*.htm';
+  ITEM_IMAGE_SYNTAX_DEF       = '*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;'  +
+                                '*.jfif;*.tif;*.tiff;*.gif;*.pgm;*.pgm;*.ppm';
   ITEM_INI_SYNTAX_DEF         = '*.ini;*.prj;*.proj';
   ITEM_INTEL_HEX_SYNTAX_DEF   = '*.hex;*.h86;*.hxl;*.hxh;*.obl;*.obh;*.mcs;*.ihex;*.ihe;'   +
                                 '*.ihx;*.a43;*.a90;*.p00;*.pff';
@@ -232,7 +235,7 @@ type
       FileVersion: String;
     end;
   public type
-    TSyntax = (synAssembly, synBasic, synBatch, synHex, synHtml, synIni,
+    TSyntax = (synAssembly, synBasic, synBatch, synHex, synHtml, synImage, synIni,
       synIntelHex, synJson, synMarkdown, synPascal, synPdf, synRtf, synSpin, synText, synXml);
     TSyntaxes = array[TSyntax] of String;
   private
@@ -319,6 +322,7 @@ type
     property BasicSyntax: String index synBasic read GetSyntax write SetSyntax;
     property BatchSyntax: String index synBatch read GetSyntax write SetSyntax;
     property HtmlSyntax: String index synHtml read GetSyntax write SetSyntax;
+    property ImageSyntax: String index synImage read GetSyntax write SetSyntax;
     property IniSyntax: String index synIni read GetSyntax write SetSyntax;
     property IntelHexSyntax: String index synIntelHex read GetSyntax write SetSyntax;
     property JsonSyntax: String index synJson read GetSyntax write SetSyntax;
@@ -452,6 +456,7 @@ const
   INI_BASIC_SYNTAX         = 'BASIC';
   INI_BATCH_SYNTAX         = 'Batch';
   INI_HTML_SYNTAX          = 'HTML';
+  INI_IMAGE_SYNTAX         = 'Image';
   INI_INI_SYNTAX           = 'INI';
   INI_INTEL_HEX_SYNTAX     = 'IntelHex';
   INI_JSON_SYNTAX          = 'JSON';
@@ -1021,6 +1026,7 @@ begin
     BasicSyntax := Ini.ReadString(INI_SYNTAX, INI_BASIC_SYNTAX, ITEM_BASIC_SYNTAX_DEF);
     BatchSyntax := Ini.ReadString(INI_SYNTAX, INI_BATCH_SYNTAX, ITEM_BATCH_SYNTAX_DEF);
     HtmlSyntax := Ini.ReadString(INI_SYNTAX, INI_HTML_SYNTAX, ITEM_HTML_SYNTAX_DEF);
+    ImageSyntax := Ini.ReadString(INI_SYNTAX, INI_IMAGE_SYNTAX, ITEM_IMAGE_SYNTAX_DEF);
     IniSyntax := Ini.ReadString(INI_SYNTAX, INI_INI_SYNTAX, ITEM_INI_SYNTAX_DEF);
     IntelHexSyntax := Ini.ReadString(INI_SYNTAX, INI_INTEL_HEX_SYNTAX, ITEM_INTEL_HEX_SYNTAX_DEF);
     JsonSyntax := Ini.ReadString(INI_SYNTAX, INI_JSON_SYNTAX, ITEM_JSON_SYNTAX_DEF);
@@ -1079,6 +1085,7 @@ begin
     Ini.WriteString(INI_SYNTAX, INI_BASIC_SYNTAX, BasicSyntax);
     Ini.WriteString(INI_SYNTAX, INI_BATCH_SYNTAX, BatchSyntax);
     Ini.WriteString(INI_SYNTAX, INI_HTML_SYNTAX, HtmlSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_IMAGE_SYNTAX, ImageSyntax);
     Ini.WriteString(INI_SYNTAX, INI_INI_SYNTAX, IniSyntax);
     Ini.WriteString(INI_SYNTAX, INI_INTEL_HEX_SYNTAX, IntelHexSyntax);
     Ini.WriteString(INI_SYNTAX, INI_JSON_SYNTAX, JsonSyntax);

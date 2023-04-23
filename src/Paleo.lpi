@@ -503,6 +503,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
+      <Unit>
+        <Filename Value="ImageEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ImageEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

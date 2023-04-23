@@ -104,7 +104,7 @@ implementation
 uses
   Masks, ConfigUtils, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
   SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors,
-  XmlEditors, JsonEditors, IniEditors, RichTextEditors, PdfEditors;
+  XmlEditors, JsonEditors, IniEditors, RichTextEditors, PdfEditors, ImageEditors;
 
 const
   OVERWRITE_PANEL = 0;
@@ -122,6 +122,7 @@ const
     TBatchEditorFrame,      // synBatch
     THexEditorFrame,        // synHex
     THtmlEditorFrame,       // synHtml
+    TImageEditorFrame,      // synImage
     TIniEditorFrame,        // synIni
     TIntelHexEditorFrame,   // synIntelHex
     TJsonEditorFrame,       // synJson

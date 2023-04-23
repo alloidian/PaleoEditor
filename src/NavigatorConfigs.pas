@@ -81,6 +81,8 @@ type
     procedure SetBatchSyntax(const Value: String);
     function GetHtmlSyntax: String;
     procedure SetHtmlSyntax(const Value: String);
+    function GetImageSyntax: String;
+    procedure SetImageSyntax(const Value: String);
     function GetIniSyntax: String;
     procedure SetIniSyntax(const Value: String);
     function GetIntelHexSyntax: String;
@@ -117,6 +119,7 @@ type
     property BasicSyntax: String read GetBasicSyntax write SetBasicSyntax;
     property BatchSyntax: String read GetBatchSyntax write SetBatchSyntax;
     property HtmlSyntax: String read GetHtmlSyntax write SetHtmlSyntax;
+    property ImageSyntax: String read GetImageSyntax write SetImageSyntax;
     property IniSyntax: String read GetIniSyntax write SetIniSyntax;
     property IntelHexSyntax: String read GetIntelHexSyntax write SetIntelHexSyntax;
     property JsonSyntax: String read GetJsonSyntax write SetJsonSyntax;
@@ -155,6 +158,7 @@ begin
   ConfigEdit.Strings.AddPair(ITEM_BASIC_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_BATCH_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_HTML_SYNTAX, EmptyStr);
+  ConfigEdit.Strings.AddPair(ITEM_IMAGE_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_INI_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_INTEL_HEX_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_JSON_SYNTAX, EmptyStr);
@@ -172,7 +176,7 @@ end;
 
 procedure TNavigatorConfigFrame.ConfigEditButtonClick(Sender: TObject; aCol, aRow: Integer);
 const
-  DEFAULTS: array[0..20] of String =
+  DEFAULTS: array[0..21] of String =
    (INI_EDIT_DEF,
     INI_ASSEMBLE_DEF,
     INI_EXEC_DEF,
@@ -184,6 +188,7 @@ const
     ITEM_BASIC_SYNTAX_DEF,
     ITEM_BATCH_SYNTAX_DEF,
     ITEM_HTML_SYNTAX_DEF,
+    ITEM_IMAGE_SYNTAX_DEF,
     ITEM_INI_SYNTAX_DEF,
     ITEM_INTEL_HEX_SYNTAX_DEF,
     ITEM_JSON_SYNTAX_DEF,
@@ -220,6 +225,7 @@ begin
     not AnsiSameText(BasicSyntax, FBasicSyntax) or
     not AnsiSameText(BatchSyntax, FBatchSyntax) or
     not AnsiSameText(HtmlSyntax, FHtmlSyntax) or
+    not AnsiSameText(ImageSyntax, FImageSyntax) or
     not AnsiSameText(IniSyntax, FIniSyntax) or
     not AnsiSameText(IntelHexSyntax, FIntelHexSyntax) or
     not AnsiSameText(JsonSyntax, FJsonSyntax) or
@@ -364,6 +370,17 @@ begin
   FHtmlSyntax := Value;
 end;
 
+function TNavigatorConfigFrame.GetImageSyntax: String;
+begin
+  Result := ConfigEdit.Values[ITEM_IMAGE_SYNTAX];
+end;
+
+procedure TNavigatorConfigFrame.SetImageSyntax(const Value: String);
+begin
+  ConfigEdit.Values[ITEM_IMAGE_SYNTAX] := Value;
+  FImageSyntax := Value;
+end;
+
 function TNavigatorConfigFrame.GetIniSyntax: String;
 begin
   Result := ConfigEdit.Values[ITEM_INI_SYNTAX];
@@ -488,6 +505,7 @@ begin
   BasicSyntax := Config.BasicSyntax;
   BatchSyntax := Config.BatchSyntax;
   HtmlSyntax := Config.HtmlSyntax;
+  ImageSyntax := Config.ImageSyntax;
   IniSyntax := Config.IniSyntax;
   IntelHexSyntax := Config.IntelHexSyntax;
   JsonSyntax := Config.JsonSyntax;
@@ -513,6 +531,7 @@ begin
   Config.AssemblySyntax := AssemblySyntax;
   Config.BasicSyntax := BasicSyntax;
   Config.BatchSyntax := BatchSyntax;
+  Config.ImageSyntax := ImageSyntax;
   Config.HtmlSyntax := HtmlSyntax;
   Config.IniSyntax := IniSyntax;
   Config.IntelHexSyntax := IntelHexSyntax;
