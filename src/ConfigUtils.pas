@@ -30,6 +30,20 @@ const
   ITEM_UNEDITABLE             = 'Uneditable Files';
   ITEM_EXCLUDE_FILE           = 'Excluded Files';
   ITEM_EXCLUDE_FOLDER         = 'Excluded Folders';
+  ITEM_ASSEMBLY_SYNTAX        = 'Assembly Syntax';
+  ITEM_BASIC_SYNTAX           = 'BASIC Syntax';
+  ITEM_BATCH_SYNTAX           = 'Batch Syntax';
+  ITEM_HTML_SYNTAX            = 'HTML Syntax';
+  ITEM_INI_SYNTAX             = 'INI Syntax';
+  ITEM_INTEL_HEX_SYNTAX       = 'Intel Hex Syntax';
+  ITEM_JSON_SYNTAX            = 'JSON Syntax';
+  ITEM_MARKDOWN_SYNTAX        = 'Markdown Syntax';
+  ITEM_PASCAL_SYNTAX          = 'Pascal Syntax';
+  ITEM_PDF_SYNTAX             = 'PDF Syntax';
+  ITEM_RTF_SYNTAX             = 'RTF Syntax';
+  ITEM_SPIN_SYNTAX            = 'Spin Syntax';
+  ITEM_TEXT_SYNTAX            = 'Text Syntax';
+  ITEM_XML_SYNTAX             = 'XML Syntax';
   INI_EDITOR_FONT_NAME_DEF    = 'Courier New';
   INI_EDITOR_FONT_SIZE_DEF    = 10;
   INI_EDITOR_RIGHT_MARGIN_DEF = 90;
@@ -52,6 +66,23 @@ const
   INI_EXCLUDE_FILE_DEF        = '*.pdf;*.docx;*.com;*.exe;*.dll;*.zip;*.lbr;*.png;*.jpg;'   +
                                 '*.jpeg;*.bin;Makefile';
   INI_EXCLUDE_FOLDER_DEF      = '.github;Tools;Tunes';
+  ITEM_ASSEMBLY_SYNTAX_DEF    = '*.asm;*.z80;*.z80.sav;*.azm;*.inc;*.lib;*.lib.sav;*.mac;'  +
+                                '*.lst;*.ins';
+  ITEM_BASIC_SYNTAX_DEF       = '*.bas';
+  ITEM_BATCH_SYNTAX_DEF       = '*.bat;*.cmd';
+  ITEM_HTML_SYNTAX_DEF        = '*.html;*.htm';
+  ITEM_INI_SYNTAX_DEF         = '*.ini;*.prj;*.proj';
+  ITEM_INTEL_HEX_SYNTAX_DEF   = '*.hex;*.h86;*.hxl;*.hxh;*.obl;*.obh;*.mcs;*.ihex;*.ihe;'   +
+                                '*.ihx;*.a43;*.a90;*.p00;*.pff';
+  ITEM_JSON_SYNTAX_DEF        = '*.json';
+  ITEM_MARKDOWN_SYNTAX_DEF    = '*.md';
+  ITEM_PASCAL_SYNTAX_DEF      = '*.pas;*.pp;*.dpr;*.lpr';
+  ITEM_PDF_SYNTAX_DEF         = '*.pdf';
+  ITEM_RTF_SYNTAX_DEF         = '*.rtf';
+  ITEM_SPIN_SYNTAX_DEF        = '*.spin';
+  ITEM_TEXT_SYNTAX_DEF        = '*.txt;Makefile;copying;*.doc;*.not;*.hlp;*.msg;*.prn;'     +
+                                '*.sym;*.for;*.log;readme;readme.*;read.me;.git*';
+  ITEM_XML_SYNTAX_DEF         = '*.xml;*.kvset';
   ASSEMBLER_FOLDER_MASK       = '%s\tasm32';
   ASSEMBLER_FILE_MASK         = '%s\TASM.EXE';
 
@@ -200,6 +231,10 @@ type
       ProjectName: String;
       FileVersion: String;
     end;
+  public type
+    TSyntax = (synAssembly, synBasic, synBatch, synHex, synHtml, synIni,
+      synIntelHex, synJson, synMarkdown, synPascal, synPdf, synRtf, synSpin, synText, synXml);
+    TSyntaxes = array[TSyntax] of String;
   private
     FVersion: TVersion;
     FTerminal: TTerminal;
@@ -212,6 +247,7 @@ type
     FSaveWorkspace: Boolean;
     FExcludeFiles: String;
     FExcludeFolders: String;
+    FSyntax: TSyntaxes;
     FParams: TParamType;
     FMonitorFolder: Boolean;
     FAttributes: TAttributes;
@@ -227,6 +263,8 @@ type
     function GetPatched: String;
     function GetPrivateBuild: String;
     function GetSpecialBuild: String;
+    function GetSyntax(Syntax: TSyntax): String; overload;
+    procedure SetSyntax(Syntax: TSyntax; const Value: String);
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -258,6 +296,7 @@ type
     function IsReadonlyFile(const FileName: TFileName): Boolean;
     function IsExcludedFile(const FileName: TFileName): Boolean;
     function IsExcludedFolder(const FolderName: TFileName): Boolean;
+    function GetSyntax(const FileName: TFileName): TSyntax; overload;
     property Version: TVersion read FVersion;
     property VersionText: String read GetVersionText;
     property Terminal: TTerminal read FTerminal;
@@ -276,6 +315,20 @@ type
     property SaveWorkspace: Boolean read FSaveWorkspace write FSaveWorkspace;
     property ExcludeFiles: String read FExcludeFiles write FExcludeFiles;
     property ExcludeFolders: String read FExcludeFolders write FExcludeFolders;
+    property AssemblySyntax: String index synAssembly read GetSyntax write SetSyntax;
+    property BasicSyntax: String index synBasic read GetSyntax write SetSyntax;
+    property BatchSyntax: String index synBatch read GetSyntax write SetSyntax;
+    property HtmlSyntax: String index synHtml read GetSyntax write SetSyntax;
+    property IniSyntax: String index synIni read GetSyntax write SetSyntax;
+    property IntelHexSyntax: String index synIntelHex read GetSyntax write SetSyntax;
+    property JsonSyntax: String index synJson read GetSyntax write SetSyntax;
+    property MarkdownSyntax: String index synMarkdown read GetSyntax write SetSyntax;
+    property PascalSyntax: String index synPascal read GetSyntax write SetSyntax;
+    property PdfSyntax: String index synPdf read GetSyntax write SetSyntax;
+    property RtfSyntax: String index synRtf read GetSyntax write SetSyntax;
+    property SpinSyntax: String index synSpin read GetSyntax write SetSyntax;
+    property TextSyntax: String index synText read GetSyntax write SetSyntax;
+    property XmlSyntax: String index synXml read GetSyntax write SetSyntax;
     property Params: TParamType read FParams write FParams;
     property Attributes: TAttributes read FAttributes;
     property MonitorFolder: Boolean read FMonitorFolder;
@@ -394,6 +447,21 @@ const
   INI_EXCLUDE              = 'Exclude';
   INI_EXCLUDE_FILE         = 'Files';
   INI_EXCLUDE_FOLDER       = 'Folders';
+  INI_SYNTAX               = 'Syntax';
+  INI_ASSEMBLY_SYNTAX      = 'Assembly';
+  INI_BASIC_SYNTAX         = 'BASIC';
+  INI_BATCH_SYNTAX         = 'Batch';
+  INI_HTML_SYNTAX          = 'HTML';
+  INI_INI_SYNTAX           = 'INI';
+  INI_INTEL_HEX_SYNTAX     = 'IntelHex';
+  INI_JSON_SYNTAX          = 'JSON';
+  INI_MARKDOWN_SYNTAX      = 'Markdown';
+  INI_PASCAL_SYNTAX        = 'Pascal';
+  INI_PDF_SYNTAX           = 'PDF';
+  INI_RTF_SYNTAX           = 'RTF';
+  INI_SPIN_SYNTAX          = 'Spin';
+  INI_TEXT_SYNTAX          = 'Text';
+  INI_XML_SYNTAX           = 'XML';
   INI_PARAMS               = 'Params';
   INI_TOOLS                = 'Tools';
   INI_ATTRIBUTE_FOREGROUND = 'Foreground';
@@ -841,6 +909,7 @@ begin
   FTerminal := TTerminal.Create;
   FMonitorFolder := True;
   FAttributes := TAttributes.Create;
+  FSyntax := Default(TSyntaxes);
 end;
 
 destructor TConfig.Destroy;
@@ -920,6 +989,15 @@ begin
   Result := CAPTIONS[Version.IsSpecialBuild];
 end;
 
+function TConfig.GetSyntax(Syntax: TSyntax): String;
+begin
+  Result := FSyntax[Syntax];
+end;
+
+procedure TConfig.SetSyntax(Syntax: TSyntax; const Value: String);
+begin
+  FSyntax[Syntax] := Value;
+end;
 procedure TConfig.ReadConfig;
 var
   Ini: TIniFile;
@@ -939,6 +1017,20 @@ begin
     FSaveWorkspace := Ini.ReadBool(INI_SETTING, INI_SAVE_WORKSPACE, INI_SAVE_WORKSPACE_DEF);
     FExcludeFiles := Ini.ReadString(INI_EXCLUDE, INI_EXCLUDE_FILE, INI_EXCLUDE_FILE_DEF);
     FExcludeFolders := Ini.ReadString(INI_EXCLUDE, INI_EXCLUDE_FOLDER, INI_EXCLUDE_FOLDER_DEF);
+    AssemblySyntax := Ini.ReadString(INI_SYNTAX, INI_ASSEMBLY_SYNTAX, ITEM_ASSEMBLY_SYNTAX_DEF);
+    BasicSyntax := Ini.ReadString(INI_SYNTAX, INI_BASIC_SYNTAX, ITEM_BASIC_SYNTAX_DEF);
+    BatchSyntax := Ini.ReadString(INI_SYNTAX, INI_BATCH_SYNTAX, ITEM_BATCH_SYNTAX_DEF);
+    HtmlSyntax := Ini.ReadString(INI_SYNTAX, INI_HTML_SYNTAX, ITEM_HTML_SYNTAX_DEF);
+    IniSyntax := Ini.ReadString(INI_SYNTAX, INI_INI_SYNTAX, ITEM_INI_SYNTAX_DEF);
+    IntelHexSyntax := Ini.ReadString(INI_SYNTAX, INI_INTEL_HEX_SYNTAX, ITEM_INTEL_HEX_SYNTAX_DEF);
+    JsonSyntax := Ini.ReadString(INI_SYNTAX, INI_JSON_SYNTAX, ITEM_JSON_SYNTAX_DEF);
+    MarkdownSyntax := Ini.ReadString(INI_SYNTAX, INI_MARKDOWN_SYNTAX, ITEM_MARKDOWN_SYNTAX_DEF);
+    PascalSyntax := Ini.ReadString(INI_SYNTAX, INI_PASCAL_SYNTAX, ITEM_PASCAL_SYNTAX_DEF);
+    PdfSyntax := Ini.ReadString(INI_SYNTAX, INI_PDF_SYNTAX, ITEM_PDF_SYNTAX_DEF);
+    RtfSyntax := Ini.ReadString(INI_SYNTAX, INI_RTF_SYNTAX, ITEM_RTF_SYNTAX_DEF);
+    SpinSyntax := Ini.ReadString(INI_SYNTAX, INI_SPIN_SYNTAX, ITEM_SPIN_SYNTAX_DEF);
+    TextSyntax := Ini.ReadString(INI_SYNTAX, INI_TEXT_SYNTAX, ITEM_TEXT_SYNTAX_DEF);
+    XmlSyntax := Ini.ReadString(INI_SYNTAX, INI_XML_SYNTAX, ITEM_XML_SYNTAX_DEF);
     FFontName := Ini.ReadString(INI_EDITOR, INI_EDITOR_FONT_NAME, INI_EDITOR_FONT_NAME_DEF);
     FFontSize := Ini.ReadInteger(INI_EDITOR, INI_EDITOR_FONT_SIZE, INI_EDITOR_FONT_SIZE_DEF);
     FRightMargin := Ini.ReadInteger(INI_EDITOR, INI_EDITOR_RIGHT_MARGIN, INI_EDITOR_RIGHT_MARGIN_DEF);
@@ -983,6 +1075,20 @@ begin
     Ini.WriteBool(INI_SETTING, INI_SAVE_WORKSPACE, FSaveWorkspace);
     Ini.WriteString(INI_EXCLUDE, INI_EXCLUDE_FILE, FExcludeFiles);
     Ini.WriteString(INI_EXCLUDE, INI_EXCLUDE_FOLDER, FExcludeFolders);
+    Ini.WriteString(INI_SYNTAX, INI_ASSEMBLY_SYNTAX, AssemblySyntax);
+    Ini.WriteString(INI_SYNTAX, INI_BASIC_SYNTAX, BasicSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_BATCH_SYNTAX, BatchSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_HTML_SYNTAX, HtmlSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_INI_SYNTAX, IniSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_INTEL_HEX_SYNTAX, IntelHexSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_JSON_SYNTAX, JsonSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_MARKDOWN_SYNTAX, MarkdownSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_PASCAL_SYNTAX, PascalSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_PDF_SYNTAX, PdfSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_RTF_SYNTAX, RtfSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_SPIN_SYNTAX, SpinSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_TEXT_SYNTAX, TextSyntax);
+    Ini.WriteString(INI_SYNTAX, INI_XML_SYNTAX, XmlSyntax);
     Ini.WriteString(INI_EDITOR, INI_EDITOR_FONT_NAME, FFontName);
     Ini.WriteInteger(INI_EDITOR, INI_EDITOR_FONT_SIZE, FFontSize);
     Ini.WriteInteger(INI_EDITOR, INI_EDITOR_RIGHT_MARGIN, FRightMargin);
@@ -1218,8 +1324,14 @@ begin
 end;
 
 function TConfig.IsEditableFile(const FileName: TFileName): Boolean;
+const
+  EDITABLE = [synAssembly, synBasic, synBatch, synHex, synHtml, synIni, synIntelHex,
+      synJson, synMarkdown, synPascal, synSpin, synText, synXml];
+var
+  Syntax: TSyntax;
 begin
-  Result := IsMatch(FileName, EditFiles);
+  Syntax := GetSyntax(FileName);
+  Result := Syntax in EDITABLE;
 end;
 
 function TConfig.IsExecutableFile(const FileName: TFileName): Boolean;
@@ -1264,6 +1376,18 @@ begin
   Result := AnsiMatchStr(FolderName, INVALID_FOLDERS);
   if not Result then
     Result := IsMatch(FolderName, ExcludeFolders);
+end;
+
+function TConfig.GetSyntax(const FileName: TFileName): TSyntax;
+var
+  I: TSyntax;
+begin
+  Result := synHex;
+  for I := Low(I) to High(I) do
+    if MatchesMaskList(FileName, FSyntax[I]) then begin
+      Result := I;
+      Break;
+    end;
 end;
 
 { TBaseConfig }

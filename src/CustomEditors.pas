@@ -102,7 +102,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Masks, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
+  Masks, ConfigUtils, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
   SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors,
   XmlEditors, JsonEditors, IniEditors, RichTextEditors, PdfEditors;
 
@@ -115,81 +115,25 @@ const
   FILE_NAME_PANEL = 5;
 
 function EditorFactory(const FileName: TFileName): TCustomEditorFrames;
-type
-  TFactory = record
-    Mask: String;
-    Editor: TCustomEditorFrames;
-  end;
 const
-  FACTORIES: array[0..58] of TFactory =
-  ((Mask: '*.asm';     Editor: TAssemblyEditorFrame),
-   (Mask: '*.z80';     Editor: TAssemblyEditorFrame),
-   (Mask: '*.z80.sav'; Editor: TAssemblyEditorFrame),
-   (Mask: '*.azm';     Editor: TAssemblyEditorFrame),
-   (Mask: '*.inc';     Editor: TAssemblyEditorFrame),
-   (Mask: '*.lib';     Editor: TAssemblyEditorFrame),
-   (Mask: '*.lib.sav'; Editor: TAssemblyEditorFrame),
-   (Mask: '*.mac';     Editor: TAssemblyEditorFrame),
-   (Mask: '*.lst';     Editor: TAssemblyEditorFrame),
-   (Mask: '*.ins';     Editor: TAssemblyEditorFrame),
-   (Mask: '*.bat';     Editor: TBatchEditorFrame),
-   (Mask: '*.cmd';     Editor: TBatchEditorFrame),
-   (Mask: '*.spin';    Editor: TSpinEditorFrame),
-   (Mask: '*.bas';     Editor: TBasicEditorFrame),
-   (Mask: '*.pas';     Editor: TPascalEditorFrame),
-   (Mask: '*.pp';      Editor: TPascalEditorFrame),
-   (Mask: '*.dpr';     Editor: TPascalEditorFrame),
-   (Mask: '*.lpr';     Editor: TPascalEditorFrame),
-   (Mask: '*.html';    Editor: THtmlEditorFrame),
-   (Mask: '*.htm';     Editor: THtmlEditorFrame),
-   (Mask: '*.txt';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.md';      Editor: TMarkdownEditorFrame),
-   (Mask: '*.hex';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.h86';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.hxl';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.hxh';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.obl';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.obh';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.mcs';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.ihex';    Editor: TIntelHexEditorFrame),
-   (Mask: '*.ihe';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.ihx';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.a43';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.a90';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.p00';     Editor: TIntelHexEditorFrame),
-   (Mask: '*.pff';     Editor: TIntelHexEditorFrame),
-   (Mask: 'Makefile';  Editor: TCustomTextEditorFrame),
-   (Mask: 'copying';   Editor: TCustomTextEditorFrame),
-   (Mask: '*.docx';    Editor: THexEditorFrame),
-   (Mask: '*.doc';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.not';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.hlp';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.msg';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.prn';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.sym';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.for';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.log';     Editor: TCustomTextEditorFrame),
-   (Mask: 'readme';    Editor: TCustomTextEditorFrame),
-   (Mask: 'readme.*';  Editor: TCustomTextEditorFrame),
-   (Mask: 'read.me';   Editor: TCustomTextEditorFrame),
-   (Mask: '.git*';     Editor: TCustomTextEditorFrame),
-   (Mask: '*.xml';     Editor: TXmlEditorFrame),
-   (Mask: '*.kvset';   Editor: TXmlEditorFrame),
-   (Mask: '*.json';    Editor: TJsonEditorFrame),
-   (Mask: '*.ini';     Editor: TIniEditorFrame),
-   (Mask: '*.rtf';     Editor: TRichTextEditorFrame),
-   (Mask: '*.prj';     Editor: TIniEditorFrame),
-   (Mask: '*.proj';    Editor: TIniEditorFrame),
-   (Mask: '*.pdf';     Editor: TPdfEditorFrame));
-var
-  I: Integer;
+  FACTORIES: array[TConfig.TSyntax] of TCustomEditorFrames =
+   (TAssemblyEditorFrame,   // synAssembly
+    TBasicEditorFrame,      // synBasic
+    TBatchEditorFrame,      // synBatch
+    THexEditorFrame,        // synHex
+    THtmlEditorFrame,       // synHtml
+    TIniEditorFrame,        // synIni
+    TIntelHexEditorFrame,   // synIntelHex
+    TJsonEditorFrame,       // synJson
+    TMarkdownEditorFrame,   // synMarkdown
+    TPascalEditorFrame,     // synPascal
+    TPdfEditorFrame,        // synPdf
+    TRichTextEditorFrame,   // synRtf
+    TSpinEditorFrame,       // synSpin
+    TCustomTextEditorFrame, // synText
+    TXmlEditorFrame);       // synXml
 begin
-  Result := THexEditorFrame;
-  for I := Low(FACTORIES) to High(FACTORIES) do
-    if MatchesMask(FileName, FACTORIES[I].Mask) then begin
-      Result := FACTORIES[I].Editor;
-      Break;
-    end;
+  Result := FACTORIES[Config.GetSyntax(FileName)];
 end;
 
 { TCustomEditorFrame }

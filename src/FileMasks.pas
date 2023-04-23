@@ -244,7 +244,8 @@ const
   PROMPT  = 'Are you sure you want to revert to default value?';
 begin
   if not FDefault.IsEmpty then
-    if MessageDlg(CAPTION, PROMPT, mtConfirmation, [mbYes, mbNo], 0, mbNo) = mrYes then
+    if (DirectoryEdit.Items.Count = 0) or
+        (MessageDlg(CAPTION, PROMPT, mtConfirmation, [mbYes, mbNo], 0, mbNo) = mrYes) then
       DirectoryEdit.Items.DelimitedText := FDefault;
 end;
 
