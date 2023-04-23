@@ -111,7 +111,7 @@ end;
 
 function TRichTextEditorFrame.GetSelectedText: String;
 begin
-  Result:=inherited GetSelectedText;
+  Result := inherited GetSelectedText;
 end;
 
 procedure TRichTextEditorFrame.Open(Page: TTabSheet; Node: TTreeNode);

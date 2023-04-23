@@ -39,8 +39,8 @@ type
     DefaultAction: TAction;
     DirectoryLabel: TLabel;
     DirectoryEdit: TListBox;
-    MoveUpButton: TSpeedButton;
-    MoveDownButton: TSpeedButton;
+    MoveUpButton: TBitBtn;
+    MoveDownButton: TBitBtn;
     FolderEdit: TEdit;
     ReplaceButton: TButton;
     AddButton: TButton;
@@ -49,6 +49,11 @@ type
     OKButton: TButton;
     CancelButton: TButton;
     procedure FormCreate(Sender: TObject);
+    procedure DirectoryEditMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure DirectoryEditDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure DirectoryEditDragDrop(Sender, Source: TObject; X, Y: Integer);
     procedure MoveUpActionExecute(Sender: TObject);
     procedure MoveUpActionUpdate(Sender: TObject);
     procedure MoveDownActionExecute(Sender: TObject);
@@ -66,6 +71,7 @@ type
     procedure DirectoryEditClick(Sender: TObject);
   private
     FDefault: String;
+    FItemIndex: Integer;
     function GetFolder: String;
     procedure SetFolder(const Value: String);
     function GetSelected: String;
@@ -112,6 +118,45 @@ const
   DELIMITER = ';';
 begin
   DirectoryEdit.Items.Delimiter := DELIMITER;
+end;
+
+procedure TEditFileMaskForm.DirectoryEditMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  Edit: TListBox;
+begin
+  Edit := Sender as TListBox;
+  FItemIndex := Edit.ItemAtPos(Point(X, Y), True);
+  if (FItemIndex > -1) and (FItemIndex < Edit.Count) then
+    Edit.BeginDrag(True)
+  else begin
+    Edit.BeginDrag(False);
+    FItemIndex := -1;
+  end;
+end;
+
+procedure TEditFileMaskForm.DirectoryEditDragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+var
+  Edit: TListBox;
+  ItemIndex: Integer;
+begin
+  Edit := Sender as TListBox;
+  if Sender = Source then begin
+    ItemIndex := Edit.ItemAtPos(Point(X, Y), True);
+    Accept := (ItemIndex > -1) and (ItemIndex < Edit.Count);
+  end;
+end;
+
+procedure TEditFileMaskForm.DirectoryEditDragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  Edit: TListBox;
+  ItemIndex: Integer;
+begin
+  Edit := Sender as TListBox;
+  ItemIndex := Edit.ItemAtPos(Point(X, Y), True);
+  if (ItemIndex > -1) and (ItemIndex < Edit.Count) and (FItemIndex > -1)then
+    Edit.Items.Move(FItemIndex, ItemIndex);
 end;
 
 procedure TEditFileMaskForm.MoveUpActionExecute(Sender: TObject);
