@@ -379,8 +379,6 @@ var
 begin
  for I := MDIChildCount - 1 downto 0 do begin
    Form := MDIChildren[I];
-   if Form is TCustomWorkForm then
-     TCustomWorkForm(Form).CloseAllFileAction.Execute;
    Form.Close;
    Form.Free;
  end;

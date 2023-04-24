@@ -20,7 +20,7 @@ unit ConfigUtils;
 interface
 
 uses
-  Classes, SysUtils, Graphics, ComCtrls, Generics.Collections, Forms, Menus, IniFiles;
+  Classes, SysUtils, Graphics, ComCtrls, Generics.Collections, Forms, Menus, FpJson;
 
 const
   ITEM_EDIT                   = 'Editable Files';
@@ -105,8 +105,9 @@ type
     FStyle: TFontStyles;
   public
     constructor Create(Attr: TAttributeType; const StorageName: String); virtual;
-    procedure ReadConfig(Ini: TIniFile);
-    procedure WriteConfig(Ini: TIniFile);
+    procedure Reset;
+    procedure ReadConfig(Parent: TJsonObject); overload;
+    function WriteConfig: TJsonObject; overload;
     procedure Assign(Source: TAttribute);
     function Matches(Source: TAttribute): Boolean;
     property Attr: TAttributeType read FAttr;
@@ -129,8 +130,8 @@ type
     destructor Destroy; override;
     procedure Reset;
     procedure Assign(Source: TAttributes);
-    procedure ReadConfig(Ini: TIniFile);
-    procedure WriteConfig(Ini: TIniFile);
+    function ReadConfig(Parent: TJsonObject): TJsonObject; overload;
+    function WriteConfig(Parent: TJsonObject; const Name: String): TJsonObject; overload;
     procedure Populate(List: TStrings);
     function Matches(Source: TAttributes): Boolean;
     property Count: Integer read GetCount;
@@ -180,10 +181,8 @@ type
     FDownloadCommand: String;
   protected
   public
-//    constructor Create; virtual;
-//    destructor Destroy; override;
-    procedure ReadConfig(Ini: TIniFile);
-    procedure WriteConfig(Ini: TIniFile);
+    function ReadConfig(Parent: TJsonObject): TJsonObject; overload;
+    function WriteConfig(Parent: TJsonObject; const Name: String): TJsonObject; overload;
     class procedure PopulateComPort(List: TStrings);
     class procedure PopulateBaud(List: TStrings);
     class procedure PopulateDataBits(List: TStrings);
@@ -211,6 +210,8 @@ type
   private
     FConfigFileName: TFileName;
   protected
+    function GetDocument: TJsonObject;
+    procedure SaveDocument(Document: TJsonObject);
     property ConfigFileName: TFileName read FConfigFileName;
   public
     constructor Create; virtual;
@@ -278,9 +279,9 @@ type
     procedure ReadConfig(ParentMenu: TMenuItem; EventHandler: TNotifyEvent); overload;
     procedure WriteConfig(ParentMenu: TMenuItem); overload;
     procedure ReadConfig(Control: TTreeView; const FileName: TFileName); overload;
-    procedure WriteConfig(Control: TTreeView; const FileName: TFileName); overload;
+    procedure WriteConfig(Control: TTreeView; const FolderName: TFileName); overload;
     procedure ReadConfig(Control: TPageControl; const FileName: TFileName); overload;
-    procedure WriteConfig(Control: TPageControl; const FileName: TFileName); overload;
+    procedure WriteConfig(Control: TPageControl; const FolderName: TFileName); overload;
     procedure AddParam(const Command, Param: String); overload;
     procedure AddParam(const Assembly: String; Platform: TAssemblerPlatform;
       Parameter: String; UpdateSymbols: Boolean); overload;
@@ -355,7 +356,7 @@ type
   public
     constructor Create; override;
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); virtual;
-    procedure WriteConfig;
+    procedure WriteConfig; virtual; abstract;
     property ToolFolderName: TFileName read FToolFolderName write SetToolFolderName;
     property HasAssembler: Boolean read FHasAssembler;
     property AssemblerFolderName: TFileName read FAssemblerFolderName;
@@ -366,12 +367,14 @@ type
   private
   public
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
+    procedure WriteConfig; override;
   end;
 
   TFolderConfig = class(TBaseConfig)
   private
   public
     procedure ReadConfig(const FolderName : TFileName; const FileName: TFileName = ''); override;
+    procedure WriteConfig; override;
   end;
 
 const
@@ -408,7 +411,7 @@ implementation
 
 uses
   StrUtils, Types, Masks, FileInfo, VersionTypes, TypInfo, Dialogs, Registry,
-  SynEditStrConst, Utils;
+  SynEditStrConst, Utils, JsonParser;
 
 type
   TAttributeConfig = record
@@ -438,7 +441,7 @@ const
    (StorageName: SYNS_AttrWhitespace;  Foreground: clDefault;    Background: clNone; Style: []));       // atWhitespace   Z80
 
   DELIMITER                = ';';
-  INI_CONFIG               = '%s\Paleo\Editor.ini';
+  INI_CONFIG               = '%s\Paleo\Editor.json';
   INI_SETTING              = 'Setting';
   INI_EDIT                 = 'EditFiles';
   INI_EXEC                 = 'ExecuteFiles';
@@ -468,13 +471,18 @@ const
   INI_TEXT_SYNTAX          = 'Text';
   INI_XML_SYNTAX           = 'XML';
   INI_PARAMS               = 'Params';
+  INI_TERMINAL             = 'Terminal';
+  INI_ATTRIBUTE            = 'Attribute';
   INI_TOOLS                = 'Tools';
+  INI_COMMAND              = 'Command';
+  INI_PARAM                = 'Param';
   INI_ATTRIBUTE_FOREGROUND = 'Foreground';
   INI_ATTRIBUTE_BACKGROUND = 'Background';
   INI_ATTRIBUTE_BOLD       = 'Bold';
   INI_ATTRIBUTE_ITALIC     = 'Italic';
   INI_ATTRIBUTE_UNDERLINE  = 'Underline';
   INI_ATTRIBUTE_STRIKEOUT  = 'StrikeOut';
+  INI_PROJECTS             = 'Projects';
   INI_MRU                  = 'MRU';
   INI_HEIGHT               = 'Height';
   INI_LEFT                 = 'Left';
@@ -489,6 +497,146 @@ const
   INI_EDITOR_FONT_SIZE     = 'Size';
   INI_EDITOR_RIGHT_MARGIN  = 'RightMargin';
 
+{ TJsonObjectHelper }
+
+type
+  TJsonObjectHelper = class helper for TJsonObject
+  public
+    function GetObject(const Name: String; Clear: Boolean = False): TJsonObject;
+    function GetArray(const Name: String; Clear: Boolean = False): TJsonArray;
+    function GetProject(const Name: String): TJsonObject;
+    function GetForm(Form: TForm): TJsonObject;
+    function Read(const Name: String; const Default: String): String; overload;
+    procedure Write(const Name: String; const Value: String); overload;
+    function Read(const Name: String; const Default: Integer): Integer; overload;
+    procedure Write(const Name: String; const Value: Integer); overload;
+    function Read(const Name: String; const Default: Boolean): Boolean; overload;
+    procedure Write(const Name: String; const Value: Boolean); overload;
+    procedure SaveToFile(const FileName: TFileName);
+  end;
+
+function TJsonObjectHelper.GetObject(const Name: String; Clear: Boolean): TJsonObject;
+begin
+  if Self.Find(Name, Result) then begin
+    if Clear then
+      Result.Clear; end
+  else begin
+    Result := TJsonObject.Create;
+    Self.Add(Name, Result);
+  end;
+end;
+
+function TJsonObjectHelper.GetArray(const Name: String; Clear: Boolean = False): TJsonArray;
+begin
+  if Self.Find(Name, Result) then begin
+    if Clear then
+      Result.Clear; end
+  else begin
+    Result := TJsonArray.Create;
+    Self.Add(Name, Result);
+  end;
+end;
+
+function TJsonObjectHelper.GetProject(const Name: String): TJsonObject;
+const
+  INI_PROJECT = 'Project';
+var
+  Temp: TJsonObject;
+begin
+  Temp := Self.GetObject(INI_PROJECT);
+  Result := Temp.GetObject(Name);
+end;
+
+function TJsonObjectHelper.GetForm(Form: TForm): TJsonObject;
+const
+  INI_FORMS = 'Forms';
+var
+  Temp: TJsonObject;
+begin
+  Temp := Self.GetObject(INI_FORMS);
+  Result := Temp.GetObject(Form.ClassName);
+end;
+
+function TJsonObjectHelper.Read(const Name: String; const Default: String): String;
+var
+  Node: TJsonData;
+begin
+  if Self.Find(Name, Node) then
+    Result := Node.AsString
+  else begin
+    Self.Add(Name, Default);
+    if Self.Find(Name, Node) then
+      Result := Node.AsString
+    else
+      Result := Default;
+  end;
+end;
+
+procedure TJsonObjectHelper.Write(const Name: String; const Value: String);
+var
+  Node: TJsonData;
+begin
+  if Self.Find(Name, Node) then
+    Node.AsString := Value
+  else
+    Self.Add(Name, Value);
+end;
+
+function TJsonObjectHelper.Read(const Name: String; const Default: Integer): Integer;
+var
+  Node: TJsonData;
+begin
+  if Self.Find(Name, Node) then
+    Result := Node.AsInteger
+  else begin
+    Self.Add(Name, Default);
+    if Self.Find(Name, Node) then
+      Result := Node.AsInteger
+    else
+      Result := Default;
+  end;
+end;
+
+procedure TJsonObjectHelper.Write(const Name: String; const Value: Integer);
+var
+  Node: TJsonData;
+begin
+  if Self.Find(Name, Node) then
+    Node.AsInteger := Value
+  else
+    Self.Add(Name, Value);
+end;
+
+function TJsonObjectHelper.Read(const Name: String; const Default: Boolean): Boolean;
+var
+  Node: TJsonData;
+begin
+  if Self.Find(Name, Node) then
+    Result := Node.AsBoolean
+  else begin
+    Self.Add(Name, Default);
+    if Self.Find(Name, Node) then
+      Result := Node.AsBoolean
+    else
+      Result := Default;
+  end;
+end;
+
+procedure TJsonObjectHelper.Write(const Name: String; const Value: Boolean);
+var
+  Node: TJsonData;
+begin
+  if Self.Find(Name, Node) then
+    Node.AsBoolean := Value
+  else
+    Self.Add(Name, Value);
+end;
+
+procedure TJsonObjectHelper.SaveToFile(const FileName: TFileName);
+begin
+  WriteStrToFile(FileName, Self.FormatJSON);
+end;
+
 { TAttribute }
 
 constructor TAttribute.Create(Attr: TAttributeType; const StorageName: String);
@@ -498,32 +646,43 @@ begin
   FStorageName := StorageName;
 end;
 
-procedure TAttribute.ReadConfig(Ini: TIniFile);
+procedure TAttribute.Reset;
 var
   Config: TAttributeConfig;
 begin
   Config := ATTRIBUTE_CONFIGS[Attr];
-  Foreground := TColor(Ini.ReadInteger(StorageName, INI_ATTRIBUTE_FOREGROUND, Integer(Config.Foreground)));
-  Background := TColor(Ini.ReadInteger(StorageName, INI_ATTRIBUTE_BACKGROUND, Integer(Config.Background)));
+  Foreground := Config.Foreground;
+  Background := Config.Background;
+  Style := Config.Style;
+end;
+
+procedure TAttribute.ReadConfig(Parent: TJsonObject);
+var
+  Config: TAttributeConfig;
+begin
+  Config := ATTRIBUTE_CONFIGS[Attr];
+  Foreground := TColor(Parent.Read(INI_ATTRIBUTE_FOREGROUND, Integer(Config.Foreground)));
+  Background := TColor(Parent.Read(INI_ATTRIBUTE_BACKGROUND, Integer(Config.Background)));
   Style := [];
-  if Ini.ReadBool(StorageName, INI_ATTRIBUTE_BOLD, fsBold in Config.Style) then
+  if Parent.Read(INI_ATTRIBUTE_BOLD, fsBold in Config.Style) then
     Style := Style + [fsBold];
-  if Ini.ReadBool(StorageName, INI_ATTRIBUTE_ITALIC, fsItalic in Config.Style) then
+  if Parent.Read(INI_ATTRIBUTE_ITALIC, fsItalic in Config.Style) then
     Style := Style + [fsItalic];
-  if Ini.ReadBool(StorageName, INI_ATTRIBUTE_UNDERLINE, fsUnderline in Config.Style) then
+  if Parent.Read(INI_ATTRIBUTE_UNDERLINE, fsUnderline in Config.Style) then
     Style := Style + [fsUnderline];
-  if Ini.ReadBool(StorageName, INI_ATTRIBUTE_STRIKEOUT, fsStrikeOut in Config.Style) then
+  if Parent.Read(INI_ATTRIBUTE_STRIKEOUT, fsStrikeOut in Config.Style) then
     Style := Style + [fsStrikeOut];
 end;
 
-procedure TAttribute.WriteConfig(Ini: TIniFile);
+function TAttribute.WriteConfig: TJsonObject;
 begin
-  Ini.writeInteger(StorageName, INI_ATTRIBUTE_FOREGROUND, Integer(Foreground));
-  Ini.WriteInteger(StorageName, INI_ATTRIBUTE_BACKGROUND, Integer(Background));
-  Ini.WriteBool(StorageName, INI_ATTRIBUTE_BOLD, fsBold in Style);
-  Ini.WriteBool(StorageName, INI_ATTRIBUTE_ITALIC, fsItalic in Style);
-  Ini.WriteBool(StorageName, INI_ATTRIBUTE_UNDERLINE, fsUnderline in Style);
-  Ini.WriteBool(StorageName, INI_ATTRIBUTE_STRIKEOUT, fsStrikeOut in Style);
+  Result := TJsonObject.Create;
+  Result.Write(INI_ATTRIBUTE_FOREGROUND, Integer(Foreground));
+  Result.Write(INI_ATTRIBUTE_BACKGROUND, Integer(Background));
+  Result.Write(INI_ATTRIBUTE_BOLD, fsBold in Style);
+  Result.Write(INI_ATTRIBUTE_ITALIC, fsItalic in Style);
+  Result.Write(INI_ATTRIBUTE_UNDERLINE, fsUnderline in Style);
+  Result.Write(INI_ATTRIBUTE_STRIKEOUT, fsStrikeOut in Style);
 end;
 
 procedure TAttribute.Assign(Source: TAttribute);
@@ -584,17 +743,12 @@ end;
 procedure TAttributes.Reset;
 var
   Attr: TAttributeType;
-  Config: TAttributeConfig;
   Attribute: TAttribute;
 begin
   for Attr := Low(Attr) to High(Attr) do begin
-    Config := ATTRIBUTE_CONFIGS[Attr];
     Attribute := Items[Attr];
-    if Assigned(Attribute) then begin
-      Attribute.Foreground := Config.Foreground;
-      Attribute.Background := Config.Background;
-      Attribute.Style := Config.Style;
-    end;
+    if Assigned(Attribute) then
+      Attribute.Reset;
   end;
 end;
 
@@ -610,20 +764,31 @@ begin
   end;
 end;
 
-procedure TAttributes.ReadConfig(Ini: TIniFile);
+function TAttributes.ReadConfig(Parent: TJsonObject): TJsonObject;
 var
-  Attr: TAttributeType;
+  I: TAttributeType;
+  Attr: TAttribute;
+  Attribute: TJsonObject;
 begin
-  for Attr := Low(Attr) to High(Attr) do
-    Items[Attr].ReadConfig(Ini);
+  if not Parent.Find(INI_ATTRIBUTE, Result) then
+    Reset
+  else
+    for I := Low(I) to High(I) do begin
+      Attr := Items[I];
+      if Result.Find(Attr.StorageName, Attribute) then
+        Attr.ReadConfig(Attribute)
+      else
+        Attr.Reset;
+    end;
 end;
 
-procedure TAttributes.WriteConfig(Ini: TIniFile);
+function TAttributes.WriteConfig(Parent: TJsonObject; const Name: String): TJsonObject;
 var
   Attr: TAttributeType;
 begin
+  Result := Parent.GetObject(Name, True);
   for Attr := Low(Attr) to High(Attr) do
-    Items[Attr].WriteConfig(Ini);
+    Result.Add(Items[Attr].StorageName, Items[Attr].WriteConfig);
 end;
 
 procedure TAttributes.Populate(List: TStrings);
@@ -657,36 +822,38 @@ end;
 
 { TTerminal }
 
-procedure TTerminal.ReadConfig(Ini: TIniFile);
+function TTerminal.ReadConfig(Parent: TJsonObject): TJsonObject;
 var
   Temp: String = '';
 begin
-  FComPort := Ini.ReadInteger(INI_TERMINAL, INI_COM_PORT, DEF_COM_PORT);
-  FBaud := Ini.ReadInteger(INI_TERMINAL, INI_BAUD, DEF_BAUD);
-  FDataBits := Ini.ReadInteger(INI_TERMINAL, INI_DATA_BIT, DEF_DATA_BIT);
-  FStopBits := Ini.ReadInteger(INI_TERMINAL, INI_STOP_BIT, DEF_STOP_BIT);
-  Temp := Ini.ReadString(INI_TERMINAL, INI_PARITY, GetEnumName(TypeInfo(TTerminal.TParity), Ord(DEF_PARITY)));
+  Result := Parent.GetObject(INI_TERMINAL);
+  FComPort := Result.Read(INI_COM_PORT, DEF_COM_PORT);
+  FBaud := Result.Read(INI_BAUD, DEF_BAUD);
+  FDataBits := Result.Read(INI_DATA_BIT, DEF_DATA_BIT);
+  FStopBits := Result.Read(INI_STOP_BIT, DEF_STOP_BIT);
+  Temp := Result.Read(INI_PARITY, GetEnumName(TypeInfo(TTerminal.TParity), Ord(DEF_PARITY)));
   FParity := TTerminal.TParity(GetEnumValue(TypeInfo(TTerminal.TParity), Temp));
-  Temp := Ini.ReadString(INI_TERMINAL, INI_FLOW_CONTROL, GetEnumName(TypeInfo(TTerminal.TFlowControl), Ord(DEF_FLOW_CONTROL)));
+  Temp := Result.Read(INI_FLOW_CONTROL, GetEnumName(TypeInfo(TTerminal.TFlowControl), Ord(DEF_FLOW_CONTROL)));
   FFlowControl := TTerminal.TFlowControl(GetEnumValue(TypeInfo(TTerminal.TFlowControl), Temp));
-  FCharDelay := Ini.ReadInteger(INI_TERMINAL, INI_CHAR_DELAY, DEF_CHAR_DELAY);
-  FLineDelay := Ini.ReadInteger(INI_TERMINAL, INI_LINE_DELAY, DEF_LINE_DELAY);
-  FUploadCommand := Ini.ReadString(INI_TERMINAL, INI_UPLOAD, DEF_UPLOAD);
-  FDownloadCommand := Ini.ReadString(INI_TERMINAL, INI_DOWNLOAD, DEF_DOWNLOAD);
+  FCharDelay := Result.Read(INI_CHAR_DELAY, DEF_CHAR_DELAY);
+  FLineDelay := Result.Read(INI_LINE_DELAY, DEF_LINE_DELAY);
+  FUploadCommand := Result.Read(INI_UPLOAD, DEF_UPLOAD);
+  FDownloadCommand := Result.Read(INI_DOWNLOAD, DEF_DOWNLOAD);
 end;
 
-procedure TTerminal.WriteConfig(Ini: TIniFile);
+function TTerminal.WriteConfig(Parent: TJsonObject; const Name: String): TJsonObject;
 begin
-  Ini.WriteInteger(INI_TERMINAL, INI_COM_PORT, FComPort);
-  Ini.WriteInteger(INI_TERMINAL, INI_BAUD, FBaud);
-  Ini.WriteInteger(INI_TERMINAL, INI_DATA_BIT, FDataBits);
-  Ini.WriteInteger(INI_TERMINAL, INI_STOP_BIT, FStopBits);
-  Ini.WriteString(INI_TERMINAL, INI_PARITY, GetEnumName(TypeInfo(TTerminal.TParity), Ord(FParity)));
-  Ini.WriteString(INI_TERMINAL, INI_FLOW_CONTROL, GetEnumName(TypeInfo(TTerminal.TFlowControl), Ord(FFlowControl)));
-  Ini.WriteInteger(INI_TERMINAL, INI_CHAR_DELAY, FCharDelay);
-  Ini.WriteInteger(INI_TERMINAL, INI_LINE_DELAY, FLineDelay);
-  Ini.WriteString(INI_TERMINAL, INI_UPLOAD, FUploadCommand);
-  Ini.WriteString(INI_TERMINAL, INI_DOWNLOAD, FDownloadCommand);
+  Result := Parent.GetObject(Name);
+  Result.Write(INI_COM_PORT, FComPort);
+  Result.Write(INI_BAUD, FBaud);
+  Result.Write(INI_DATA_BIT, FDataBits);
+  Result.Write(INI_STOP_BIT, FStopBits);
+  Result.Write(INI_PARITY, GetEnumName(TypeInfo(TTerminal.TParity), Ord(FParity)));
+  Result.Write(INI_FLOW_CONTROL, GetEnumName(TypeInfo(TTerminal.TFlowControl), Ord(FFlowControl)));
+  Result.Write(INI_CHAR_DELAY, FCharDelay);
+  Result.Write(INI_LINE_DELAY, FLineDelay);
+  Result.Write(INI_UPLOAD, FUploadCommand);
+  Result.Write(INI_DOWNLOAD, FDownloadCommand);
 end;
 
 function SortByComNumber(List: TStringList; Index1, Index2: Integer): Integer;
@@ -860,6 +1027,24 @@ begin
   FConfigFileName := Format(INI_CONFIG, [FConfigFileName]);
 end;
 
+function TCustomConfig.GetDocument: TJsonObject;
+begin
+  if FileExists(ConfigFileName) then
+    try
+      Result := GetJSON(ReadStrFromFile(ConfigFileName)) as TJsonObject
+    except
+      Result := TJsonObject.Create;
+    end
+  else
+    Result := TJsonObject.Create;
+end;
+
+procedure TCustomConfig.SaveDocument(Document: TJsonObject);
+begin
+  if Assigned(Document) then
+    WriteStrToFile(ConfigFileName, Document.FormatJSON);
+end;
+
 { TConfig }
 
 constructor TConfig.Create;
@@ -1003,240 +1188,324 @@ procedure TConfig.SetSyntax(Syntax: TSyntax; const Value: String);
 begin
   FSyntax[Syntax] := Value;
 end;
+
 procedure TConfig.ReadConfig;
 var
-  Ini: TIniFile;
-  Temp: TStringList;
-  I: Integer = 0;
-  Command: String = '';
-  Param: String = '';
-begin
-  Ini := TIniFile.Create(ConfigFileName);
-  try
-    FEditFiles := Ini.ReadString(INI_SETTING, INI_EDIT, INI_EDIT_DEF);
-    FExecuteFiles := Ini.ReadString(INI_SETTING, INI_EXEC, INI_EXEC_DEF);
-    FAssemblyFiles := Ini.ReadString(INI_SETTING, INI_ASSEMBLE, INI_ASSEMBLE_DEF);
-    FHtmlFiles := Ini.ReadString(INI_SETTING, INI_HTML, INI_HTML_DEF);
-    FSearchFiles := Ini.ReadString(INI_SETTING, INI_SEARCH, INI_SEARCH_DEF);
-    FUneditableFiles := Ini.ReadString(INI_SETTING, INI_UNEDITABLE, INI_UNEDITABLE_DEF);
-    FSaveWorkspace := Ini.ReadBool(INI_SETTING, INI_SAVE_WORKSPACE, INI_SAVE_WORKSPACE_DEF);
-    FExcludeFiles := Ini.ReadString(INI_EXCLUDE, INI_EXCLUDE_FILE, INI_EXCLUDE_FILE_DEF);
-    FExcludeFolders := Ini.ReadString(INI_EXCLUDE, INI_EXCLUDE_FOLDER, INI_EXCLUDE_FOLDER_DEF);
-    AssemblySyntax := Ini.ReadString(INI_SYNTAX, INI_ASSEMBLY_SYNTAX, ITEM_ASSEMBLY_SYNTAX_DEF);
-    BasicSyntax := Ini.ReadString(INI_SYNTAX, INI_BASIC_SYNTAX, ITEM_BASIC_SYNTAX_DEF);
-    BatchSyntax := Ini.ReadString(INI_SYNTAX, INI_BATCH_SYNTAX, ITEM_BATCH_SYNTAX_DEF);
-    HtmlSyntax := Ini.ReadString(INI_SYNTAX, INI_HTML_SYNTAX, ITEM_HTML_SYNTAX_DEF);
-    ImageSyntax := Ini.ReadString(INI_SYNTAX, INI_IMAGE_SYNTAX, ITEM_IMAGE_SYNTAX_DEF);
-    IniSyntax := Ini.ReadString(INI_SYNTAX, INI_INI_SYNTAX, ITEM_INI_SYNTAX_DEF);
-    IntelHexSyntax := Ini.ReadString(INI_SYNTAX, INI_INTEL_HEX_SYNTAX, ITEM_INTEL_HEX_SYNTAX_DEF);
-    JsonSyntax := Ini.ReadString(INI_SYNTAX, INI_JSON_SYNTAX, ITEM_JSON_SYNTAX_DEF);
-    MarkdownSyntax := Ini.ReadString(INI_SYNTAX, INI_MARKDOWN_SYNTAX, ITEM_MARKDOWN_SYNTAX_DEF);
-    PascalSyntax := Ini.ReadString(INI_SYNTAX, INI_PASCAL_SYNTAX, ITEM_PASCAL_SYNTAX_DEF);
-    PdfSyntax := Ini.ReadString(INI_SYNTAX, INI_PDF_SYNTAX, ITEM_PDF_SYNTAX_DEF);
-    RtfSyntax := Ini.ReadString(INI_SYNTAX, INI_RTF_SYNTAX, ITEM_RTF_SYNTAX_DEF);
-    SpinSyntax := Ini.ReadString(INI_SYNTAX, INI_SPIN_SYNTAX, ITEM_SPIN_SYNTAX_DEF);
-    TextSyntax := Ini.ReadString(INI_SYNTAX, INI_TEXT_SYNTAX, ITEM_TEXT_SYNTAX_DEF);
-    XmlSyntax := Ini.ReadString(INI_SYNTAX, INI_XML_SYNTAX, ITEM_XML_SYNTAX_DEF);
-    FFontName := Ini.ReadString(INI_EDITOR, INI_EDITOR_FONT_NAME, INI_EDITOR_FONT_NAME_DEF);
-    FFontSize := Ini.ReadInteger(INI_EDITOR, INI_EDITOR_FONT_SIZE, INI_EDITOR_FONT_SIZE_DEF);
-    FRightMargin := Ini.ReadInteger(INI_EDITOR, INI_EDITOR_RIGHT_MARGIN, INI_EDITOR_RIGHT_MARGIN_DEF);
-    if Ini.SectionExists(INI_PARAMS) then begin
-      FParams.Clear;
-      Temp := TStringList.Create;
-      try
-        Ini.ReadSectionValues(INI_PARAMS, Temp);
-        for I := 0 to Temp.Count - 1 do begin
-          Command := Temp.Names[I];
-          if not Command.IsEmpty then begin
-            Param := Temp.ValueFromIndex[I];
-            if not Param.IsEmpty then
-              AddParam(Command, Param);
-          end;
-        end;
-      finally
-        Temp.Free
-      end;
+  Document: TJsonObject;
+
+  function ReadSettings(Parent: TJsonObject): TJsonObject;
+  begin
+    Result := Parent.GetObject(INI_SETTING);
+    FEditFiles := Result.Read(INI_EDIT, INI_EDIT_DEF);
+    FExecuteFiles := Result.Read(INI_EXEC, INI_EXEC_DEF);
+    FAssemblyFiles := Result.Read(INI_ASSEMBLE, INI_ASSEMBLE_DEF);
+    FHtmlFiles := Result.Read(INI_HTML, INI_HTML_DEF);
+    FSearchFiles := Result.Read(INI_SEARCH, INI_SEARCH_DEF);
+    FUneditableFiles := Result.Read(INI_UNEDITABLE, INI_UNEDITABLE_DEF);
+    FSaveWorkspace := Result.Read(INI_SAVE_WORKSPACE, INI_SAVE_WORKSPACE_DEF);
+  end;
+
+  function ReadExclude(Parent: TJsonObject): TJsonObject;
+  begin
+    Result := Parent.GetObject(INI_EXCLUDE);
+    FExcludeFiles := Result.Read(INI_EXCLUDE_FILE, INI_EXCLUDE_FILE_DEF);
+    FExcludeFolders := Result.Read(INI_EXCLUDE_FOLDER, INI_EXCLUDE_FOLDER_DEF);
+  end;
+
+  function ReadSyntax(Parent: TJsonObject): TJsonObject;
+  begin
+    Result := Parent.GetObject(INI_SYNTAX);
+    AssemblySyntax := Result.Read(INI_ASSEMBLY_SYNTAX, ITEM_ASSEMBLY_SYNTAX_DEF);
+    BasicSyntax := Result.Read(INI_BASIC_SYNTAX, ITEM_BASIC_SYNTAX_DEF);
+    BatchSyntax := Result.Read(INI_BATCH_SYNTAX, ITEM_BATCH_SYNTAX_DEF);
+    HtmlSyntax := Result.Read(INI_HTML_SYNTAX, ITEM_HTML_SYNTAX_DEF);
+    ImageSyntax := Result.Read(INI_IMAGE_SYNTAX, ITEM_IMAGE_SYNTAX_DEF);
+    IniSyntax := Result.Read(INI_INI_SYNTAX, ITEM_INI_SYNTAX_DEF);
+    IntelHexSyntax := Result.Read(INI_INTEL_HEX_SYNTAX, ITEM_INTEL_HEX_SYNTAX_DEF);
+    JsonSyntax := Result.Read(INI_JSON_SYNTAX, ITEM_JSON_SYNTAX_DEF);
+    MarkdownSyntax := Result.Read(INI_MARKDOWN_SYNTAX, ITEM_MARKDOWN_SYNTAX_DEF);
+    PascalSyntax := Result.Read(INI_PASCAL_SYNTAX, ITEM_PASCAL_SYNTAX_DEF);
+    PdfSyntax := Result.Read(INI_PDF_SYNTAX, ITEM_PDF_SYNTAX_DEF);
+    RtfSyntax := Result.Read(INI_RTF_SYNTAX, ITEM_RTF_SYNTAX_DEF);
+    SpinSyntax := Result.Read(INI_SPIN_SYNTAX, ITEM_SPIN_SYNTAX_DEF);
+    TextSyntax := Result.Read(INI_TEXT_SYNTAX, ITEM_TEXT_SYNTAX_DEF);
+    XmlSyntax := Result.Read(INI_XML_SYNTAX, ITEM_XML_SYNTAX_DEF);
+  end;
+
+  function ReadEditor(Parent: TJsonObject): TJsonObject;
+  begin
+    Result := Parent.GetObject(INI_EDITOR);
+    FFontName := Result.Read(INI_EDITOR_FONT_NAME, INI_EDITOR_FONT_NAME_DEF);
+    FFontSize := Result.Read(INI_EDITOR_FONT_SIZE, INI_EDITOR_FONT_SIZE_DEF);
+    FRightMargin := Result.Read(INI_EDITOR_RIGHT_MARGIN, INI_EDITOR_RIGHT_MARGIN_DEF);
+  end;
+
+  function ReadParam(Parent: TJsonObject): TJsonArray;
+  var
+    Command: String = '';
+    Param: String = '';
+    I: TJsonEnum;
+    Node: TJsonObject;
+  begin
+    FParams.Clear;
+    Result := Parent.GetArray(INI_PARAMS, False);
+    for I in Result do begin
+      Node := TJsonObject(I.Value);
+      Command := Node.Read(INI_COMMAND, EmptyStr);
+      Param := Node.Read(INI_PARAM, EmptyStr);
+      AddParam(Command, Param);
     end;
-    FTerminal.ReadConfig(Ini);
-    FAttributes.ReadConfig(Ini);
+  end;
+
+begin
+  Document := GetDocument;
+  try
+    ReadSettings(Document);
+    ReadExclude(Document);
+    ReadSyntax(Document);
+    ReadEditor(Document);
+    ReadParam(Document);
+    Terminal.ReadConfig(Document);
+    Attributes.ReadConfig(Document);
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
 procedure TConfig.WriteConfig;
 var
-  Ini: TIniFile;
-  Command: String = '';
-  Param: String = '';
-begin
-  Ini := TIniFile.Create(ConfigFileName);
-  try
-    Ini.WriteString(INI_SETTING, INI_EDIT, FEditFiles);
-    Ini.WriteString(INI_SETTING, INI_EXEC, FExecuteFiles);
-    Ini.WriteString(INI_SETTING, INI_ASSEMBLE, FAssemblyFiles);
-    Ini.WriteString(INI_SETTING, INI_HTML, FHtmlFiles);
-    Ini.WriteString(INI_SETTING, INI_SEARCH, FSearchFiles);
-    Ini.WriteString(INI_SETTING, INI_UNEDITABLE, FUneditableFiles);
-    Ini.WriteBool(INI_SETTING, INI_SAVE_WORKSPACE, FSaveWorkspace);
-    Ini.WriteString(INI_EXCLUDE, INI_EXCLUDE_FILE, FExcludeFiles);
-    Ini.WriteString(INI_EXCLUDE, INI_EXCLUDE_FOLDER, FExcludeFolders);
-    Ini.WriteString(INI_SYNTAX, INI_ASSEMBLY_SYNTAX, AssemblySyntax);
-    Ini.WriteString(INI_SYNTAX, INI_BASIC_SYNTAX, BasicSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_BATCH_SYNTAX, BatchSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_HTML_SYNTAX, HtmlSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_IMAGE_SYNTAX, ImageSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_INI_SYNTAX, IniSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_INTEL_HEX_SYNTAX, IntelHexSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_JSON_SYNTAX, JsonSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_MARKDOWN_SYNTAX, MarkdownSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_PASCAL_SYNTAX, PascalSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_PDF_SYNTAX, PdfSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_RTF_SYNTAX, RtfSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_SPIN_SYNTAX, SpinSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_TEXT_SYNTAX, TextSyntax);
-    Ini.WriteString(INI_SYNTAX, INI_XML_SYNTAX, XmlSyntax);
-    Ini.WriteString(INI_EDITOR, INI_EDITOR_FONT_NAME, FFontName);
-    Ini.WriteInteger(INI_EDITOR, INI_EDITOR_FONT_SIZE, FFontSize);
-    Ini.WriteInteger(INI_EDITOR, INI_EDITOR_RIGHT_MARGIN, FRightMargin);
-    Ini.EraseSection(INI_PARAMS);
+  Document: TJsonObject;
+
+  function WriteSettings(Parent: TJsonObject; const Name: String): TJsonObject;
+  begin
+    Result := Parent.GetObject(Name);
+    Result.Write(INI_EDIT, FEditFiles);
+    Result.Write(INI_EXEC, FExecuteFiles);
+    Result.Write(INI_ASSEMBLE, FAssemblyFiles);
+    Result.Write(INI_HTML, FHtmlFiles);
+    Result.Write(INI_SEARCH, FSearchFiles);
+    Result.Write(INI_UNEDITABLE, FUneditableFiles);
+    Result.Write(INI_SAVE_WORKSPACE, FSaveWorkspace);
+  end;
+
+  function WriteExclude(Parent: TJsonObject; const Name: String): TJsonObject;
+  begin
+    Result := Parent.GetObject(Name);
+    Result.Write(INI_EXCLUDE_FILE, FExcludeFiles);
+    Result.Write(INI_EXCLUDE_FOLDER, FExcludeFolders);
+  end;
+
+  function WriteSyntax(Parent: TJsonObject; const Name: String): TJsonObject;
+  begin
+    Result := Parent.GetObject(Name);
+    Result.Write(INI_ASSEMBLY_SYNTAX, AssemblySyntax);
+    Result.Write(INI_BASIC_SYNTAX, BasicSyntax);
+    Result.Write(INI_BATCH_SYNTAX, BatchSyntax);
+    Result.Write(INI_HTML_SYNTAX, HtmlSyntax);
+    Result.Write(INI_IMAGE_SYNTAX, ImageSyntax);
+    Result.Write(INI_INI_SYNTAX, IniSyntax);
+    Result.Write(INI_INTEL_HEX_SYNTAX, IntelHexSyntax);
+    Result.Write(INI_JSON_SYNTAX, JsonSyntax);
+    Result.Write(INI_MARKDOWN_SYNTAX, MarkdownSyntax);
+    Result.Write(INI_PASCAL_SYNTAX, PascalSyntax);
+    Result.Write(INI_PDF_SYNTAX, PdfSyntax);
+    Result.Write(INI_RTF_SYNTAX, RtfSyntax);
+    Result.Write(INI_SPIN_SYNTAX, SpinSyntax);
+    Result.Write(INI_TEXT_SYNTAX, TextSyntax);
+    Result.Write(INI_XML_SYNTAX, XmlSyntax);
+  end;
+
+  function WriteEditor(Parent: TJsonObject; const Name: String): TJsonObject;
+  begin
+    Result := Parent.GetObject(Name);
+    Result.Write(INI_EDITOR_FONT_NAME, FFontName);
+    Result.Write(INI_EDITOR_FONT_SIZE, FFontSize);
+    Result.Write(INI_EDITOR_RIGHT_MARGIN, FRightMargin);
+  end;
+
+  function WriteParam(Parent: TJsonObject; const Name: String): TJsonArray;
+  var
+    Command: String = '';
+    Param: String = '';
+    Node: TJsonObject;
+  begin
+    Result := Parent.GetArray(Name, True);
     for Command in FParams.Keys do begin
       Param := FParams[Command];
-      if not Param.IsEmpty then
-        Ini.WriteString(INI_PARAMS, Command, Param);
+      if not Param.IsEmpty then begin
+        Node := TJsonObject.Create;
+        Node.Add(INI_COMMAND, Command);
+        Node.Add(INI_PARAM, Param);
+        Result.Add(Node);
+      end;
     end;
-    FTerminal.WriteConfig(Ini);
-    FAttributes.WriteConfig(Ini);
+  end;
+
+begin
+  Document := GetDocument;
+  try
+    WriteSettings(Document, INI_SETTING);
+    WriteExclude(Document, INI_EXCLUDE);
+    WriteSyntax(Document, INI_SYNTAX);
+    WriteEditor(Document, INI_EDITOR);
+    WriteParam(Document, INI_PARAMS);
+    Terminal.WriteConfig(Document, INI_TERMINAL);
+    Attributes.WriteConfig(Document, INI_ATTRIBUTE);
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
 procedure TConfig.ReadConfig(Form: TForm);
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Node: TJsonObject;
   Temp: String = '';
 begin
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    Form.Height := Ini.ReadInteger(Form.ClassName, INI_HEIGHT, Form.Constraints.MinHeight);
-    Form.Left := Ini.ReadInteger(Form.ClassName, INI_LEFT, INI_LEFT_DEF);
-    Form.Top := Ini.ReadInteger(Form.ClassName, INI_TOP, INI_TOP_DEF);
-    Form.Width := Ini.ReadInteger(Form.ClassName, INI_WIDTH, Form.Constraints.MinWidth);
-    Temp := Ini.ReadString(Form.ClassName, INI_WIN_STATE, INI_WIN_STATE_DEF);
+    Node := Document.GetForm(Form);
+    Form.Height := Node.Read(INI_HEIGHT, Form.Constraints.MinHeight);
+    Form.Left := Node.Read(INI_LEFT, INI_LEFT_DEF);
+    Form.Top := Node.Read(INI_TOP, INI_TOP_DEF);
+    Form.Width := Node.Read(INI_WIDTH, Form.Constraints.MinWidth);
+    Temp := Node.Get(INI_WIN_STATE, INI_WIN_STATE_DEF);
     Form.WindowState := TWindowState(GetEnumValue(TypeInfo(TWindowState), Temp));
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
 procedure TConfig.WriteConfig(Form: TForm);
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Node: TJsonObject;
 begin
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    Ini.WriteInteger(Form.ClassName, INI_HEIGHT, Form.Height);
-    Ini.WriteInteger(Form.ClassName, INI_LEFT, Form.Left);
-    Ini.WriteInteger(Form.ClassName, INI_TOP, Form.Top);
-    Ini.WriteInteger(Form.ClassName, INI_WIDTH, Form.Width);
-    Ini.WriteString(Form.ClassName, INI_WIN_STATE, GetEnumName(TypeInfo(TWindowState), Ord(Form.WindowState)));
+    Node := Document.GetForm(Form);
+    Node.Write(INI_HEIGHT, Form.Height);
+    Node.Write(INI_LEFT, Form.Left);
+    Node.Write(INI_TOP, Form.Top);
+    Node.Write(INI_WIDTH, Form.Width);
+    Node.Write(INI_WIN_STATE, GetEnumName(TypeInfo(TWindowState), Ord(Form.WindowState)));
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
 procedure TConfig.ReadConfig(ParentMenu: TMenuItem; EventHandler: TNotifyEvent);
 var
-  Ini: TIniFile;
-  Projects: TStringList;
-  Project: String = '';
+  Document: TJsonObject;
+  List: TJsonArray;
+  I: TJsonEnum;
+  Node: TJsonObject;
   ImageIndex: Integer = 0;
   Item: TMenuItem;
 begin
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    Projects := TStringList.Create;
-    try
-      Ini.ReadSection(INI_MRU, Projects);
-      for Project in Projects do begin
-        ImageIndex := Ini.ReadInteger(INI_MRU, Project, -1);
-        Item := TMenuItem.Create(ParentMenu);
-        Item.Caption := Project;
-        Item.Hint := Format(MRU_MASK, [Project]);
-        Item.Tag := ImageIndex;
-        Item.ImageIndex := Item.Tag;
-        Item.OnClick := EventHandler;
-        ParentMenu.Add(Item);
-      end;
-    finally
-      Projects.Free;
+    List := Document.GetArray(INI_MRU);
+    for I in List do begin
+      Node := TJsonObject(I.Value);
+      ImageIndex := Node.Read('ImageIndex', -1);
+      Item := TMenuItem.Create(ParentMenu);
+      Item.Caption := Node.Read('Caption', EmptyStr);
+      Item.Hint := Format(MRU_MASK, [Item.Caption]);
+      Item.Tag := ImageIndex;
+      Item.ImageIndex := Item.Tag;
+      Item.OnClick := EventHandler;
+      ParentMenu.Add(Item);
     end;
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
 procedure TConfig.WriteConfig(ParentMenu: TMenuItem);
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Node: TJsonArray;
   Item: TMenuItem;
+  Child: TJsonObject;
 begin
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    Ini.EraseSection(INI_MRU);
-    for Item in ParentMenu do
-      Ini.WriteInteger(INI_MRU, Item.Caption, Item.ImageIndex);
+    Node := Document.GetArray(INI_MRU, True);
+    for Item in ParentMenu do begin
+      Child := TJsonObject.Create;
+      Child.Write('Caption', Item.Caption);
+      Child.Write('ImageIndex', Item.ImageIndex);
+      Node.Add(Child);
+    end;
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
 procedure TConfig.ReadConfig(Control: TTreeView; const FileName: TFileName);
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Project: TJsonObject;
 begin
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    Control.Width := Ini.ReadInteger(Control.ClassName, FileName, Control.Width);
+    Project := Document.GetProject(FileName);
+    Control.Width := Project.Read(Control.ClassName, Control.Width);
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
-procedure TConfig.WriteConfig(Control: TTreeView; const FileName: TFileName);
+procedure TConfig.WriteConfig(Control: TTreeView; const FolderName: TFileName);
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Project: TJsonObject;
 begin
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    Ini.WriteInteger(Control.ClassName, FileName, Control.Width);
+    Project := Document.GetProject(FolderName);
+    Project.Write(Control.ClassName, Control.Width);
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
 procedure TConfig.ReadConfig(Control: TPageControl; const FileName: TFileName);
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Project: TJsonObject;
 begin
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    Control.Height := Ini.ReadInteger(Control.ClassName, FileName, Control.Height);
+    Project := Document.GetProject(FileName);
+    Control.Height := Project.Read(Control.ClassName, Control.Height);
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
-procedure TConfig.WriteConfig(Control: TPageControl; const FileName: TFileName);
+procedure TConfig.WriteConfig(Control: TPageControl; const FolderName: TFileName); overload;
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Project: TJsonObject;
 begin
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    Ini.WriteInteger(Control.ClassName, FileName, Control.Height);
+    Project := Document.GetProject(FolderName);
+    Project.Write(Control.ClassName, Control.Height);
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
   end;
 end;
 
@@ -1301,32 +1570,44 @@ end;
 
 function TConfig.ReadWorkspace(const FolderName: string): TStringList;
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Project: TJsonObject;
+  Projects: TJsonArray;
+  I: Integer;
 begin
   Result := TStringList.Create;
   if SaveWorkspace then begin
-    Ini := TIniFile.Create(ConfigFileName);
+    Document := GetDocument;
     try
-      Ini.ReadSectionValues(FolderName, Result);
+      Project := Document.GetProject(FolderName);
+      Projects := Project.GetArray(INI_PROJECTS);
+      for I := 0 to Projects.Count - 1 do
+        Result.Values[Projects.Strings[I]] := EmptyStr;
+      SaveDocument(Document);
     finally
-      Ini.Free;
+      Document.Free;
     end;
   end;
 end;
 
 procedure TConfig.WriteWorkspace(const FolderName: string; List: TStringList);
 var
-  Ini: TIniFile;
-  I: Integer = 0;
+  Document: TJsonObject;
+  Project: TJsonObject;
+  Projects: TJsonArray;
+  I: Integer;
 begin
-  Ini := TIniFile.Create(ConfigFileName);
-  try
-    Ini.EraseSection(FolderName);
-    if SaveWorkspace then
+  if SaveWorkspace then begin
+    Document := GetDocument;
+    try
+      Project := Document.GetProject(FolderName);
+      Projects := Project.GetArray(INI_PROJECTS, True);
       for I := 0 to List.Count - 1 do
-        Ini.WriteString(FolderName, List.Names[I], List.ValueFromIndex[I]);
-  finally
-    Ini.Free;
+        Projects.Add(List.Names[I]);
+      SaveDocument(Document);
+    finally
+      Document.Free;
+    end;
   end;
 end;
 
@@ -1431,47 +1712,71 @@ begin
   FFileName := FileName;
 end;
 
-procedure TBaseConfig.WriteConfig;
-var
-  Ini: TIniFile;
-begin
-  Ini := TIniFile.Create(ConfigFileName);
-  try
-    Ini.WriteString(INI_TOOLS, FFileName, FToolFolderName);
-  finally
-    Ini.Free;
-  end;
-end;
-
 { TProjectConfig }
 
 procedure TProjectConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Project: TJsonObject;
 begin
   inherited ReadConfig(FolderName, FileName);
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    FHomeFolder := ExcludeTrailingPathDelimiter(FolderName);
-    ToolFolderName := Ini.ReadString(INI_TOOLS, FFileName, EmptyStr);
+    Project := Document.GetProject(FileName);
+    ToolFolderName := Project.Read(INI_TOOLS, EmptyStr);
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
+  end;
+end;
+
+procedure TProjectConfig.WriteConfig;
+var
+  Document: TJsonObject;
+  Project: TJsonObject;
+begin
+  Document := GetDocument;
+  try
+    Project := Document.GetProject(FFileName);
+    Project.Write(INI_TOOLS, FToolFolderName);
+    SaveDocument(Document);
+  finally
+    Document.Free;
   end;
 end;
 
 { TFolderConfig }
 
 procedure TFolderConfig.ReadConfig(const FolderName : TFileName; const FileName: TFileName);
+const
+  MASK = '%s\Tools';
 var
-  Ini: TIniFile;
+  Document: TJsonObject;
+  Project: TJsonObject;
 begin
   inherited ReadConfig(FolderName, FileName);
-  Ini := TIniFile.Create(ConfigFileName);
+  Document := GetDocument;
   try
-    FHomeFolder := ExcludeTrailingPathDelimiter(FolderName);
-    ToolFolderName := Ini.ReadString(INI_TOOLS, FFileName, Format('%s\Tools', [FHomeFolder]));
+    Project := Document.GetProject(FolderName);
+    ToolFolderName := Project.Read(INI_TOOLS, Format(MASK, [FHomeFolder]));
+    SaveDocument(Document);
   finally
-    Ini.Free;
+    Document.Free;
+  end;
+end;
+
+procedure TFolderConfig.WriteConfig;
+var
+  Document: TJsonObject;
+  Project: TJsonObject;
+begin
+  Document := GetDocument;
+  try
+    Project := Document.GetProject(FHomeFolder);
+    Project.Write(INI_TOOLS, FToolFolderName);
+    SaveDocument(Document);
+  finally
+    Document.Free;
   end;
 end;
 

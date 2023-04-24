@@ -195,6 +195,8 @@ function FileToUploadStr(const FileName: TFileName): String;
 function FileToUploadFile(const FileName: TFileName; Drive: Char = 'A'; User: Byte = 0): TStringList;
 function FilesToUploadFile(FileNames: TStrings; Drive: Char = 'A'; User: Byte = 0): TStringList;
 procedure Flash(Control: TControl);
+function ReadStrFromFile(const FileName: TFileName): String;
+function WriteStrToFile(const FileName: TFileName; const Value: String): Boolean;
 
 implementation
 
@@ -342,6 +344,40 @@ begin
   finally
     Control.Color := OldColor;
     Application.ProcessMessages;
+  end;
+end;
+
+function ReadStrFromFile(const FileName: TFileName): String;
+var
+  Stream: TFileStream;
+begin
+  Result := EmptyStr;
+  if FileExists(FileName) then begin
+    Stream := TFileStream.Create(FileName, fmOpenRead, fmShareDenyWrite);
+    try
+      SetLength(Result, Stream.Size);
+      Stream.Read(Pointer(Result)^, Stream.Size);
+    finally
+      Stream.Free;
+    end;
+  end;
+end;
+
+function WriteStrToFile(const FileName: TFileName; const Value: String): Boolean;
+var
+  Stream: TFileStream;
+begin
+  if FileExists(FileName) then
+    DeleteFile(FileName);
+  Result := not FileExists(FileName);
+  if Result then begin
+    Stream := TFileStream.Create(FileName, fmCreate, fmShareExclusive);
+    try
+      Stream.Write(Pointer(Value)^, Value.Length);
+    finally
+      Stream.Free;
+    end;
+    Result := FileExists(FileName);
   end;
 end;
 

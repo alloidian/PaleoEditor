@@ -578,6 +578,7 @@ begin
         Node.Page := OpenFile(Node);
         Node.Status := Node.Page.Status;
       end;
+      Application.ProcessMessages;
     end;
   finally
     Temp.Free;
