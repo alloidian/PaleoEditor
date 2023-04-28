@@ -279,18 +279,15 @@ begin
 end;
 
 procedure TSearchFrame.SearchAllActionExecute(Sender: TObject);
-var
-  OldCursor: TCursor;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     if MatchDeclaration then
       DoSearchDeclaration(Criteria, Filter)
     else
       DoSearchAll(Criteria, Filter, MatchByCase, MatchWholeWordOnly);
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 

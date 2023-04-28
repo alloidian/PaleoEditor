@@ -440,12 +440,10 @@ end;
 
 procedure TMainForm.RefreshConfig;
 var
-  OldCursor: TCursor;
   I: Integer = 0;
   Form: TCustomForm;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     for I := 0 to MDIChildCount - 1 do begin
       Form := MDIChildren[I];
@@ -458,7 +456,7 @@ begin
 {$ENDIF}
     end;
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 

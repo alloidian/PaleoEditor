@@ -130,12 +130,10 @@ end;
 
 procedure TFolderWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
 var
-  OldCursor: TCursor;
   IsImage: Boolean = False;
   WindowMenu: TMenuItem;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     if not DirectoryExists(FolderName) then
       ForceDirectories(FolderName);
@@ -157,7 +155,7 @@ begin
       FDirMonitor.Start
     end;
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 

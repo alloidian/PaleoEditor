@@ -127,12 +127,10 @@ end;
 
 procedure TProjectWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
 var
-  OldCursor: TCursor;
   IsImage: Boolean = False;
   WindowMenu: TMenuItem;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     if FileExists(FolderName) then begin
       IsImage := AnsiSameText(ExtractFileExt(FolderName), '.lst');
@@ -154,7 +152,7 @@ begin
       end;
     end;
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 

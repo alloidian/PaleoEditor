@@ -1107,12 +1107,10 @@ procedure TCustomWorkForm.CopyFileActionExecute(Sender: TObject);
 const
   MASK = 'A:\%s';
 var
-  OldCursor: TCursor;
   Node: TTreeNode;
   FileName: TFileName = '';
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     Node := Navigator.Selected;
     FileName := Format(MASK, [ExtractFileName(Node.FullName)]);
@@ -1120,7 +1118,7 @@ begin
       SysUtils.DeleteFile(FileName);
     CopyFile(Node.FullName, FileName);
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 
@@ -1146,15 +1144,12 @@ begin
 end;
 
 procedure TCustomWorkForm.ChildActionExecute(Sender: TObject);
-var
-  OldCursor: TCursor;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     PopulateChildren(Navigator.Selected);
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 
@@ -1568,15 +1563,12 @@ begin
 end;
 
 procedure TCustomWorkForm.RefreshActionExecute(Sender: TObject);
-var
-  OldCursor: TCursor;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     RefreshView;
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 

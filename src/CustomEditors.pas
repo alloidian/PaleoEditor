@@ -102,7 +102,7 @@ implementation
 {$R *.lfm}
 
 uses
-  Masks, ConfigUtils, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
+  ConfigUtils, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
   SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors,
   XmlEditors, JsonEditors, IniEditors, RichTextEditors, PdfEditors, ImageEditors;
 

@@ -1,6 +1,7 @@
 inherited ProjectWorkForm: TProjectWorkForm
   Left = 100
   Top = 100
+  ClientHeight = 401
   OnCreate = FormCreate
   OnDestroy = FormDestroy
 end

@@ -214,7 +214,7 @@ var
 begin
   pKey1 := FToIdent;
   // Note: FStringLen is always > 0 !
-  pKey2 := pointer(aKey);
+  pKey2 := Pointer(aKey);
   for I := 1 to FStringLen do begin
     if mHashTable[pKey1^] <> mHashTable[pKey2^] then begin
       Result := False;

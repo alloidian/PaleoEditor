@@ -256,7 +256,7 @@ end;
 
 function TSynMDSyn.GetRange: Pointer;
 begin
-  Result := pointer(PtrInt(FRange));
+  Result := Pointer(FRange);
 end;
 
 function TSynMDSyn.GetSampleSource: String;
