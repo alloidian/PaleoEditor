@@ -49,12 +49,12 @@ const
   INI_EDITOR_FONT_NAME_DEF    = 'Courier New';
   INI_EDITOR_FONT_SIZE_DEF    = 10;
   INI_EDITOR_RIGHT_MARGIN_DEF = 90;
-  INI_EDIT_DEF                = '*.asm;*.z80;*.azm;*.inc;*.lib;*.ins;*.mac;*.lst;*.bat;'    +
-                                '*.sh;*.cmd;*.pas;*.dpr;*.bas;*.zex;*.txt;*.doc;*.for;'     +
-                                '*.sub;*.md;*.h;*.hlp;*.not;*.inf;*.new;*.ps1;*.spin;'      +
-                                '*.msg;*.hex;Makefile;ReadMe;-readme;diskdefs;readme.1st;'  +
-                                'copying;read.me;.gitattributes;.gitignore;readme.unix;'    +
-                                '*.log;*.sym;*.kvset';
+  INI_EDIT_DEF                = '*.asm;*.z80;*.azm;*.180;*.inc;*.lib;*.ins;*.mac;*.lst;'    +
+                                '*.bat;*.sh;*.cmd;*.pas;*.dpr;*.bas;*.zex;*.txt;*.doc;'     +
+                                '*.for;*.sub;*.md;*.h;*.hlp;*.not;*.inf;*.new;*.ps1;'       +
+                                '*.spin;*.msg;*.hex;Makefile;ReadMe;-readme;diskdefs;'      +
+                                'readme.1st;copying;read.me;.gitattributes;.gitignore;'     +
+                                'readme.unix;*.log;*.sym;*.kvset';
   INI_EXEC_DEF                = '*.cmd;*.bat';
   INI_ASSEMBLE_DEF            = 'Assign.asm;bcd.asm;BDOS.ASM;BDOS22.ASM;cbios.asm;cls.asm;' +
                                 'cpmldr.asm;Decode.asm;Encode.asm;FDU.asm;Format.asm;'      +
@@ -63,13 +63,13 @@ const
                                 'Talk.asm;TESTZ80.asm;Time.asm;Timer.asm;TimeUtil.asm;'     +
                                 'tune.asm;zcpr.asm';
   INI_HTML_DEF                = '*.html;*.htm';
-  INI_SEARCH_DEF              = '*.asm;*.z80;*.azm;*.inc;*.lib;*.lst';
+  INI_SEARCH_DEF              = '*.asm;*.z80;*.azm;*.180;*.inc;*.lib;*.lst';
   INI_UNEDITABLE_DEF          = '*.list;*.lst;*.log;*.sym';
   INI_EXCLUDE_FILE_DEF        = '*.pdf;*.docx;*.com;*.exe;*.dll;*.zip;*.lbr;*.png;*.jpg;'   +
                                 '*.jpeg;*.bin;Makefile';
   INI_EXCLUDE_FOLDER_DEF      = '.github;Tools;Tunes';
-  ITEM_ASSEMBLY_SYNTAX_DEF    = '*.asm;*.z80;*.z80.sav;*.azm;*.inc;*.lib;*.lib.sav;*.mac;'  +
-                                '*.lst;*.ins';
+  ITEM_ASSEMBLY_SYNTAX_DEF    = '*.asm;*.z80;*.z80.sav;*.azm;*.180;*.inc;*.lib;*.lib.sav;'  +
+                                '*.mac;*.lst;*.ins';
   ITEM_BASIC_SYNTAX_DEF       = '*.bas';
   ITEM_BATCH_SYNTAX_DEF       = '*.bat;*.cmd';
   ITEM_HTML_SYNTAX_DEF        = '*.html;*.htm';
