@@ -260,7 +260,6 @@ type
     FFontSize: Integer;
     FRightMargin: Integer;
   protected
-    function IsMatch(const Value: String; const Masks: String): Boolean;
     function GetVersionText: String;
     function GetPlatform: String; overload;
     function GetDebug: String;
@@ -409,8 +408,8 @@ implementation
 {$WARN 05044 OFF}{$WARN 06058 OFF}
 
 uses
-  StrUtils, Types, Masks, FileInfo, VersionTypes, TypInfo, Dialogs, Registry,
-  SynEditStrConst, Utils, JsonParser;
+  StrUtils, Masks, FileInfo, VersionTypes, TypInfo, Dialogs, Registry, SynEditStrConst,
+  Utils, JsonParser;
 
 type
   TAttributeConfig = record
@@ -1109,20 +1108,6 @@ begin
   inherited;
 end;
 
-function TConfig.IsMatch(const Value: String; const Masks: String): Boolean;
-var
-  List: TStringDynArray;
-  Mask: String = '';
-begin
-  Result := False;
-  List := SplitString(Masks, DELIMITER);
-  for Mask in List do
-    if MatchesMask(Value, Mask) then begin
-      Result := True;
-      Break;
-    end;
-end;
-
 function TConfig.GetVersionText: String;
 const
   MASK = '%d.%d.%d';
@@ -1595,12 +1580,12 @@ end;
 
 function TConfig.IsExecutableFile(const FileName: TFileName): Boolean;
 begin
-  Result := IsMatch(FileName, ExecuteFiles);
+  Result := MatchesMaskList(FileName, ExecuteFiles);
 end;
 
 function TConfig.IsAssemblyFile(const FileName: TFileName): Boolean;
 begin
-  Result := IsMatch(FileName, AssemblyFiles);
+  Result := MatchesMaskList(FileName, AssemblyFiles);
 end;
 
 function TConfig.IsHtmlFile(const FileName: TFileName): Boolean;
@@ -1615,17 +1600,17 @@ end;
 
 function TConfig.IsSearchableFile(const FileName: TFileName): Boolean;
 begin
-  Result := IsMatch(FileName, SearchFiles);
+  Result := MatchesMaskList(FileName, SearchFiles);
 end;
 
 function TConfig.IsReadonlyFile(const FileName: TFileName): Boolean;
 begin
-  Result := IsMatch(FileName, UneditableFiles);
+  Result := MatchesMaskList(FileName, UneditableFiles);
 end;
 
 function TConfig.IsExcludedFile(const FileName: TFileName): Boolean;
 begin
-  Result := IsMatch(FileName, ExcludeFiles);
+  Result := MatchesMaskList(FileName, ExcludeFiles);
 end;
 
 function TConfig.IsExcludedFolder(const FolderName: TFileName): Boolean;
@@ -1634,7 +1619,7 @@ const
 begin
   Result := AnsiMatchStr(FolderName, INVALID_FOLDERS);
   if not Result then
-    Result := IsMatch(FolderName, ExcludeFolders);
+    Result := MatchesMaskList(FolderName, ExcludeFolders);
 end;
 
 function TConfig.GetSyntax(const FileName: TFileName): TSyntax;
