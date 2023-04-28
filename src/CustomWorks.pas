@@ -20,10 +20,10 @@ unit CustomWorks;
 interface
 
 uses
-  Classes, Windows, SysUtils, Forms, Controls, StrUtils, Graphics, Dialogs,
-  ComCtrls, StdCtrls, ExtCtrls, Menus, ActnList, StdActns, ShellCtrls,
-  ExtendedNotebook, Types, Generics.Collections, Utils, CustomEditors, Searches,
-  ConfigUtils, Executions, DirMonitors, TermVT, UnTerminal;
+  Classes, Windows, SysUtils, Forms, Controls, StrUtils, Graphics, Dialogs, ComCtrls,
+  StdCtrls, ExtCtrls, Menus, ActnList, StdActns, ShellCtrls, ExtendedNotebook, Types,
+  Generics.Collections, Utils, CustomEditors, Searches, ConfigUtils, Executions,
+  DirMonitors;
 
 type
   TIterateTreeNodeProc = procedure(Node: TTreeNode; var Continue: Boolean);
@@ -202,7 +202,6 @@ type
     procedure AssembleActionExecute(Sender: TObject);
     procedure AssembleActionUpdate(Sender: TObject);
     procedure ExecuteCommandActionExecute(Sender: TObject);
-    procedure ExecuteCommandTerminalActionExecute(Sender: TObject);
     procedure ExecuteCommandActionUpdate(Sender: TObject);
     procedure LaunchExplorerActionExecute(Sender: TObject);
     procedure LaunchExplorerActionUpdate(Sender: TObject);
@@ -445,35 +444,6 @@ type
       procedure Execute;
   end;
 
-  TExecuteEngine = class(TObject)
-  private
-    FForm: TCustomWorkForm;
-    FEngine: TConsoleProc;
-    FPage: TTabSheet;
-    FMemo: TMemo;
-    FHomeFolder: TFileName;
-    FProgramName: TFileName;
-    FParameters: String;
-    FResults: TStringList;
-    procedure DoInitScreen(const Grid: TtsGrid; First, Last: integer);
-    procedure DoRefreshLine(const Grid: TtsGrid; First, Height: integer);
-    procedure DoRefreshLines(const Grid: TtsGrid; First, Last, Height: integer);
-    procedure DoAddLine(Height: integer);
-    procedure DoChangeState(Info: String; Point: TPoint);
-  protected
-    function GeneratePage(const FileName: TFileName): TMemo;
-    procedure SetProgramName(const Value: TFileName);
-    procedure SetParameters(const Value: String);
-  public
-    constructor Create(Form: TCustomWorkForm; const FileName: TFileName); virtual;
-    destructor Destroy; override;
-    procedure Execute;
-    property ProgramName: TFileName read FProgramName write SetProgramName;
-    property Parameters: String read FParameters write SetParameters;
-    property Page: TTabSheet read FPage;
-    property Results: TStringList read FResults;
-  end;
-
 implementation
 
 {$R *.lfm}
@@ -483,7 +453,6 @@ uses
 
 var
   Search_Index: Integer;
-  Execute_Index: Integer;
 
 { TCustomWorkForm }
 
@@ -1245,29 +1214,6 @@ begin
       Engine.OnTerminate := DoExecuteComplete;
       FDirMonitor.Pause;
       Engine.Start;
-    end;
-end;
-
-procedure TCustomWorkForm.ExecuteCommandTerminalActionExecute(Sender: TObject);
-var
-  Node: TTreeNode;
-  Parameters: String = '';
-  Engine: TExecuteEngine;
-begin
-  Node := Navigator.Selected;
-  if Assigned(Node) then
-    if ExecuteFile(Node, Parameters) then begin
-      if not StatusPages.Visible then
-        SetStatusVisible(True);
-      Engine := TExecuteEngine.Create(Self, Node.LogicalName);
-      try
-        StatusPages.ActivePage := Engine.Page;
-        Engine.ProgramName := Node.FullName;
-        Engine.Parameters := Parameters;
-        Engine.Execute;
-      finally
-        Engine.Free;
-      end;
     end;
 end;
 
@@ -2766,124 +2712,7 @@ begin
     Node.Delete;
 end;
 
-{ TExecuteEngine }
-
-constructor TExecuteEngine.Create(Form: TCustomWorkForm; const FileName: TFileName);
-begin
-  inherited Create;
-  FForm := Form;
-  FEngine := TConsoleProc.Create(nil);
-  FEngine.OnInitScreen := DoInitScreen;
-  FEngine.OnRefreshLine := DoRefreshLine;
-  FEngine.OnRefreshLines := DoRefreshLines;
-  FEngine.OnAddLine := DoAddLine;
-  FEngine.OnChangeState := DoChangeState;
-  FResults := TStringList.Create;
-  FMemo := GeneratePage(FileName);
-end;
-
-destructor TExecuteEngine.Destroy;
-begin
-  FResults.Free;
-  FEngine.Free;
-  inherited;
-end;
-
-procedure TExecuteEngine.DoInitScreen(const Grid: TtsGrid; First, Last: integer);
-var
-  I: Integer = 0;
-begin
-  for I := First to Last do
-    FMemo.Lines.Add(Grid[I]);
-end;
-
-procedure TExecuteEngine.DoRefreshLine(const Grid: TtsGrid; First, Height: integer);
-var
-  Offset: Integer = 0;
-begin
-  Offset := FMemo.Lines.Count - Height - 1;
-  FMemo.Lines[Offset + First] := Grid[First];
-end;
-
-procedure TExecuteEngine.DoRefreshLines(const Grid: TtsGrid; First, Last, Height: integer);
-var
-  Offset: Integer = 0;
-  I: Integer = 0;
-begin
-  Offset := FMemo.Lines.Count - Height - 1;
-  for I := First to Last do
-    FMemo.Lines[Offset + I] := Grid[I];
-end;
-
-procedure TExecuteEngine.DoAddLine(Height: integer);
-begin
-  FMemo.Lines.Add(EmptyStr);
-end;
-
-procedure TExecuteEngine.DoChangeState(Info: String; Point: TPoint);
-begin
-  // Do something
-end;
-
-function TExecuteEngine.GeneratePage(const FileName: TFileName): TMemo;
-const
-  PAGE_NAME_MASK = 'ExecutePage_%d';
-  MEMO_NAME_MASK = 'ExecuteMemo_%d';
-  CAPTION_MASK = 'Execute "%s"';
-//HINT_MASK = 'Criteria = ''%s'', Case = %s, Whole Words = %s';
-//var
-//  Page: TTabSheet;
-begin
-  Inc(Execute_Index);
-  FPage := TTabSheet.Create(FForm.StatusPages);
-  FPage.PageControl := FForm.StatusPages;
-  FPage.Name := Format(PAGE_NAME_MASK, [Execute_Index]);
-  FPage.Caption := Format(CAPTION_MASK, [FileName]);
-//FPage.Hint := Format(HINT_MASK, [Criteria, BoolToStr(MatchCase, True), BoolToStr(MatchWholeWordOnly, True)]);
-  FPage.Visible := True;
-  Result := TMemo.Create(FPage);
-  Result.Parent := FPage;
-  Result.Align := alClient;
-  Result.ReadOnly := True;
-  Result.Name := Format(MEMO_NAME_MASK, [Execute_Index]);
-  Result.Lines.Clear;
-  FPage.Tag := Integer(Result);
-end;
-
-procedure TExecuteEngine.SetProgramName(const Value: TFileName);
-begin
-  if FProgramName <> Value then begin
-    FProgramName := Value;
-    FHomeFolder := ExtractFilePath(Value);
-  end;
-end;
-
-procedure TExecuteEngine.SetParameters(const Value: String);
-begin
-  if FParameters <> Value then
-    FParameters := Value;
-end;
-
-procedure TExecuteEngine.Execute;
-const
-  CD_MASK = 'cd /d "%s"';
-  CMD_MASK = '%s %s';
-begin
-  FEngine.Open('CMD.EXE', '');
-  try
-    while not FEngine.detecPrompt do ;
-    FEngine.SendLn(Format(CD_MASK, [FHomeFolder]));
-    while not FEngine.detecPrompt do ;
-    FEngine.SendLn(Format(CMD_MASK, [FProgramName, FParameters]));
-    while not FEngine.detecPrompt do
-      FMemo.Lines.Add('.');
-  finally
-    FEngine.Close;
-  end;
-end;
-
 initialization
   Search_Index := 0;
-  Execute_Index := 0;
 end.
 

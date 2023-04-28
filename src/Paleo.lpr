@@ -30,7 +30,7 @@ uses
   CustomEditors, Utils, CustomTextEditors, Executions, HexEditors, Actions, Abouts,
   SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
   NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
-  DirMonitors, EditorConfigs, Assemblers, ProjectConfigs, UnTerminal,
+  DirMonitors, EditorConfigs, Assemblers, ProjectConfigs,
   {$IFDEF TERMINAL} TerminalFrames, TerminalForms, TerminalConfigs, {$ENDIF}
   Uploads, PackageEngines, AssemblyEditors, BatchEditors, SpinEditors,
   BasicEditors, PascalEditors, CustomPreviewEditors, HtmlEditors, MarkdownEditors,
