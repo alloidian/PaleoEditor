@@ -20,7 +20,8 @@ unit ConfigUtils;
 interface
 
 uses
-  Classes, SysUtils, Graphics, ComCtrls, Generics.Collections, Forms, Menus, FpJson;
+  Classes, SysUtils, Graphics, ComCtrls, ExtCtrls, Generics.Collections, Forms, Menus,
+  FpJson;
 
 const
   ITEM_EDIT                   = 'Editable Files';
@@ -278,10 +279,8 @@ type
     procedure WriteConfig(Form: TForm); overload;
     procedure ReadConfig(ParentMenu: TMenuItem; EventHandler: TNotifyEvent); overload;
     procedure WriteConfig(ParentMenu: TMenuItem); overload;
-    procedure ReadConfig(Control: TTreeView; const FileName: TFileName); overload;
-    procedure WriteConfig(Control: TTreeView; const FolderName: TFileName); overload;
-    procedure ReadConfig(Control: TPageControl; const FileName: TFileName); overload;
-    procedure WriteConfig(Control: TPageControl; const FolderName: TFileName); overload;
+    procedure ReadConfig(Panel: TPanel; PageControl: TPageControl; const FolderName: TFileName); overload;
+    procedure WriteConfig(Panel: TPanel; PageControl: TPageControl; const FolderName: TFileName); overload;
     procedure AddParam(const Command, Param: String); overload;
     procedure AddParam(const Assembly: String; Platform: TAssemblerPlatform;
       Parameter: String; UpdateSymbols: Boolean); overload;
@@ -1449,22 +1448,7 @@ begin
   end;
 end;
 
-procedure TConfig.ReadConfig(Control: TTreeView; const FileName: TFileName);
-var
-  Document: TJsonObject;
-  Project: TJsonObject;
-begin
-  Document := GetDocument;
-  try
-    Project := Document.GetProject(FileName);
-    Control.Width := Project.Read(Control.ClassName, Control.Width);
-    SaveDocument(Document);
-  finally
-    Document.Free;
-  end;
-end;
-
-procedure TConfig.WriteConfig(Control: TTreeView; const FolderName: TFileName);
+procedure TConfig.ReadConfig(Panel: TPanel; PageControl: TPageControl; const FolderName: TFileName); overload;
 var
   Document: TJsonObject;
   Project: TJsonObject;
@@ -1472,29 +1456,15 @@ begin
   Document := GetDocument;
   try
     Project := Document.GetProject(FolderName);
-    Project.Write(Control.ClassName, Control.Width);
+    Panel.Width := Project.Read(Panel.Name, Panel.Width);
+    PageControl.Height := Project.Read(PageControl.Name, PageControl.Height);
     SaveDocument(Document);
   finally
     Document.Free;
   end;
 end;
 
-procedure TConfig.ReadConfig(Control: TPageControl; const FileName: TFileName);
-var
-  Document: TJsonObject;
-  Project: TJsonObject;
-begin
-  Document := GetDocument;
-  try
-    Project := Document.GetProject(FileName);
-    Control.Height := Project.Read(Control.ClassName, Control.Height);
-    SaveDocument(Document);
-  finally
-    Document.Free;
-  end;
-end;
-
-procedure TConfig.WriteConfig(Control: TPageControl; const FolderName: TFileName); overload;
+procedure TConfig.WriteConfig(Panel: TPanel; PageControl: TPageControl; const FolderName: TFileName); overload;
 var
   Document: TJsonObject;
   Project: TJsonObject;
@@ -1502,7 +1472,8 @@ begin
   Document := GetDocument;
   try
     Project := Document.GetProject(FolderName);
-    Project.Write(Control.ClassName, Control.Height);
+    Project.Write(Panel.Name, Panel.Width);
+    Project.Write(PageControl.Name, PageControl.Height);
     SaveDocument(Document);
   finally
     Document.Free;

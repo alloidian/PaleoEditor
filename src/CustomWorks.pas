@@ -509,8 +509,7 @@ begin
   FConfigs.Free;
   FItinerary.Free;
   FFindFileList.Free;
-  Config.WriteConfig(Navigator, FFolderName);
-  Config.WriteConfig(StatusPages, FFolderName);
+  Config.WriteConfig(NavigatorPanel, StatusPages, FFolderName);
   if Config.SaveWorkspace then begin
     Temp := TStringList.Create;
     try
@@ -536,8 +535,7 @@ var
   ProjectName: String = '';
   Node: TTreeNode = nil;
 begin
-  Config.ReadConfig(Navigator, FFolderName);
-  Config.ReadConfig(StatusPages, FFolderName);
+  Config.ReadConfig(NavigatorPanel, StatusPages, FFolderName);
   Temp := Config.ReadWorkspace(FFolderName);
   try
     for I := 0 to Temp.Count - 1 do begin
