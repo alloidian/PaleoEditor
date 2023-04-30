@@ -213,7 +213,7 @@ begin
   Result := TStringList.Create;
   if FindFirst(Format(MASK, [Path]), faAnyFile, Rec) = 0 then begin
     repeat
-      if ((Rec.Attr and faDirectory) <> faDirectory) and not Config.IsExcludedFolder(Rec.Name) then begin
+      if ((Rec.Attr and faDirectory) <> faDirectory) and not Config.IsExcludedFile(Rec.Name) then begin
         Temp := Format('%s\%s', [Path, Rec.Name]);
         Result.Add(Temp);
       end;

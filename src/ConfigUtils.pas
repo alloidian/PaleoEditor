@@ -66,8 +66,7 @@ const
   INI_HTML_DEF                = '*.html;*.htm';
   INI_SEARCH_DEF              = '*.asm;*.z80;*.azm;*.180;*.inc;*.lib;*.lst';
   INI_UNEDITABLE_DEF          = '*.list;*.lst;*.log;*.sym';
-  INI_EXCLUDE_FILE_DEF        = '*.pdf;*.docx;*.com;*.exe;*.dll;*.zip;*.lbr;*.png;*.jpg;'   +
-                                '*.jpeg;*.bin;Makefile';
+  INI_EXCLUDE_FILE_DEF        = '*.docx;*.exe;*.dll;*.lbr';
   INI_EXCLUDE_FOLDER_DEF      = '.github;Tools;Tunes';
   ITEM_ASSEMBLY_SYNTAX_DEF    = '*.asm;*.z80;*.z80.sav;*.azm;*.180;*.inc;*.lib;*.lib.sav;'  +
                                 '*.mac;*.lst;*.ins';
