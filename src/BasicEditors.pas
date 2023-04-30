@@ -33,12 +33,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterVB;
+  SynHighlighterVB, ConfigUtils;
 
 { TBasicEditorFrame }
 
 constructor TBasicEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_BASIC_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynVBSyn.Create(Self);
   Editor.Highlighter := FHighlighter;

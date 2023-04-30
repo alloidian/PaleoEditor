@@ -34,12 +34,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterSpin;
+  SynHighlighterSpin, ConfigUtils;
 
 { TSpinEditorFrame }
 
 constructor TSpinEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_SPIN_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynSpinSyn.Create(Self);
   Editor.Highlighter := FHighlighter;

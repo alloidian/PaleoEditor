@@ -41,12 +41,13 @@ implementation
 {$R *.lfm}
 
 uses
-  ComCtrls, HtmlBuffer, MD5, SynHighlighterMD, MarkdownProcessor, Searches;
+  ComCtrls, HtmlBuffer, MD5, SynHighlighterMD, MarkdownProcessor, Searches, ConfigUtils;
 
 { TMarkdownEditorFrame }
 
 constructor TMarkdownEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_MARKDOWN_SYNTAX;
   inherited Create(AOwner);
   FHash := EmptyStr;
   FHighlighter := TSynMDSyn.Create(Self);

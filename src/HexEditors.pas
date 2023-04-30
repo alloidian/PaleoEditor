@@ -61,12 +61,13 @@ implementation
 {$R *.lfm}
 
 uses
-  MPHexEditor, Utils, Searches, Configs;
+  MPHexEditor, Utils, Searches, ConfigUtils, Configs;
 
 { THexEditorFrame }
 
 constructor THexEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_BINARY_SYNTAX;
   inherited Create(AOwner);
   FValidActions := [vaCase, vaWord];
 end;

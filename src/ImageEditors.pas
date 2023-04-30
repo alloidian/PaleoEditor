@@ -56,12 +56,13 @@ implementation
 {$R *.lfm}
 
 uses
-  Utils;
+  Utils, ConfigUtils;
 
 { TImageEditorFrame }
 
 constructor TImageEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_IMAGE_SYNTAX;
   inherited Create(AOwner);
   FValidActions := [];
 end;

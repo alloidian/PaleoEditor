@@ -62,12 +62,13 @@ implementation
 {$R *.lfm}
 
 uses
-  Printers, Utils, Searches, Configs;
+  Printers, Utils, Searches, ConfigUtils, Configs;
 
 { TRichTextEditorFrame }
 
 constructor TRichTextEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_RTF_SYNTAX;
   inherited Create(AOwner);
   FValidActions := [vaCase, vaWord, vaPrevious];
 end;

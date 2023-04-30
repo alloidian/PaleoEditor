@@ -103,12 +103,13 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Printers, PdfiumCore, Utils, Searches;
+  LCLIntf, Printers, PdfiumCore, Utils, Searches, ConfigUtils;
 
 { TPdfEditorFrame }
 
 constructor TPdfEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_PDF_SYNTAX;
   inherited Create(AOwner);
   PDFiumDllDir := ExtractFilePath(Application.ExeName);
   FEditor := TPdfControl.Create(Self);

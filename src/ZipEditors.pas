@@ -57,12 +57,13 @@ implementation
 {$R *.lfm}
 
 uses
-  StrUtils, Types, Utils;
+  StrUtils, Types, Utils, ConfigUtils;
 
 { TZipEditorFrame }
 
 constructor TZipEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_ZIP_SYNTAX;
   inherited Create(AOwner);
   FValidActions := [];
 end;

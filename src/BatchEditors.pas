@@ -33,12 +33,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterBat;
+  SynHighlighterBat, ConfigUtils;
 
 { TBatchEditorFrame }
 
 constructor TBatchEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_BATCH_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynBatSyn.Create(Self);
   Editor.Highlighter := FHighlighter;

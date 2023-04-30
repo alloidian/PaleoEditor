@@ -535,23 +535,28 @@ var
   ProjectName: String = '';
   Node: TTreeNode = nil;
 begin
-  Config.ReadConfig(NavigatorPanel, StatusPages, FFolderName);
-  Temp := Config.ReadWorkspace(FFolderName);
+  Screen.BeginWaitCursor;
   try
-    for I := 0 to Temp.Count - 1 do begin
-      ProjectName := Temp.Names[I];
-      Node := SearchNode(ProjectName);
-      if Assigned(Node) then begin
-        Node.Page := OpenFile(Node);
-        Node.Status := Node.Page.Status;
+    Config.ReadConfig(NavigatorPanel, StatusPages, FFolderName);
+    Temp := Config.ReadWorkspace(FFolderName);
+    try
+      for I := 0 to Temp.Count - 1 do begin
+        ProjectName := Temp.Names[I];
+        Node := SearchNode(ProjectName);
+        if Assigned(Node) then begin
+          Node.Page := OpenFile(Node);
+          Node.Status := Node.Page.Status;
+        end;
+        Application.ProcessMessages;
       end;
-      Application.ProcessMessages;
+    finally
+      Temp.Free;
     end;
+    if Assigned(Node) then
+      Navigator.Selected := Node;
   finally
-    Temp.Free;
+    Screen.EndWaitCursor;
   end;
-  if Assigned(Node) then
-    Navigator.Selected := Node;
 end;
 
 function GetTabIndex(APageControl: TPageControl; X, Y: Integer): Integer;

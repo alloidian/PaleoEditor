@@ -37,12 +37,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterZ80;
+  SynHighlighterZ80, ConfigUtils;
 
 { TAssemblyEditorFrame }
 
 constructor TAssemblyEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_ASSEMBLY_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynZ80Syn.Create(Self);
   Editor.Highlighter := FHighlighter;

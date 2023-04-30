@@ -31,6 +31,7 @@ const
   ITEM_UNEDITABLE             = 'Uneditable Files';
   ITEM_EXCLUDE_FILE           = 'Excluded Files';
   ITEM_EXCLUDE_FOLDER         = 'Excluded Folders';
+  ITEM_BINARY_SYNTAX          = 'Binary Syntax';
   ITEM_ASSEMBLY_SYNTAX        = 'Assembly Syntax';
   ITEM_BASIC_SYNTAX           = 'BASIC Syntax';
   ITEM_BATCH_SYNTAX           = 'Batch Syntax';
@@ -71,7 +72,7 @@ const
   ITEM_ASSEMBLY_SYNTAX_DEF    = '*.asm;*.z80;*.z80.sav;*.azm;*.180;*.inc;*.lib;*.lib.sav;'  +
                                 '*.mac;*.lst;*.ins';
   ITEM_BASIC_SYNTAX_DEF       = '*.bas';
-  ITEM_BATCH_SYNTAX_DEF       = '*.bat;*.cmd';
+  ITEM_BATCH_SYNTAX_DEF       = '*.bat;*.cmd;*.ps1';
   ITEM_HTML_SYNTAX_DEF        = '*.html;*.htm';
   ITEM_IMAGE_SYNTAX_DEF       = '*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;'  +
                                 '*.jfif;*.tif;*.tiff;*.gif;*.pgm;*.pgm;*.ppm';
@@ -85,7 +86,8 @@ const
   ITEM_RTF_SYNTAX_DEF         = '*.rtf';
   ITEM_SPIN_SYNTAX_DEF        = '*.spin';
   ITEM_TEXT_SYNTAX_DEF        = '*.txt;Makefile;copying;*.doc;*.not;*.hlp;*.msg;*.prn;'     +
-                                '*.sym;*.for;*.log;readme;readme.*;read.me;.git*';
+                                '*.sym;*.for;*.log;readme;readme.*;read.me;.git*;defboot;'  +
+                                'defbank;diskdefs;*.cnf';
   ITEM_XML_SYNTAX_DEF         = '*.xml;*.kvset';
   ITEM_ZIP_SYNTAX_DEF         = '*.zip';
   ASSEMBLER_FOLDER_MASK       = '%s\tasm32';

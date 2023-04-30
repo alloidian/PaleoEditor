@@ -33,12 +33,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterIntelHex;
+  SynHighlighterIntelHex, ConfigUtils;
 
 { TIntelHexEditorFrame }
 
 constructor TIntelHexEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_INTEL_HEX_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynIntelHexSyn.Create(Self);
   Editor.Highlighter := FHighlighter;

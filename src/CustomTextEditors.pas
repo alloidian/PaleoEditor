@@ -90,12 +90,14 @@ implementation
 {$R *.lfm}
 
 uses
-  StrUtils, Printers, Utils, Configs;
+  StrUtils, Printers, Utils, ConfigUtils, Configs;
 
 { TCustomTextEditorFrame }
 
 constructor TCustomTextEditorFrame.Create(AOwner: TComponent);
 begin
+  if FSyntax.IsEmpty then
+    FSyntax := ITEM_TEXT_SYNTAX;
   inherited Create(AOwner);
 end;
 

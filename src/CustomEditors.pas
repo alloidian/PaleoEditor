@@ -44,6 +44,7 @@ type
     FFileName: TFileName;
     FPage: TTabSheet;
     FNode: TTreeNode;
+    FSyntax: String;
     procedure Log(const Text: String);
     procedure FindIdentifier(const Token: String);
     function GetIsModified: Boolean; virtual; abstract;
@@ -102,17 +103,19 @@ implementation
 {$R *.lfm}
 
 uses
-  ConfigUtils, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
-  SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors,
-  XmlEditors, JsonEditors, IniEditors, RichTextEditors, PdfEditors, ImageEditors, ZipEditors;
+  StrUtils, ConfigUtils, Configs, HexEditors, CustomTextEditors, AssemblyEditors,
+  BasicEditors, BatchEditors, HtmlEditors, ImageEditors, IniEditors, IntelHexEditors,
+  JsonEditors, MarkdownEditors, PascalEditors, PdfEditors, RichTextEditors, SpinEditors,
+  XmlEditors, ZipEditors;
 
 const
-  OVERWRITE_PANEL = 0;
-  READ_ONLY_PANEL = 1;
-  MODIFIED_PANEL  = 2;
-  ROW_PANEL       = 3;
-  COL_PANEL       = 4;
-  FILE_NAME_PANEL = 5;
+  SYNTAX_PANEL    = 0;
+  OVERWRITE_PANEL = 1;
+  READ_ONLY_PANEL = 2;
+  MODIFIED_PANEL  = 3;
+  ROW_PANEL       = 4;
+  COL_PANEL       = 5;
+  FILE_NAME_PANEL = 6;
 
 function EditorFactory(const FileName: TFileName): TCustomEditorFrames;
 const
@@ -143,6 +146,7 @@ end;
 constructor TCustomEditorFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  StatusBar.Panels[SYNTAX_PANEL].Text := AnsiReplaceText(FSyntax, ' Syntax', EmptyStr);
   FValidActions := [vaCase, vaWord, vaLabel, vaPrevious];
   InsertMode := True;
   ReadOnly := False;

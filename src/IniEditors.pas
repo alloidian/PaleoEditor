@@ -33,12 +33,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterIni;
+  SynHighlighterIni, ConfigUtils;
 
 { TIniEditorFrame }
 
 constructor TIniEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_INI_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynIniSyn.Create(Self);
   Editor.Highlighter := FHighlighter;

@@ -33,12 +33,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterPas;
+  SynHighlighterPas, ConfigUtils;
 
 { TPascalEditorFrame }
 
 constructor TPascalEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_PASCAL_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynPasSyn.Create(Self);
   Editor.Highlighter := FHighlighter;

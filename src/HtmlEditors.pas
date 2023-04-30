@@ -42,12 +42,13 @@ implementation
 {$R *.lfm}
 
 uses
-  ComCtrls, HtmlBuffer, MD5, SynHighlighterHtml, Searches;
+  ComCtrls, HtmlBuffer, MD5, SynHighlighterHtml, Searches, ConfigUtils;
 
 { THtmlEditorFrame }
 
 constructor THtmlEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_HTML_SYNTAX;
   inherited Create(AOwner);
   FHash := EmptyStr;
   FHighlighter := TSynHTMLSyn.Create(Self);

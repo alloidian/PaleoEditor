@@ -33,12 +33,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterXml;
+  SynHighlighterXml, ConfigUtils;
 
 { TXmlEditorFrame }
 
 constructor TXmlEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_XML_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynXmlSyn.Create(Self);
   Editor.Highlighter := FHighlighter;

@@ -36,12 +36,13 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterJson;
+  SynHighlighterJson, ConfigUtils;
 
 { TJsonEditorFrame }
 
 constructor TJsonEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_JSON_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynJsonSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
