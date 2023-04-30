@@ -510,6 +510,13 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
+      <Unit>
+        <Filename Value="ZipEditors.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="ZipEditorFrame"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

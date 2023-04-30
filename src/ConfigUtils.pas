@@ -46,6 +46,7 @@ const
   ITEM_SPIN_SYNTAX            = 'Spin Syntax';
   ITEM_TEXT_SYNTAX            = 'Text Syntax';
   ITEM_XML_SYNTAX             = 'XML Syntax';
+  ITEM_ZIP_SYNTAX             = 'ZIP Syntax';
   INI_EDITOR_FONT_NAME_DEF    = 'Courier New';
   INI_EDITOR_FONT_SIZE_DEF    = 10;
   INI_EDITOR_RIGHT_MARGIN_DEF = 90;
@@ -87,6 +88,7 @@ const
   ITEM_TEXT_SYNTAX_DEF        = '*.txt;Makefile;copying;*.doc;*.not;*.hlp;*.msg;*.prn;'     +
                                 '*.sym;*.for;*.log;readme;readme.*;read.me;.git*';
   ITEM_XML_SYNTAX_DEF         = '*.xml;*.kvset';
+  ITEM_ZIP_SYNTAX_DEF         = '*.zip';
   ASSEMBLER_FOLDER_MASK       = '%s\tasm32';
   ASSEMBLER_FILE_MASK         = '%s\TASM.EXE';
 
@@ -238,7 +240,8 @@ type
     end;
   public type
     TSyntax = (synAssembly, synBasic, synBatch, synHex, synHtml, synImage, synIni,
-      synIntelHex, synJson, synMarkdown, synPascal, synPdf, synRtf, synSpin, synText, synXml);
+      synIntelHex, synJson, synMarkdown, synPascal, synPdf, synRtf, synSpin, synText,
+      synXml, synZip);
     TSyntaxes = array[TSyntax] of String;
   private
     FVersion: TVersion;
@@ -332,6 +335,7 @@ type
     property SpinSyntax: String index synSpin read GetSyntax write SetSyntax;
     property TextSyntax: String index synText read GetSyntax write SetSyntax;
     property XmlSyntax: String index synXml read GetSyntax write SetSyntax;
+    property ZipSyntax: String index synZip read GetSyntax write SetSyntax;
     property Params: TParamType read FParams write FParams;
     property Attributes: TAttributes read FAttributes;
     property MonitorFolder: Boolean read FMonitorFolder;
@@ -468,6 +472,7 @@ const
   INI_SPIN_SYNTAX          = 'Spin';
   INI_TEXT_SYNTAX          = 'Text';
   INI_XML_SYNTAX           = 'XML';
+  INI_ZIP_SYNTAX           = 'ZIP';
   INI_PARAMS               = 'Params';
   INI_TERMINAL             = 'Terminal';
   INI_ATTRIBUTE            = 'Attribute';
@@ -1214,6 +1219,7 @@ var
     SpinSyntax := Result.Read(INI_SPIN_SYNTAX, ITEM_SPIN_SYNTAX_DEF);
     TextSyntax := Result.Read(INI_TEXT_SYNTAX, ITEM_TEXT_SYNTAX_DEF);
     XmlSyntax := Result.Read(INI_XML_SYNTAX, ITEM_XML_SYNTAX_DEF);
+    ZipSyntax := Result.Read(INI_ZIP_SYNTAX, ITEM_ZIP_SYNTAX_DEF);
   end;
 
   function ReadEditor(Parent: TJsonObject): TJsonObject;
@@ -1298,6 +1304,7 @@ var
     Result.Write(INI_SPIN_SYNTAX, SpinSyntax);
     Result.Write(INI_TEXT_SYNTAX, TextSyntax);
     Result.Write(INI_XML_SYNTAX, XmlSyntax);
+    Result.Write(INI_ZIP_SYNTAX, ZipSyntax);
   end;
 
   function WriteEditor(Parent: TJsonObject; const Name: String): TJsonObject;

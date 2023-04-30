@@ -55,6 +55,7 @@ type
     FSpinSyntax: String;
     FTextSyntax: String;
     FXmlSyntax: String;
+    FZipSyntax: String;
   protected
     function GetIsModified: Boolean; override;
     function GetEditFiles: String;
@@ -103,6 +104,8 @@ type
     procedure SetTextSyntax(const Value: String);
     function GetXmlSyntax: String;
     procedure SetXmlSyntax(const Value: String);
+    function GetZipSyntax: String;
+    procedure SetZipSyntax(const Value: String);
   public
     constructor Create(AOwner: TComponent); override;
     procedure ReadConfig(Config: TConfig); override;
@@ -130,6 +133,7 @@ type
     property SpinSyntax: String read GetSpinSyntax write SetSpinSyntax;
     property TextSyntax: String read GetTextSyntax write SetTextSyntax;
     property XmlSyntax: String read GetXmlSyntax write SetXmlSyntax;
+    property ZipSyntax: String read GetZipSyntax write SetZipSyntax;
   end;
 
 implementation
@@ -169,6 +173,7 @@ begin
   ConfigEdit.Strings.AddPair(ITEM_SPIN_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_TEXT_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_XML_SYNTAX, EmptyStr);
+  ConfigEdit.Strings.AddPair(ITEM_ZIP_SYNTAX, EmptyStr);
   for I := 0 to ConfigEdit.RowCount - 2 do
     ConfigEdit.ItemProps[I].EditStyle := esEllipsis;
   ConfigEdit.DefaultColWidth := 100;
@@ -176,7 +181,7 @@ end;
 
 procedure TNavigatorConfigFrame.ConfigEditButtonClick(Sender: TObject; aCol, aRow: Integer);
 const
-  DEFAULTS: array[0..21] of String =
+  DEFAULTS: array[0..22] of String =
    (INI_EDIT_DEF,
     INI_ASSEMBLE_DEF,
     INI_EXEC_DEF,
@@ -198,7 +203,8 @@ const
     ITEM_RTF_SYNTAX_DEF,
     ITEM_SPIN_SYNTAX_DEF,
     ITEM_TEXT_SYNTAX_DEF,
-    ITEM_XML_SYNTAX_DEF);
+    ITEM_XML_SYNTAX_DEF,
+    ITEM_ZIP_SYNTAX_DEF);
 var
   Editor: TValueListEditor;
   Row: Integer = 0;
@@ -235,7 +241,8 @@ begin
     not AnsiSameText(RtfSyntax, FRtfSyntax) or
     not AnsiSameText(SpinSyntax, FSpinSyntax) or
     not AnsiSameText(TextSyntax, FTextSyntax) or
-    not AnsiSameText(XmlSyntax, FXmlSyntax);
+    not AnsiSameText(XmlSyntax, FXmlSyntax) or
+    not AnsiSameText(ZipSyntax, FZipSyntax);
 end;
 
 function TNavigatorConfigFrame.GetEditFiles: String;
@@ -491,6 +498,17 @@ begin
   FXmlSyntax := Value;
 end;
 
+function TNavigatorConfigFrame.GetZipSyntax: String;
+begin
+  Result := ConfigEdit.Values[ITEM_ZIP_SYNTAX];
+end;
+
+procedure TNavigatorConfigFrame.SetZipSyntax(const Value: String);
+begin
+  ConfigEdit.Values[ITEM_ZIP_SYNTAX] := Value;
+  FZipSyntax := Value;
+end;
+
 procedure TNavigatorConfigFrame.ReadConfig(Config: TConfig);
 begin
   EditFiles := Config.EditFiles;
@@ -516,6 +534,7 @@ begin
   SpinSyntax := Config.SpinSyntax;
   TextSyntax := Config.TextSyntax;
   XmlSyntax := Config.XmlSyntax;
+  ZipSyntax := Config.ZipSyntax;
 end;
 
 procedure TNavigatorConfigFrame.WriteConfig(Config: TConfig);
@@ -543,6 +562,7 @@ begin
   Config.SpinSyntax := SpinSyntax;
   Config.TextSyntax := TextSyntax;
   Config.XmlSyntax := XmlSyntax;
+  Config.ZipSyntax := ZipSyntax;
 end;
 
 end.

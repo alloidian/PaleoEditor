@@ -30,7 +30,6 @@ type
   TImageEditorFrame = class(TCustomEditorFrame)
     ScrollBox: TScrollBox;
     Editor: TImage;
-  private
   protected
     function GetIsModified: Boolean; override;
     function GetInsertMode: Boolean; override;
@@ -65,7 +64,6 @@ constructor TImageEditorFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FValidActions := [];
-//  TileImage(BackgroundImage, Canvas, Height, Width);
 end;
 
 function TImageEditorFrame.GetIsModified: Boolean;
@@ -82,8 +80,13 @@ procedure TImageEditorFrame.Open(Page: TTabSheet; Node: TTreeNode);
 begin
   inherited Open(Page, Node);
   if FileExists(Node.FullName) then begin
-    Editor.Picture.LoadFromFile(Node.FullName);
-    IsModified := False;
+    Screen.BeginWaitCursor;
+    try
+      Editor.Picture.LoadFromFile(Node.FullName);
+      IsModified := False;
+    finally
+      Screen.EndWaitCursor;
+    end;
   end;
 end;
 

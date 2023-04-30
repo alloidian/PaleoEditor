@@ -104,7 +104,7 @@ implementation
 uses
   ConfigUtils, Configs, HexEditors, CustomTextEditors, AssemblyEditors, BatchEditors,
   SpinEditors, BasicEditors, PascalEditors, HtmlEditors, MarkdownEditors, IntelHexEditors,
-  XmlEditors, JsonEditors, IniEditors, RichTextEditors, PdfEditors, ImageEditors;
+  XmlEditors, JsonEditors, IniEditors, RichTextEditors, PdfEditors, ImageEditors, ZipEditors;
 
 const
   OVERWRITE_PANEL = 0;
@@ -132,7 +132,8 @@ const
     TRichTextEditorFrame,   // synRtf
     TSpinEditorFrame,       // synSpin
     TCustomTextEditorFrame, // synText
-    TXmlEditorFrame);       // synXml
+    TXmlEditorFrame,        // synXml
+    TZipEditorFrame);       // synZip
 begin
   Result := FACTORIES[Config.GetSyntax(FileName)];
 end;
