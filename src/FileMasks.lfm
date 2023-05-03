@@ -17,6 +17,7 @@ object EditFileMaskForm: TEditFileMaskForm
   OnCreate = FormCreate
   Position = poMainFormCenter
   ShowHint = True
+  LCLVersion = '2.2.2.0'
   object MoveUpButton: TBitBtn
     Left = 327
     Height = 22
@@ -100,10 +101,12 @@ object EditFileMaskForm: TEditFileMaskForm
     Top = 20
     Width = 311
     Anchors = [akTop, akLeft, akRight, akBottom]
+    DragMode = dmAutomatic
     ItemHeight = 0
     OnClick = DirectoryEditClick
     OnDragDrop = DirectoryEditDragDrop
     OnDragOver = DirectoryEditDragOver
+    OnEndDrag = DirectoryEditEndDrag
     OnMouseDown = DirectoryEditMouseDown
     TabOrder = 0
   end
