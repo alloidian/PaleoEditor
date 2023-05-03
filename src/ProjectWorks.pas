@@ -133,23 +133,8 @@ begin
   Screen.BeginWaitCursor;
   try
     if FileExists(FolderName) then begin
-      IsImage := AnsiSameText(ExtractFileExt(FolderName), '.lst');
-      FFolderName := FolderName;
-      WindowMenu := TMenuItem.Create(Self);
-      WindowMenu.Caption := FolderName;
-      WindowMenu.Hint := Format(JUMP_MASK, [FolderName]);
-      WindowMenu.Tag := IMAGE_INDEX[IsImage];
-      WindowMenu.ImageIndex := WindowMenu.Tag;
-      WindowMenu.GroupIndex := 5;
-      WindowMenu.OnClick := WindowClickHandler;
-      ParentMenu.Add(WindowMenu);
-      Caption := FFolderName;
-      RefreshView;
+      inherited Open(FolderName, ParentMenu);
       FConfigs.ReadConfig(FProjectFolder, FFolderName);
-      if Config.MonitorFolder then begin
-        FDirMonitor.Directory := FProjectFolder;
-        FDirMonitor.Start
-      end;
     end;
   finally
     Screen.EndWaitCursor;

@@ -20,8 +20,8 @@ unit ConfigUtils;
 interface
 
 uses
-  Classes, SysUtils, Graphics, ComCtrls, ExtCtrls, Generics.Collections, Forms, Menus,
-  FpJson;
+  Classes, SysUtils, Graphics, ComCtrls, StdCtrls, ExtCtrls, Generics.Collections, Forms,
+  Menus, FpJson;
 
 const
   ITEM_EDIT                   = 'Editable Files';
@@ -287,6 +287,8 @@ type
     procedure WriteConfig(ParentMenu: TMenuItem); overload;
     procedure ReadConfig(Panel: TPanel; PageControl: TPageControl; const FolderName: TFileName); overload;
     procedure WriteConfig(Panel: TPanel; PageControl: TPageControl; const FolderName: TFileName); overload;
+    procedure ReadConfig(ComboBox: TComboBox; const FolderName: TFileName); overload;
+    procedure WriteConfig(ComboBox: TComboBox; const FolderName: TFileName); overload;
     procedure AddParam(const Command, Param: String); overload;
     procedure AddParam(const Assembly: String; Platform: TAssemblerPlatform;
       Parameter: String; UpdateSymbols: Boolean); overload;
@@ -1474,6 +1476,53 @@ begin
     Project := Document.GetProject(FolderName);
     Project.Write(Panel.Name, Panel.Width);
     Project.Write(PageControl.Name, PageControl.Height);
+    SaveDocument(Document);
+  finally
+    Document.Free;
+  end;
+end;
+
+procedure TConfig.ReadConfig(ComboBox: TComboBox; const FolderName: TFileName);
+var
+  Document: TJsonObject;
+  Project: TJsonObject;
+  List: TJsonArray;
+  I: Integer;
+  L: String;
+begin
+  Document := GetDocument;
+  try
+    Project := Document.GetProject(FolderName);
+    List := Project.GetArray(ComboBox.Name);
+    ComboBox.Items.BeginUpdate;
+    try
+      ComboBox.Items.Clear;
+      for I := 0 to List.Count - 1 do begin
+        L := List.Strings[I];
+        ComboBox.Items.Add(L);
+      end;
+    finally
+      ComboBox.Items.EndUpdate;
+    end;
+    SaveDocument(Document);
+  finally
+    Document.Free;
+  end;
+end;
+
+procedure TConfig.WriteConfig(ComboBox: TComboBox; const FolderName: TFileName);
+var
+  Document: TJsonObject;
+  Project: TJsonObject;
+  List: TJsonArray;
+  L: String;
+begin
+  Document := GetDocument;
+  try
+    Project := Document.GetProject(FolderName);
+    List := Project.GetArray(ComboBox.Name, True);
+    for L in ComboBox.Items do
+      List.Add(L);
     SaveDocument(Document);
   finally
     Document.Free;

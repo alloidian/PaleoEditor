@@ -330,7 +330,7 @@ type
     procedure CheckIfModified(Node: TTreeNode);
     property FindFileList: TFindFileList read FFindFileList;
   public
-    procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); virtual; abstract;
+    procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); virtual;
     procedure CloseAll;
     procedure Idle;
     procedure RefreshConfig;
@@ -2213,6 +2213,30 @@ begin
         ActiveEditor.Revert;
       end;
     Node.IsFileModified := False;
+  end;
+end;
+
+procedure TCustomWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
+var
+  IsImage: Boolean = False;
+  WindowMenu: TMenuItem;
+begin
+  FFolderName := FolderName;
+  IsImage := AnsiSameText(ExtractFileExt(FolderName), '.lst');
+  WindowMenu := TMenuItem.Create(Self);
+  WindowMenu.Caption := FolderName;
+  WindowMenu.Hint := Format(JUMP_MASK, [FolderName]);
+  WindowMenu.Tag := IMAGE_INDEX[IsImage];
+  WindowMenu.ImageIndex := WindowMenu.Tag;
+  WindowMenu.GroupIndex := 5;
+  WindowMenu.OnClick := WindowClickHandler;
+  ParentMenu.Add(WindowMenu);
+  Caption := FFolderName;
+  RefreshView;
+  FSearchFrame.ReadConfig(FolderName);
+  if Config.MonitorFolder then begin
+    FDirMonitor.Directory := FolderName;
+    FDirMonitor.Start
   end;
 end;
 

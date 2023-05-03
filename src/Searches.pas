@@ -110,6 +110,7 @@ type
   private
     FValidActions: TValidActions;
     FCache: TCache;
+    FFolderName: String;
     FOnSearch: TSearchEvent;
     FOnSearchAll: TSearchAllEvent;
     FOnSearchDeclaration: TSearchDeclarationEvent;
@@ -150,6 +151,8 @@ type
     procedure SetMatchWholeWordOnly(Value: Boolean);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure ReadConfig(const FolderName: TFileName);
     property SearchBy: TSearchBy read GetSearchBy write SetSearchBy;
     property ForFile: Boolean read GetForFile write SetForFile;
     property Criteria: String read GetCriteria write SetCriteria;
@@ -222,6 +225,16 @@ begin
   FValidActions := [vaCase, vaWord, vaPrevious];
   Filter := Config.SearchFiles;
   ForFile := False;
+end;
+
+destructor TSearchFrame.Destroy;
+begin
+  if not FFolderName.IsEmpty then begin
+    Config.WriteConfig(CriteriaEdit, FFolderName);
+    Config.WriteConfig(ReplacementEdit, FFolderName);
+    Config.WriteConfig(FilterEdit, FFolderName);
+  end;
+  inherited;
 end;
 
 procedure TSearchFrame.SearchClick(Sender: TObject);
@@ -357,8 +370,10 @@ var
   begin
     Text := Edit.Text;
     I := Edit.Items.IndexOf(Text);
-    if I < 0 then
-      Edit.Items.Insert(0, Text)
+    if I < 0 then begin
+      Edit.Items.Insert(0, Text);
+      while Edit.Items.Count > Edit.DropDownCount do
+        Edit.Items.Delete(Edit.Items.Count - 1); end
     else
       if I > 0 then begin
         Edit.Items.Move(I, 0);
@@ -704,6 +719,14 @@ end;
 procedure TSearchFrame.SetMatchWholeWordOnly(Value: Boolean);
 begin
   WordEdit.Checked := Value;
+end;
+
+procedure TSearchFrame.ReadConfig(const FolderName: TFileName);
+begin
+  FFolderName := FolderName;
+  Config.ReadConfig(CriteriaEdit, FFolderName);
+  Config.ReadConfig(ReplacementEdit, FFolderName);
+  Config.ReadConfig(FilterEdit, FFolderName);
 end;
 
 end.

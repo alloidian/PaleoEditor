@@ -137,23 +137,8 @@ begin
   try
     if not DirectoryExists(FolderName) then
       ForceDirectories(FolderName);
-    IsImage := AnsiSameText(ExtractFileExt(FolderName), '.lst');
-    FFolderName := FolderName;
+    inherited Open(FolderName, ParentMenu);
     FConfigs.ReadConfig(FFolderName);
-    WindowMenu := TMenuItem.Create(Self);
-    WindowMenu.Caption := FolderName;
-    WindowMenu.Hint := Format(JUMP_MASK, [FolderName]);
-    WindowMenu.Tag := IMAGE_INDEX[IsImage];
-    WindowMenu.ImageIndex := WindowMenu.Tag;
-    WindowMenu.GroupIndex := 5;
-    WindowMenu.OnClick := WindowClickHandler;
-    ParentMenu.Add(WindowMenu);
-    Caption := FFolderName;
-    RefreshView;
-    if Config.MonitorFolder then begin
-      FDirMonitor.Directory := FolderName;
-      FDirMonitor.Start
-    end;
   finally
     Screen.EndWaitCursor;
   end;
