@@ -48,6 +48,32 @@ type
       ForFile: Boolean): Boolean;
   end;
 
+  TSearchCache = class(TObject)
+  private
+    FCriteria: String;
+    FMatchByCase: Boolean;
+    FMatchWholeWordOnly: Boolean;
+    FForFile: Boolean;
+    FReplacement: String;
+    FFilter: String;
+    FMatchDeclaration: Boolean;
+    FLabels: TStringList;
+    FLineNumber: Integer;
+  public
+    constructor Create; virtual;
+    destructor Destroy; override;
+    procedure Clear;
+    property Criteria: String read FCriteria write FCriteria;
+    property MatchByCase: Boolean read FMatchByCase write FMatchByCase;
+    property MatchWholeWordOnly: Boolean read FMatchWholeWordOnly write FMatchWholeWordOnly;
+    property ForFile: Boolean read FForFile write FForFile;
+    property Replacement: String read FReplacement write FReplacement;
+    property Filter: String read FFilter write FFilter;
+    property MatchDeclaration: Boolean read FMatchDeclaration write FMatchDeclaration;
+    property Labels: TStringList read FLabels;
+    property LineNumber: Integer read FLineNumber write FLineNumber;
+  end;
+
   { TSearchFrame }
 
   TSearchFrame = class(TFrame)
@@ -153,6 +179,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ReadConfig(const FolderName: TFileName);
+    procedure ReadCache(Cache: TSearchCache);
+    procedure WriteCache(Cache: TSearchCache);
     property SearchBy: TSearchBy read GetSearchBy write SetSearchBy;
     property ForFile: Boolean read GetForFile write SetForFile;
     property Criteria: String read GetCriteria write SetCriteria;
@@ -215,6 +243,33 @@ begin
     WholeWordMatches or not ForFileMatches;
   if Result then
     SetValue(Criteria, MatchCase, MatchWholeWordOnly, ForFile);
+end;
+
+{ TSearchCache }
+
+constructor TSearchCache.Create;
+begin
+  inherited Create;
+  FLabels := TStringList.Create;
+end;
+
+destructor TSearchCache.Destroy;
+begin
+  FLabels.Free;
+  inherited;
+end;
+
+procedure TSearchCache.Clear;
+begin
+  FCriteria := EmptyStr;
+  FMatchByCase := False;
+  FMatchWholeWordOnly := False;
+  FForFile := False;
+  FReplacement := EmptyStr;
+  FFilter := EmptyStr;
+  FMatchDeclaration := False;
+  FLabels.Clear;
+  FLineNumber := 0;
 end;
 
 { TSearchFrame }
@@ -727,6 +782,36 @@ begin
   Config.ReadConfig(CriteriaEdit, FFolderName);
   Config.ReadConfig(ReplacementEdit, FFolderName);
   Config.ReadConfig(FilterEdit, FFolderName);
+end;
+
+procedure TSearchFrame.ReadCache(Cache: TSearchCache);
+begin
+  if Assigned(Cache) then begin
+    Cache.Criteria := Criteria;
+    Cache.MatchByCase := MatchByCase;
+    Cache.MatchWholeWordOnly := MatchWholeWordOnly;
+    Cache.ForFile := ForFile;
+    Cache.Replacement := Replacement;
+    Cache.Filter := Filter;
+    Cache.MatchDeclaration := MatchDeclaration;
+    Cache.Labels.Assign(LabelListEdit.Items);
+    Cache.LineNumber := LineNumber;
+  end;
+end;
+
+procedure TSearchFrame.WriteCache(Cache: TSearchCache);
+begin
+  if Assigned(Cache) then begin
+    Criteria := Cache.Criteria;
+    MatchByCase := Cache.MatchByCase;
+    MatchWholeWordOnly := Cache.MatchWholeWordOnly;
+    ForFile := Cache.ForFile;
+    Replacement := Cache.Replacement;
+    Filter := Cache.Filter;
+    MatchDeclaration := Cache.MatchDeclaration;
+    LabelListEdit.Items.Assign(Cache.Labels);
+    LineNumber := Cache.LineNumber;
+  end;
 end;
 
 end.

@@ -151,6 +151,7 @@ object CustomWorkForm: TCustomWorkForm
       PopupMenu = EditorMenu
       TabOrder = 1
       OnChange = WorkPagesChange
+      OnChanging = WorkPagesChanging
       TabDragMode = dmAutomatic
       TabDragAcceptMode = dmAutomatic
     end

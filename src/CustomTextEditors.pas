@@ -354,7 +354,7 @@ var
       Ch := Line[I];
       Result := Ch in ALPHAS;
       if Result then begin
-        Width := Line.Length;
+        Width := Line.Length - 1;
         repeat
           Token := Token + Ch;
           Inc(I);

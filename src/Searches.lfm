@@ -1,9 +1,9 @@
 object SearchFrame: TSearchFrame
   Left = 0
-  Height = 500
+  Height = 520
   Top = 0
   Width = 256
-  ClientHeight = 500
+  ClientHeight = 520
   ClientWidth = 256
   ParentFont = False
   TabOrder = 0
@@ -11,22 +11,22 @@ object SearchFrame: TSearchFrame
   DesignTop = 257
   object ScrollBox: TScrollBox
     Left = 0
-    Height = 500
+    Height = 520
     Top = 0
     Width = 256
     HorzScrollBar.Page = 1
     HorzScrollBar.Visible = False
-    VertScrollBar.Page = 490
+    VertScrollBar.Page = 510
     VertScrollBar.Tracking = True
     Align = alClient
     BorderStyle = bsNone
-    ClientHeight = 500
+    ClientHeight = 520
     ClientWidth = 256
     TabOrder = 0
     object CaseEdit: TCheckBox
       Left = 80
       Height = 19
-      Top = 52
+      Top = 72
       Width = 45
       Caption = 'Case'
       TabOrder = 3
@@ -34,7 +34,7 @@ object SearchFrame: TSearchFrame
     object WordEdit: TCheckBox
       Left = 146
       Height = 19
-      Top = 52
+      Top = 72
       Width = 86
       Caption = 'Whole Word'
       TabOrder = 4
@@ -42,7 +42,7 @@ object SearchFrame: TSearchFrame
     object SearchPrevButton: TButton
       Left = 24
       Height = 20
-      Top = 440
+      Top = 460
       Width = 68
       Action = SearchPrevAction
       TabOrder = 15
@@ -50,7 +50,7 @@ object SearchFrame: TSearchFrame
     object SearchNextButton: TButton
       Left = 24
       Height = 20
-      Top = 470
+      Top = 490
       Width = 68
       Action = SearchNextAction
       TabOrder = 16
@@ -58,7 +58,7 @@ object SearchFrame: TSearchFrame
     object ReplaceButton: TButton
       Left = 94
       Height = 20
-      Top = 440
+      Top = 460
       Width = 68
       Action = ReplaceAction
       TabOrder = 17
@@ -66,7 +66,7 @@ object SearchFrame: TSearchFrame
     object ReplaceAllButton: TButton
       Left = 94
       Height = 20
-      Top = 470
+      Top = 490
       Width = 68
       Action = ReplaceAllAction
       TabOrder = 18
@@ -75,7 +75,7 @@ object SearchFrame: TSearchFrame
       Tag = 2
       Left = 8
       Height = 19
-      Top = 76
+      Top = 96
       Width = 90
       Caption = 'Replace with:'
       OnClick = SearchClick
@@ -85,7 +85,7 @@ object SearchFrame: TSearchFrame
       Tag = 3
       Left = 8
       Height = 19
-      Top = 120
+      Top = 140
       Width = 100
       Caption = 'Files matching:'
       OnClick = SearchClick
@@ -95,7 +95,7 @@ object SearchFrame: TSearchFrame
       Tag = 1
       Left = 8
       Height = 19
-      Top = 4
+      Top = 23
       Width = 76
       Caption = 'Search for:'
       OnClick = SearchClick
@@ -105,7 +105,7 @@ object SearchFrame: TSearchFrame
       Tag = 5
       Left = 8
       Height = 19
-      Top = 384
+      Top = 404
       Width = 74
       Caption = '&Go to line:'
       OnClick = SearchClick
@@ -114,7 +114,7 @@ object SearchFrame: TSearchFrame
     object LineNumberEdit: TEdit
       Left = 24
       Height = 23
-      Top = 404
+      Top = 424
       Width = 68
       Alignment = taRightJustify
       MaxLength = 8
@@ -124,7 +124,7 @@ object SearchFrame: TSearchFrame
     object CloseButton: TButton
       Left = 164
       Height = 20
-      Top = 470
+      Top = 490
       Width = 68
       Action = CloseAction
       Cancel = True
@@ -133,7 +133,7 @@ object SearchFrame: TSearchFrame
     object CriteriaEdit: TComboBox
       Left = 24
       Height = 23
-      Top = 24
+      Top = 44
       Width = 208
       ItemHeight = 15
       TabOrder = 2
@@ -141,7 +141,7 @@ object SearchFrame: TSearchFrame
     object ReplacementEdit: TComboBox
       Left = 24
       Height = 23
-      Top = 96
+      Top = 116
       Width = 208
       ItemHeight = 15
       TabOrder = 6
@@ -149,7 +149,7 @@ object SearchFrame: TSearchFrame
     object FilterEdit: TComboBox
       Left = 24
       Height = 23
-      Top = 140
+      Top = 160
       Width = 208
       ItemHeight = 15
       TabOrder = 8
@@ -157,7 +157,7 @@ object SearchFrame: TSearchFrame
     object DeclarationEdit: TCheckBox
       Left = 24
       Height = 19
-      Top = 168
+      Top = 188
       Width = 80
       Caption = 'Declaration'
       TabOrder = 9
@@ -165,7 +165,7 @@ object SearchFrame: TSearchFrame
     object SearchForPanel: TPanel
       Left = 126
       Height = 21
-      Top = 1
+      Top = 21
       Width = 112
       BevelOuter = bvNone
       ClientHeight = 21
@@ -192,7 +192,7 @@ object SearchFrame: TSearchFrame
       Tag = 4
       Left = 8
       Height = 19
-      Top = 192
+      Top = 212
       Width = 80
       Caption = 'Go to label:'
       OnClick = SearchClick
@@ -201,7 +201,7 @@ object SearchFrame: TSearchFrame
     object LabelCriteriaEdit: TListFilterEdit
       Left = 24
       Height = 23
-      Top = 212
+      Top = 232
       Width = 208
       FilterOptions = [fsoMatchOnlyAtStart]
       OnAfterFilter = LabelCriteriaEditAfterFilter
@@ -214,7 +214,7 @@ object SearchFrame: TSearchFrame
     object LabelListEdit: TListBox
       Left = 24
       Height = 132
-      Top = 240
+      Top = 260
       Width = 208
       ExtendedSelect = False
       ItemHeight = 0
@@ -223,7 +223,7 @@ object SearchFrame: TSearchFrame
     object MatchLabel: TLabel
       Left = 24
       Height = 15
-      Top = 54
+      Top = 74
       Width = 37
       Caption = 'Match:'
       ParentColor = False
@@ -231,7 +231,7 @@ object SearchFrame: TSearchFrame
   end
   object Actions: TActionList
     Left = 186
-    Top = 390
+    Top = 410
     object SearchPrevAction: TAction
       Caption = '&Previous'
       Hint = 'Search for previous match.'

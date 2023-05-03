@@ -241,6 +241,7 @@ type
     procedure NavigatorKeyPress(Sender: TObject; var Key: char);
     procedure SearchEditDblClick(Sender: TObject);
     procedure WorkPagesChange(Sender: TObject);
+    procedure WorkPagesChanging(Sender: TObject; var AllowChange: Boolean);
     procedure DoSearch(Sender: TObject; const Criteria: String; First, Backwards, MatchCase,
       MatchWholeWordOnly, ForFile: Boolean; var WasFound: Boolean);
     procedure DoSearchAll(Sender: TObject; const Criteria, Filter: String; MatchCase,
@@ -1442,12 +1443,16 @@ begin
 end;
 
 procedure TCustomWorkForm.FindActionExecute(Sender: TObject);
+var
+  Editor: TCustomEditorFrame;
 begin
   SetSearchMethod(TSearchBy((Sender as TAction).Tag));
-  if Assigned(ActiveEditor) then begin
-    FSearchFrame.ValidActions := ActiveEditor.ValidActions;
+  Editor := ActiveEditor;
+  if Assigned(Editor) then begin
+    FSearchFrame.ValidActions := Editor.ValidActions;
+    FSearchFrame.WriteCache(Editor.SearchCache);
     if FSearchFrame.Criteria.IsEmpty then
-      FSearchFrame.Criteria := ActiveEditor.SelectedText;
+      FSearchFrame.Criteria := Editor.SelectedText;
   end;
 end;
 
@@ -1642,8 +1647,22 @@ begin
     if Assigned(Editor) then begin
       CheckIfModified(Editor.Node);
       Navigator.Selected := Editor.Node;
+      FSearchFrame.WriteCache(Editor.SearchCache);
       FSearchFrame.ValidActions := Editor.ValidActions;
     end;
+  end;
+end;
+
+procedure TCustomWorkForm.WorkPagesChanging(Sender: TObject; var AllowChange: Boolean);
+var
+  Page: TTabSheet;
+  Editor: TCustomEditorFrame;
+begin
+  Page := WorkPages.ActivePage;
+  if Assigned(Page) then begin
+    Editor := Page.Editor;
+    if Assigned(Editor) then
+      FSearchFrame.ReadCache(Editor.SearchCache);
   end;
 end;
 

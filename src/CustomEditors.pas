@@ -33,6 +33,7 @@ type
   TCustomEditorFrame = class(TFrame)
     StatusBar: TStatusBar;
   private
+    FSearchCache: TSearchCache;
     FOnLog: TLogMessageEvent;
     FOnFindIdentifier: TGlobalSearchEvent;
     function GetRow: Integer;
@@ -60,6 +61,7 @@ type
     property Column: Integer read GetColumn write SetColumn;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure Open(Page: TTabSheet; Node: TTreeNode); virtual;
     procedure Save; virtual; abstract;
     procedure SaveAs(const FileName: TFileName); virtual; abstract;
@@ -75,6 +77,7 @@ type
     procedure RetrieveLabels(List: TStrings); virtual;
     procedure Idle; virtual; abstract;
     procedure RefreshConfig; virtual; abstract;
+    property SearchCache: TSearchCache read FSearchCache;
     property IsModified: Boolean read GetIsModified write SetIsModified;
     property Node: TTreeNode read FNode write FNode;
     property LogicalName: TFileName read GetLogicalName write SetLogicalName;
@@ -146,11 +149,18 @@ end;
 constructor TCustomEditorFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FSearchCache := TSearchCache.Create;
   StatusBar.Panels[SYNTAX_PANEL].Text := AnsiReplaceText(FSyntax, ' Syntax', EmptyStr);
   FValidActions := [vaCase, vaWord, vaLabel, vaPrevious];
   InsertMode := True;
   ReadOnly := False;
   RefreshConfig;
+end;
+
+destructor TCustomEditorFrame.Destroy;
+begin
+  FSearchCache.Free;
+  inherited;
 end;
 
 function TCustomEditorFrame.GetRow: Integer;
