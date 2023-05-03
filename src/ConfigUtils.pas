@@ -27,6 +27,7 @@ const
   ITEM_EDIT                   = 'Editable Files';
   ITEM_EXEC                   = 'Executable Files';
   ITEM_ASSEMBLE               = 'Assembly Files';
+  ITEM_AUXILIARY              = 'Auxiliary Files';
   ITEM_SEARCH                 = 'Searchable Files';
   ITEM_UNEDITABLE             = 'Uneditable Files';
   ITEM_EXCLUDE_FILE           = 'Excluded Files';
@@ -64,6 +65,7 @@ const
                                 'Reboot.asm;RTC.asm;Startup.asm;Survey.asm;SysCopy.asm;'    +
                                 'Talk.asm;TESTZ80.asm;Time.asm;Timer.asm;TimeUtil.asm;'     +
                                 'tune.asm;zcpr.asm';
+  INI_AUXILIARY_DEF           = '.lst;.sym;.bin;.com;.html;.rel;.hex;.prn;_*.*;.cmd.log';
   INI_HTML_DEF                = '*.html;*.htm';
   INI_SEARCH_DEF              = '*.asm;*.z80;*.azm;*.180;*.inc;*.lib;*.lst';
   INI_UNEDITABLE_DEF          = '*.list;*.lst;*.log;*.sym';
@@ -250,6 +252,7 @@ type
     FEditFiles: String;
     FExecuteFiles: String;
     FAssemblyFiles: String;
+    FAuxiliaryFiles: String;
     FHtmlFiles: String;
     FSearchFiles: String;
     FUneditableFiles: String;
@@ -315,6 +318,7 @@ type
     property EditFiles: String read FEditFiles write FEditFiles;
     property ExecuteFiles: String read FExecuteFiles write FExecuteFiles;
     property AssemblyFiles: String read FAssemblyFiles write FAssemblyFiles;
+    property AuxiliaryFiles: String read FAuxiliaryFiles write FAuxiliaryFiles;
     property HtmlFiles: String read FHtmlFiles write FHtmlFiles;
     property SearchFiles: String read FSearchFiles write FSearchFiles;
     property UneditableFiles: String read FUneditableFiles write FUneditableFiles;
@@ -449,6 +453,7 @@ const
   INI_EDIT                 = 'EditFiles';
   INI_EXEC                 = 'ExecuteFiles';
   INI_ASSEMBLE             = 'AssemblyFiles';
+  INI_AUXILIARY            = 'AuxiliaryFiles';
   INI_HTML                 = 'HTML';
   INI_SEARCH               = 'SearchFiles';
   INI_UNEDITABLE           = 'Uneditable';
@@ -1189,6 +1194,7 @@ var
     FEditFiles := Result.Read(INI_EDIT, INI_EDIT_DEF);
     FExecuteFiles := Result.Read(INI_EXEC, INI_EXEC_DEF);
     FAssemblyFiles := Result.Read(INI_ASSEMBLE, INI_ASSEMBLE_DEF);
+    FAuxiliaryFiles := Result.Read(INI_AUXILIARY, INI_AUXILIARY_DEF);
     FHtmlFiles := Result.Read(INI_HTML, INI_HTML_DEF);
     FSearchFiles := Result.Read(INI_SEARCH, INI_SEARCH_DEF);
     FUneditableFiles := Result.Read(INI_UNEDITABLE, INI_UNEDITABLE_DEF);
@@ -1274,6 +1280,7 @@ var
     Result.Write(INI_EDIT, FEditFiles);
     Result.Write(INI_EXEC, FExecuteFiles);
     Result.Write(INI_ASSEMBLE, FAssemblyFiles);
+    Result.Write(INI_AUXILIARY, FAuxiliaryFiles);
     Result.Write(INI_HTML, FHtmlFiles);
     Result.Write(INI_SEARCH, FSearchFiles);
     Result.Write(INI_UNEDITABLE, FUneditableFiles);

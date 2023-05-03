@@ -201,7 +201,7 @@ function WriteStrToFile(const FileName: TFileName; const Value: String): Boolean
 implementation
 
 uses
-  Forms, Graphics, StrUtils, FileUtil, Configs;
+  Types, Forms, Graphics, StrUtils, FileUtil, Configs;
 
 function GetFiles(const Path: TFileName): TStringList;
 const
@@ -242,28 +242,18 @@ begin
 end;
 
 function GetChildren(const FullFileName: TFileName): TStringList;
-const
-  MASKS: array[0..9] of String =
-   ('%s\%s.lst',
-    '%s\%s.sym',
-    '%s\%s.bin',
-    '%s\%s.com',
-    '%s\%s.html',
-    '%s\%s.rel',
-    '%s\%s.hex',
-    '%s\%s.prn',
-    '%s\%s_*.*',
-    '%s\%s.cmd.log');
 var
   Path: TFileName = '';
   FileName: TFileName = '';
+  Masks: TStringDynArray;
   Mask: String;
 
-  procedure AppendChildren(const Path, FileName: TFileName; List: TStringList; const Mask: String);
+  procedure AppendChildren(const Path, FileName: TFileName; List: TStringList; Mask: String);
   var
     Rec: TSearchRec;
     Temp: String = '';
   begin
+    Mask := '%s\%s' + Mask;
     if FindFirst(Format(Mask, [Path, FileName]), faAnyFile, Rec) = 0 then begin
       repeat
         if ((Rec.Attr and faDirectory) <> faDirectory) then begin
@@ -280,7 +270,8 @@ begin
   Path := ExcludeTrailingPathDelimiter(ExtractFilePath(FullFileName));
   FileName := ExtractFileName(FullFileName);
   FileName := ChangeFileExt(FileName, EmptyStr);
-  for Mask in MASKS do
+  Masks := SplitString(Config.AuxiliaryFiles, ';');
+  for Mask in Masks do
     AppendChildren(Path, FileName, Result, Mask);
 end;
 

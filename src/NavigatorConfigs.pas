@@ -34,6 +34,7 @@ type
   private
     FEditFiles: String;
     FAssemblyFiles: String;
+    FAuxiliaryFiles: String;
     FExecFiles: String;
     FSearchFiles: String;
     FUneditableFiles: String;
@@ -62,6 +63,8 @@ type
     procedure SetEditFiles(const Value: String);
     function GetAssemlbyFiles: String;
     procedure SetAssemblyFiles(const Value: String);
+    function GetAuxiliaryFiles: String;
+    procedure SetAuxiliaryFiles(const Value: String);
     function GetExecFiles: String;
     procedure SetExecFiles(const Value: String);
     function GetSearchFiles: String;
@@ -112,6 +115,7 @@ type
     procedure WriteConfig(Config: TConfig); override;
     property EditFiles: String read GetEditFiles write SetEditFiles;
     property AssemblyFiles: String read GetAssemlbyFiles write SetAssemblyFiles;
+    property AuxiliaryFiles: String read GetAuxiliaryFiles write SetAuxiliaryFiles;
     property ExecFiles: String read GetExecFiles write SetExecFiles;
     property SearchFiles: String read GetSearchFiles write SetSearchFiles;
     property UneditableFiles: String read GetUneditableFiles write SetUneditableFiles;
@@ -153,6 +157,7 @@ begin
   ConfigEdit.Strings.Clear;
   ConfigEdit.Strings.AddPair(ITEM_EDIT, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_ASSEMBLE, EmptyStr);
+  ConfigEdit.Strings.AddPair(ITEM_AUXILIARY, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_EXEC, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_SEARCH, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_UNEDITABLE, EmptyStr);
@@ -181,9 +186,10 @@ end;
 
 procedure TNavigatorConfigFrame.ConfigEditButtonClick(Sender: TObject; aCol, aRow: Integer);
 const
-  DEFAULTS: array[0..22] of String =
+  DEFAULTS: array[0..23] of String =
    (INI_EDIT_DEF,
     INI_ASSEMBLE_DEF,
+    INI_AUXILIARY_DEF,
     INI_EXEC_DEF,
     INI_SEARCH_DEF,
     INI_UNEDITABLE_DEF,
@@ -221,6 +227,7 @@ function TNavigatorConfigFrame.GetIsModified: Boolean;
 begin
   Result := not AnsiSameText(EditFiles, FEditFiles) or
     not AnsiSameText(AssemblyFiles, FAssemblyFiles) or
+    not AnsiSameText(AuxiliaryFiles, FAuxiliaryFiles) or
     not AnsiSameText(ExecFiles, FExecFiles) or
     not AnsiSameText(SearchFiles, FSearchFiles) or
     not AnsiSameText(UneditableFiles, FUneditableFiles) or
@@ -265,6 +272,17 @@ procedure TNavigatorConfigFrame.SetAssemblyFiles(const Value: String);
 begin
   ConfigEdit.Values[ITEM_ASSEMBLE] := Value;
   FAssemblyFiles := Value;
+end;
+
+function TNavigatorConfigFrame.GetAuxiliaryFiles: String;
+begin
+  Result := ConfigEdit.Values[ITEM_AUXILIARY];
+end;
+
+procedure TNavigatorConfigFrame.SetAuxiliaryFiles(const Value: String);
+begin
+  ConfigEdit.Values[ITEM_AUXILIARY] := Value;
+  FAuxiliaryFiles := Value;
 end;
 
 function TNavigatorConfigFrame.GetExecFiles: String;
@@ -513,6 +531,7 @@ procedure TNavigatorConfigFrame.ReadConfig(Config: TConfig);
 begin
   EditFiles := Config.EditFiles;
   AssemblyFiles := Config.AssemblyFiles;
+  AuxiliaryFiles := Config.AuxiliaryFiles;
   ExecFiles := Config.ExecuteFiles;
   SearchFiles := Config.SearchFiles;
   UneditableFiles := Config.UneditableFiles;
@@ -541,6 +560,7 @@ procedure TNavigatorConfigFrame.WriteConfig(Config: TConfig);
 begin
   Config.EditFiles := EditFiles;
   Config.AssemblyFiles := AssemblyFiles;
+  Config.AuxiliaryFiles := AuxiliaryFiles;
   Config.ExecuteFiles := ExecFiles;
   Config.SearchFiles := SearchFiles;
   Config.UneditableFiles := UneditableFiles;
