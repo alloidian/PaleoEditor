@@ -86,15 +86,6 @@ type
     property Node[Level: Integer]: TTreeNode read GetNode;
   end;
 
-  TIntegerObject = class(TObject)
-  private
-    FValue: Integer;
-  public
-    constructor Create(Value: Integer); virtual;
-    class procedure FreeList(List: TStrings);
-    property Value: Integer read FValue;
-  end;
-
   TStop = class(TObject)
   private
     FNode: TTreeNode;
@@ -164,13 +155,14 @@ type
     property HasStructure: Boolean read GetHasStructure;
   end;
 
-{ TComboBoxHelper }
+{ TStringsHelper }
 
-  TComboBoxHelper = class helper for TComboBox
+  TStringsHelper = class helper for TStrings
   private
     function GetAsInteger(I: Integer): Integer;
     procedure SetAsInteger(I: Integer; Value: Integer);
   public
+    procedure AddInteger(const Text: String; Value: Integer);
     property AsInteger[I: Integer]: Integer read GetAsInteger write SetAsInteger;
   end;
 
@@ -460,27 +452,6 @@ begin
   FList.Add(Node);
 end;
 
-{ TIntegerObject }
-
-constructor TIntegerObject.Create(Value: Integer);
-begin
-  inherited Create;
-  FValue := Value;
-end;
-
-class procedure TIntegerObject.FreeList(List: TStrings);
-var
-  I: Integer = 0;
-  Temp: TObject;
-begin
-  for I := List.Count - 1 downto 0 do begin
-    Temp := List.Objects[I];
-    if Assigned(Temp) then
-      Temp.Free;
-    List.Delete(I);
-  end;
-end;
-
 { TStop }
 
 constructor TStop.Create(Node: TTreeNode; LineNumber: Integer);
@@ -743,20 +714,25 @@ begin
   end;
 end;
 
-{ TComboBoxHelper }
+{ TStringsHelper }
 
-function TComboBoxHelper.GetAsInteger(I: Integer): Integer;
+function TStringsHelper.GetAsInteger(I: Integer): Integer;
 begin
-  if (I > -1) and (I < Items.Count) then
-    Result := Integer(Items.Objects[I])
+  if (I > -1) and (I < Count) then
+    Result := Integer(Objects[I])
   else
     Result := -1;
 end;
 
-procedure TComboBoxHelper.SetAsInteger(I: Integer; Value: Integer);
+procedure TStringsHelper.SetAsInteger(I: Integer; Value: Integer);
 begin
-  if (I > -1) and (I < Items.Count) then
-    Items.Objects[I] := TObject(Value);
+  if (I > -1) and (I < Count) then
+    Objects[I] := TObject(Value);
+end;
+
+procedure TStringsHelper.AddInteger(const Text: String; Value: Integer);
+begin
+  AddObject(Text, TObject(Value));
 end;
 
 { TSynPaleoHighligher }

@@ -126,9 +126,6 @@ begin
 end;
 
 procedure TProjectWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
-var
-  IsImage: Boolean = False;
-  WindowMenu: TMenuItem;
 begin
   Screen.BeginWaitCursor;
   try

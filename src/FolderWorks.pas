@@ -20,7 +20,7 @@ unit FolderWorks;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Dialogs, Menus, CustomWorks, ConfigUtils, DirMonitors;
+  Classes, SysUtils, Forms, Controls, Dialogs, Menus, CustomWorks, ConfigUtils;
 
 type
 
@@ -129,9 +129,6 @@ begin
 end;
 
 procedure TFolderWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
-var
-  IsImage: Boolean = False;
-  WindowMenu: TMenuItem;
 begin
   Screen.BeginWaitCursor;
   try

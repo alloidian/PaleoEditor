@@ -369,7 +369,7 @@ begin
   for I := 0 to Editor.Lines.Count - 1 do begin
     Line := Editor.Lines[I];
     if IsMethod(Line, Token) then
-      List.AddObject(Token, TIntegerObject.Create(I + 1));
+      List.AddInteger(Token, I + 1);
   end;
 end;
 

@@ -89,7 +89,7 @@ object CustomWorkForm: TCustomWorkForm
         Anchors = [akTop, akLeft, akRight]
         OnChange = NavigatorFilterEditChange
         TabOrder = 0
-        TextHint = 'Enter Filter'
+        TextHint = '(filter)'
       end
     end
     object Navigator: TTreeView

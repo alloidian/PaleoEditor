@@ -20,7 +20,7 @@ unit AssemblyEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, ComCtrls, Graphics, Dialogs, CustomTextEditors;
 
 type
 
@@ -30,6 +30,7 @@ type
     procedure CompletionExecute(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
+    procedure Open(Page: TTabSheet; Node: TTreeNode); override;
   end;
 
 implementation
@@ -48,6 +49,12 @@ begin
   FHighlighter := TSynZ80Syn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+end;
+
+procedure TAssemblyEditorFrame.Open(Page: TTabSheet; Node: TTreeNode);
+begin
+  inherited Open(Page, Node);
+  RetrieveLabels(SearchCache.Labels);
 end;
 
 procedure TAssemblyEditorFrame.CompletionExecute(Sender: TObject);

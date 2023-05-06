@@ -248,7 +248,6 @@ type
       MatchWholeWordOnly: Boolean);
     procedure DoReplace(Sender: TObject; const Criteria, Replacement: String; All, MatchCase,
       MatchWholeWordOnly: Boolean);
-    procedure DoRetrieveLabels(Sender: TObject; List: TStrings);
     procedure DoGotoLine(Sender: TObject; LineNumber: Integer);
     procedure DoOriginate(Sender: TObject; const Criteria, Filter: String);
     procedure AdjustSymbolFile(Sender: TObject);
@@ -327,7 +326,6 @@ type
     function IsTerminalAvailable: Boolean;
     procedure FindIdentifier(Sender: TObject; const Criteria, Filter: String;
       MatchCase, MatchWholeWordOnly: Boolean);
-    procedure RetrieveLabels(List: TStrings);
     procedure CheckIfModified(Node: TTreeNode);
     property FindFileList: TFindFileList read FFindFileList;
   public
@@ -470,7 +468,6 @@ begin
   FSearchFrame.OnSearchAll := DoSearchAll;
   FSearchFrame.OnSearchDeclaration := DoOriginate;
   FSearchFrame.OnReplace := DoReplace;
-  FSearchFrame.OnRetrieveLabels := DoRetrieveLabels;
   FSearchFrame.OnLabelLookup := DoGotoLine;
   FSearchFrame.OnGotoLine := DoGotoLine;
   FSearchFrame.SearchBy := sbNone;
@@ -1714,11 +1711,6 @@ begin
   end;
 end;
 
-procedure TCustomWorkForm.DoRetrieveLabels(Sender: TObject; List: TStrings);
-begin
-  RetrieveLabels(List);
-end;
-
 procedure TCustomWorkForm.DoGotoLine(Sender: TObject; LineNumber: Integer);
 var
   Editor: TCustomEditorFrame;
@@ -1852,6 +1844,7 @@ begin
   Editor.OnLog := LogHandler;
   Editor.OnFindIdentifier := FindIdentifier;
   WorkPages.ActivePage := Result;
+  FSearchFrame.WriteCache(Editor.SearchCache);
 end;
 
 procedure TCustomWorkForm.CloseFile(Page: TTabSheet);
@@ -2211,14 +2204,6 @@ procedure TCustomWorkForm.FindIdentifier(Sender: TObject; const Criteria, Filter
   MatchCase, MatchWholeWordOnly: Boolean);
 begin
   DoOriginate(Sender, Criteria, Filter);
-end;
-
-procedure TCustomWorkForm.RetrieveLabels(List: TStrings);
-begin
-  if Assigned(ActiveEditor) then
-    ActiveEditor.RetrieveLabels(List)
-  else
-    List.Clear;
 end;
 
 procedure TCustomWorkForm.CheckIfModified(Node: TTreeNode);

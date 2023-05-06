@@ -30,7 +30,6 @@ type
   TSearchDeclarationEvent = procedure(Sender: TObject; const Criteria, Filter: String) of object;
   TReplaceEvent = procedure(Sender: TObject; const Criteria, Replacement: String; All,
     MatchCase, MatchWholeWordOnly: Boolean) of object;
-  TRetrieveLabelsEvent = procedure(Sender: TObject; List: TStrings) of object;
   TGotoLineEvent = procedure(Sender: TObject; LineNumber: Integer) of object;
   TSearchBy = (sbNone, sbSearch, sbReplace, sbGlobal, sbLabel, sbGoto);
   TValidAction = (vaCase, vaWord, vaLabel, vaPrevious);
@@ -141,7 +140,6 @@ type
     FOnSearchAll: TSearchAllEvent;
     FOnSearchDeclaration: TSearchDeclarationEvent;
     FOnReplace: TReplaceEvent;
-    FOnRetrieveLabels: TRetrieveLabelsEvent;
     FOnLabelLookup: TGotoLineEvent;
     FOnGotoLine: TGotoLineEvent;
   protected
@@ -152,7 +150,6 @@ type
     procedure DoSearchDeclaration(const Criteria, Filter: String);
     procedure DoReplace(const Criteria, Replacement: String; All, MatchCase,
       MatchWholeWordOnly: Boolean);
-    procedure DoRetrieveLabels(List: TStrings);
     procedure DoLabelLookup(LineNumber: Integer);
     procedure DoGoToLine(LineNumber: Integer);
     procedure SetSearchControls(Control: TControl);
@@ -196,7 +193,6 @@ type
     property OnSearchAll: TSearchAllEvent read FOnSearchAll write FOnSearchAll;
     property OnSearchDeclaration: TSearchDeclarationEvent read FOnSearchDeclaration write FOnSearchDeclaration;
     property OnReplace: TReplaceEvent read FOnReplace write FOnReplace;
-    property OnRetrieveLabels: TRetrieveLabelsEvent read FOnRetrieveLabels write FOnRetrieveLabels;
     property OnLabelLookup: TGotoLineEvent read FOnLabelLookup write FOnLabelLookup;
     property OnGotoLine: TGotoLineEvent read FOnGotoLine write FOnGotoLine;
   end;
@@ -251,6 +247,7 @@ constructor TSearchCache.Create;
 begin
   inherited Create;
   FLabels := TStringList.Create;
+  Clear;
 end;
 
 destructor TSearchCache.Destroy;
@@ -369,7 +366,6 @@ procedure TSearchFrame.LabelActionExecute(Sender: TObject);
 begin
   DoLabelLookup(LabelNumber);
   LabelCriteriaEdit.Text := EmptyStr;
-  TIntegerObject.FreeList(LabelCriteriaEdit.Items);
   CloseAction.Execute;
 end;
 
@@ -479,12 +475,6 @@ begin
     FOnReplace(Self, Criteria, Replacement, All, MatchCase, MatchWholeWordOnly);
 end;
 
-procedure TSearchFrame.DoRetrieveLabels(List: TStrings);
-begin
-  if Assigned(FOnRetrieveLabels) then
-    FOnRetrieveLabels(Self, List);
-end;
-
 procedure TSearchFrame.DoLabelLookup(LineNumber: Integer);
 begin
   if Assigned(FOnLabelLookup) then
@@ -529,8 +519,6 @@ begin
   sbLabel: begin
     SearchNextButton.Action := LabelAction;
     SearchNextButton.Default := True;
-    if LabelListEdit.Items.Count = 0 then
-      DoRetrieveLabels(LabelCriteriaEdit.Items);
     end;
   sbGoto: begin
     SearchNextButton.Action := GoToAction;
@@ -648,8 +636,6 @@ begin
       LineNumberEdit.Enabled := False;
       SearchNextButton.Action := LabelAction;
       SearchNextButton.Default := True;
-      if LabelListEdit.Items.Count = 0 then
-        DoRetrieveLabels(LabelCriteriaEdit.Items);
       LabelCriteriaEdit.SetFocus;
       end;
     sbGoTo: begin
@@ -732,18 +718,9 @@ end;
 function TSearchFrame.GetLabelNumber: Integer;
 var
   I: Integer = 0;
-  Temp: TIntegerObject;
 begin
   I := LabelListEdit.ItemIndex;
-  if I < 0 then
-    Result := -1
-  else begin
-    Temp := LabelListEdit.Items.Objects[I] as TIntegerObject;
-    if Assigned(Temp) then
-      Result := Temp.Value
-    else
-      Result := -1;
-  end;
+  Result := LabelListEdit.Items.AsInteger[I];
 end;
 
 function TSearchFrame.GetLineNumber: Integer;
@@ -794,7 +771,6 @@ begin
     Cache.Replacement := Replacement;
     Cache.Filter := Filter;
     Cache.MatchDeclaration := MatchDeclaration;
-    Cache.Labels.Assign(LabelListEdit.Items);
     Cache.LineNumber := LineNumber;
   end;
 end;
@@ -809,6 +785,7 @@ begin
     Replacement := Cache.Replacement;
     Filter := Cache.Filter;
     MatchDeclaration := Cache.MatchDeclaration;
+    LabelCriteriaEdit.Items.Assign(Cache.Labels);
     LabelListEdit.Items.Assign(Cache.Labels);
     LineNumber := Cache.LineNumber;
   end;

@@ -203,7 +203,6 @@ object SearchFrame: TSearchFrame
       Height = 23
       Top = 232
       Width = 208
-      FilterOptions = [fsoMatchOnlyAtStart]
       OnAfterFilter = LabelCriteriaEditAfterFilter
       ButtonWidth = 23
       NumGlyphs = 1

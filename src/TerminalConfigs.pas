@@ -303,7 +303,7 @@ begin
   if I < 0 then
     Result := TTerminal.DEF_COM_PORT
   else
-    Result := ComPortEdit.AsInteger[I];
+    Result := ComPortEdit.Items.AsInteger[I];
 end;
 
 procedure TTerminalConfigFrame.SetComPort(Value: Integer);
@@ -312,7 +312,7 @@ var
 begin
   ComPortEdit.ItemIndex := -1;
   for I := 0 to ComPortEdit.Items.Count - 1 do
-    if ComPortEdit.AsInteger[I] = Value then begin
+    if ComPortEdit.Items.AsInteger[I] = Value then begin
       ComPortEdit.ItemIndex := I;
       Break;
     end;
@@ -327,7 +327,7 @@ begin
   if I < 0 then
     Result := TTerminal.DEF_BAUD
   else
-    Result := BaudEdit.AsInteger[I];
+    Result := BaudEdit.Items.AsInteger[I];
 end;
 
 procedure TTerminalConfigFrame.SetBaud(Value: Integer);
@@ -336,7 +336,7 @@ var
 begin
   BaudEdit.ItemIndex := -1;
   for I := 0 to BaudEdit.Items.Count - 1 do
-    if BaudEdit.AsInteger[I] = Value then begin
+    if BaudEdit.Items.AsInteger[I] = Value then begin
       BaudEdit.ItemIndex := I;
       Break;
     end;
@@ -351,7 +351,7 @@ begin
   if I < 0 then
     Result := TTerminal.DEF_DATA_BIT
   else
-    Result := TTerminal.TDatabit(DataBitEdit.AsInteger[I]);
+    Result := TTerminal.TDatabit(DataBitEdit.Items.AsInteger[I]);
 end;
 
 procedure TTerminalConfigFrame.SetDataBits(Value: TTerminal.TDatabit);
@@ -360,7 +360,7 @@ var
 begin
   DataBitEdit.ItemIndex := -1;
   for I := 0 to DataBitEdit.Items.Count - 1 do
-    if TTerminal.TDatabit(DataBitEdit.AsInteger[I]) = Value then begin
+    if TTerminal.TDatabit(DataBitEdit.Items.AsInteger[I]) = Value then begin
       DataBitEdit.ItemIndex := I;
       Break;
     end;
@@ -375,7 +375,7 @@ begin
   if I < 0 then
     Result := TTerminal.DEF_STOP_BIT
   else
-    Result := TTerminal.TStopBit(StopBitEdit.AsInteger[I]);
+    Result := TTerminal.TStopBit(StopBitEdit.Items.AsInteger[I]);
 end;
 
 procedure TTerminalConfigFrame.SetStopBits(Value: TTerminal.TStopBit);
@@ -384,7 +384,7 @@ var
 begin
   StopBitEdit.ItemIndex := -1;
   for I := 0 to StopBitEdit.Items.Count - 1 do
-    if TTerminal.TStopBit(StopBitEdit.AsInteger[I]) = Value then begin
+    if TTerminal.TStopBit(StopBitEdit.Items.AsInteger[I]) = Value then begin
       StopBitEdit.ItemIndex := I;
       Break;
     end;
@@ -399,7 +399,7 @@ begin
   if I < 0 then
     Result := TTerminal.DEF_PARITY
   else
-    Result := TTerminal.TParity(ParityEdit.AsInteger[I]);
+    Result := TTerminal.TParity(ParityEdit.Items.AsInteger[I]);
 end;
 
 procedure TTerminalConfigFrame.SetParity(Value: TTerminal.TParity);
@@ -408,7 +408,7 @@ var
 begin
   ParityEdit.ItemIndex := -1;
   for I := 0 to ParityEdit.Items.Count - 1 do
-    if TTerminal.TParity(ParityEdit.AsInteger[I]) = Value then begin
+    if TTerminal.TParity(ParityEdit.Items.AsInteger[I]) = Value then begin
       ParityEdit.ItemIndex := I;
       Break;
     end;
@@ -423,7 +423,7 @@ begin
   if I < 0 then
     Result := TTerminal.DEF_FLOW_CONTROL
   else
-    Result := TTerminal.TFlowControl(FlowControlEdit.AsInteger[I]);
+    Result := TTerminal.TFlowControl(FlowControlEdit.Items.AsInteger[I]);
 end;
 
 procedure TTerminalConfigFrame.SetFlowControl(Value: TTerminal.TFlowControl);
@@ -432,7 +432,7 @@ var
 begin
   FlowControlEdit.ItemIndex := -1;
   for I := 0 to FlowControlEdit.Items.Count - 1 do
-    if TTerminal.TFlowControl(FlowControlEdit.AsInteger[I]) = Value then begin
+    if TTerminal.TFlowControl(FlowControlEdit.Items.AsInteger[I]) = Value then begin
       FlowControlEdit.ItemIndex := I;
       Break;
     end;
