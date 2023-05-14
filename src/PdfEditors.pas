@@ -103,7 +103,7 @@ implementation
 {$R *.lfm}
 
 uses
-  LCLIntf, Printers, PdfiumCore, Utils, Searches, ConfigUtils;
+  LCLIntf, Printers, PdfiumCore, Utils, ConfigUtils;
 
 { TPdfEditorFrame }
 
@@ -111,7 +111,7 @@ constructor TPdfEditorFrame.Create(AOwner: TComponent);
 begin
   FSyntax := ITEM_PDF_SYNTAX;
   inherited Create(AOwner);
-  PDFiumDllDir := ExtractFilePath(Application.ExeName);
+  PDFiumDllDir := ExtractFilePath(UnicodeString(Application.ExeName));
   FEditor := TPdfControl.Create(Self);
   FEditor.Align  := alClient;
   FEditor.Parent := ScrollBox;
@@ -119,9 +119,7 @@ begin
   FEditor.AllowUserTextSelection := False;
   FEditor.OnPageChange := DoPageChange;
   FEditor.AddHandlerOnMouseWheel(DoMouseWheelEvent);
-//  PopulateScaleMode(ScaleEdit.Items);
   PopulateScale(ScaleEdit.Items);
-  FValidActions := [vaCase, vaWord];
   Scale := smFitHeight;
 end;
 

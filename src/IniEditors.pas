@@ -33,17 +33,19 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterIni, ConfigUtils;
+  SynHighlighterIni, ConfigUtils, Configs, Searches;
 
 { TIniEditorFrame }
 
 constructor TIniEditorFrame.Create(AOwner: TComponent);
 begin
-  FSyntax := ITEM_INI_SYNTAX;
+  FSyntax := ITEM_CONFIG_SYNTAX;
   inherited Create(AOwner);
   FHighlighter := TSynIniSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.Filter := Config.ConfigSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 end.

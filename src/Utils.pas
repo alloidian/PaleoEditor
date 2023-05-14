@@ -20,7 +20,7 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Controls, ComCtrls, StdCtrls, Generics.Collections, SynEditHighlighter, ConfigUtils;
+  Classes, SysUtils, Controls, ComCtrls, Generics.Collections, SynEditHighlighter, ConfigUtils;
 
 const
   IMAGE_INDEX: array[Boolean] of Integer = (0, 1);
@@ -143,6 +143,7 @@ type
     procedure RenameFolder(const Name: TFileName);
     procedure RenameFile(const Name: TFileName);
     function HasExtension(const Extensions: String): Boolean;
+    function Matches(const Mask: String): Boolean;
     property Kind: TFileAttribute.TPropertyKind read GetKind;
     property Status: TTreeNodeStatus read GetStatus write SetStatus;
     property ShortName: TFileName read GetShortName;
@@ -193,7 +194,7 @@ function WriteStrToFile(const FileName: TFileName; const Value: String): Boolean
 implementation
 
 uses
-  Types, Forms, Graphics, StrUtils, FileUtil, Configs;
+  Types, Forms, Graphics, StrUtils, FileUtil, Masks, Configs;
 
 function GetFiles(const Path: TFileName): TStringList;
 const
@@ -712,6 +713,14 @@ begin
       Temp.Free;
     end;
   end;
+end;
+
+function TTreeNodeHelper.Matches(const Mask: String): Boolean;
+begin
+  if AnsiContainsStr(Mask, '*') or AnsiContainsStr(Mask, '?') then
+    Result := MatchesMask(Text, Mask)
+  else
+    Result := AnsiContainsText(Text, Mask);
 end;
 
 { TStringsHelper }

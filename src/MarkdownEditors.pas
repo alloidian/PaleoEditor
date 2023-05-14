@@ -41,7 +41,8 @@ implementation
 {$R *.lfm}
 
 uses
-  ComCtrls, HtmlBuffer, MD5, SynHighlighterMD, MarkdownProcessor, Searches, ConfigUtils;
+  ComCtrls, HtmlBuffer, MD5, SynHighlighterMD, MarkdownProcessor, Searches, ConfigUtils,
+  Configs;
 
 { TMarkdownEditorFrame }
 
@@ -56,7 +57,8 @@ begin
   FViewer := THtmlViewer.Create(Self);
   FViewer.Parent := PreviewPage;
   FViewer.Align := alClient;
-  FValidActions := [vaCase, vaWord];
+  SearchCache.Filter := Config.MarkdownSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 procedure TMarkdownEditorFrame.PagesChange(Sender: TObject);

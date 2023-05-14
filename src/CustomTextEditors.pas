@@ -90,7 +90,7 @@ implementation
 {$R *.lfm}
 
 uses
-  StrUtils, Printers, Utils, ConfigUtils, Configs;
+  StrUtils, Printers, Utils, ConfigUtils, Configs, Searches;
 
 { TCustomTextEditorFrame }
 
@@ -99,6 +99,10 @@ begin
   if FSyntax.IsEmpty then
     FSyntax := ITEM_TEXT_SYNTAX;
   inherited Create(AOwner);
+  SearchCache.SearchModes := [smSearch, smReplace, smGlobal, smGoto];
+  SearchCache.ValidActions := [vaCase, vaWord, vaPrevious];
+  SearchCache.Filter := Config.TextSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 destructor TCustomTextEditorFrame.Destroy;

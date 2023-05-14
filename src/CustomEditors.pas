@@ -41,7 +41,6 @@ type
     function GetColumn: Integer;
     procedure SetColumn(Value: Integer);
   protected
-    FValidActions: TValidActions;
     FFileName: TFileName;
     FPage: TTabSheet;
     FNode: TTreeNode;
@@ -83,7 +82,6 @@ type
     property LogicalName: TFileName read GetLogicalName write SetLogicalName;
     property InsertMode: Boolean read GetInsertMode write SetInsertMode;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
-    property ValidActions: TValidActions read FValidActions;
     property SelectedText: String read GetSelectedText;
     property OnLog: TLogMessageEvent read FOnLog write FOnLog;
     property OnFindIdentifier: TGlobalSearchEvent read FOnFindIdentifier write FOnFindIdentifier;
@@ -126,10 +124,10 @@ const
    (TAssemblyEditorFrame,   // synAssembly
     TBasicEditorFrame,      // synBasic
     TBatchEditorFrame,      // synBatch
+    TIniEditorFrame,        // synConfig
     THexEditorFrame,        // synHex
     THtmlEditorFrame,       // synHtml
     TImageEditorFrame,      // synImage
-    TIniEditorFrame,        // synIni
     TIntelHexEditorFrame,   // synIntelHex
     TJsonEditorFrame,       // synJson
     TMarkdownEditorFrame,   // synMarkdown
@@ -151,7 +149,8 @@ begin
   inherited Create(AOwner);
   FSearchCache := TSearchCache.Create;
   StatusBar.Panels[SYNTAX_PANEL].Text := AnsiReplaceText(FSyntax, ' Syntax', EmptyStr);
-  FValidActions := [vaCase, vaWord, vaLabel, vaPrevious];
+  SearchCache.SearchModes := [];
+  SearchCache.ValidActions := [];
   InsertMode := True;
   ReadOnly := False;
   RefreshConfig;

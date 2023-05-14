@@ -34,7 +34,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterSpin, ConfigUtils;
+  SynHighlighterSpin, ConfigUtils, Configs, Searches;
 
 { TSpinEditorFrame }
 
@@ -45,6 +45,8 @@ begin
   FHighlighter := TSynSpinSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.Filter := Config.SpinSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 procedure TSpinEditorFrame.CompletionExecute(Sender: TObject);

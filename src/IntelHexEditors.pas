@@ -33,7 +33,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterIntelHex, ConfigUtils;
+  SynHighlighterIntelHex, ConfigUtils, Configs, Searches;
 
 { TIntelHexEditorFrame }
 
@@ -44,6 +44,8 @@ begin
   FHighlighter := TSynIntelHexSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.Filter := Config.IntelHexSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 end.

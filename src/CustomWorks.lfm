@@ -88,6 +88,7 @@ object CustomWorkForm: TCustomWorkForm
         Width = 140
         Anchors = [akTop, akLeft, akRight]
         OnChange = NavigatorFilterEditChange
+        OnKeyPress = NavigatorFilterEditKeyPress
         TabOrder = 0
         TextHint = '(filter)'
       end
@@ -101,8 +102,6 @@ object CustomWorkForm: TCustomWorkForm
       BorderStyle = bsNone
       Constraints.MaxWidth = 500
       Constraints.MinWidth = 160
-      HotTrack = True
-      HotTrackColor = clHighlight
       Images = Images
       PopupMenu = NavigatorPopupMenu
       ReadOnly = True
@@ -113,7 +112,7 @@ object CustomWorkForm: TCustomWorkForm
       OnDblClick = NavigatorDblClick
       OnDeletion = NavigatorDeletion
       OnKeyPress = NavigatorKeyPress
-      Options = [tvoAutoItemHeight, tvoHideSelection, tvoHotTrack, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
+      Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
     end
   end
   object NavigatorSplitter: TSplitter

@@ -64,7 +64,6 @@ constructor TImageEditorFrame.Create(AOwner: TComponent);
 begin
   FSyntax := ITEM_IMAGE_SYNTAX;
   inherited Create(AOwner);
-  FValidActions := [];
 end;
 
 function TImageEditorFrame.GetIsModified: Boolean;

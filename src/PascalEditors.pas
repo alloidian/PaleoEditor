@@ -33,7 +33,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterPas, ConfigUtils;
+  SynHighlighterPas, ConfigUtils, Configs, Searches;
 
 { TPascalEditorFrame }
 
@@ -44,6 +44,8 @@ begin
   FHighlighter := TSynPasSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.Filter := Config.PascalSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 end.

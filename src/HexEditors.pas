@@ -69,7 +69,10 @@ constructor THexEditorFrame.Create(AOwner: TComponent);
 begin
   FSyntax := ITEM_BINARY_SYNTAX;
   inherited Create(AOwner);
-  FValidActions := [vaCase, vaWord];
+  SearchCache.SearchModes := [smSearch, smReplace];
+  SearchCache.ValidActions  := [vaCase, vaWord, vaPrevious];
+  SearchCache.Filter := EmptyStr;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 procedure THexEditorFrame.EditorChange(Sender: TObject);

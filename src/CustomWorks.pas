@@ -171,6 +171,7 @@ type
     procedure IsFileUpdate(Sender: TObject);
     procedure NavigatorActionUpdate(Sender: TObject);
     procedure NavigatorFilterEditChange(Sender: TObject);
+    procedure NavigatorFilterEditKeyPress(Sender: TObject; var Key: char);
     procedure NewFolderActionExecute(Sender: TObject);
     procedure NewFileActionExecute(Sender: TObject);
     procedure OpenFileActionExecute(Sender: TObject);
@@ -252,6 +253,8 @@ type
     procedure DoOriginate(Sender: TObject; const Criteria, Filter: String);
     procedure AdjustSymbolFile(Sender: TObject);
     procedure WindowClickHandler(Sender: TObject);
+  private const
+    STRIPES: array[Boolean] of TColor = (clWindow, clMoneyGreen);
   private type
     TFindFileList = class(TObjectList<TTreeNode>)
     private
@@ -282,12 +285,16 @@ type
     FSymbolFileName: TFileName;
     FOnTerminalQuery: TQueryTerminalEvent;
     FOnFileUpload: TFileUploadEvent;
+    procedure AlternateRowColor(Sender: TCustomListView; Item: TListItem;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure TextColumn(Sender: TCustomListView; Item: TListItem; SubItem: Integer;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
     function GetIsModified: Boolean;
     function GetIsAllModified: Boolean;
     function GetFilter: String;
     procedure SetFilter(const Value: String);
     function GetActiveEditor: TCustomEditorFrame;
-    procedure SetSearchMethod(Method: TSearchBy);
+    procedure SetSearchMethod(Method: TSearchMode);
     procedure SelectNode(Node: TTreeNode; LineNumber: Integer = 0);
     function OpenFile(Node: TTreeNode): TTabSheet;
     procedure CloseFile(Page: TTabSheet);
@@ -369,7 +376,6 @@ type
     FReport: TListView;
     FBuffer: TStringList;
     FCriteria: String;
-    FExtensions: TStringDynArray;
     FFilter: String;
     FMatchCase: Boolean;
     FMatchWholeWordOnly: Boolean;
@@ -397,7 +403,6 @@ type
     FReport: TListView;
     FBuffer: TStringList;
     FCriteria: String;
-    FExtensions: TStringDynArray;
     FFilter: String;
   protected
     procedure DoIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
@@ -470,7 +475,7 @@ begin
   FSearchFrame.OnReplace := DoReplace;
   FSearchFrame.OnLabelLookup := DoGotoLine;
   FSearchFrame.OnGotoLine := DoGotoLine;
-  FSearchFrame.SearchBy := sbNone;
+  FSearchFrame.SearchMode := smNone;
   FFindFileList := TFindFileList.Create(Navigator);
   FItinerary := TItinerary.Create;
   FSymbolFileName := EmptyStr;
@@ -605,6 +610,8 @@ var
       if Assigned(Child.Page) then
         Child.Page.TabVisible := True;
     end;
+    if Assigned(Navigator.Selected) then
+      Navigator.Selected.MakeVisible;
   end;
 
   function HasVisibleChildren(Node: TTreeNode): Boolean;
@@ -627,6 +634,7 @@ var
   var
     I: Integer;
     Node: TTreeNode;
+    LastNode: TTreeNode = nil;
   begin
     for I := Navigator.Items.Count - 1 downto 0 do begin
       Node := Navigator.Items[I];
@@ -635,13 +643,17 @@ var
         if Node.Visible then
           Node.Expand(True); end
       else
-        if AnsiContainsText(Node.Text, Filter) then
+        if Node.Matches(Filter) then
           Node.Visible := True
         else
           Node.Visible := HasVisibleChildren(Node);
       if Assigned(Node.Page) then
         Node.Page.TabVisible := Node.Visible;
+      if Node.Visible then
+        LastNode := Node;
     end;
+    if Assigned(LastNode) then
+      LastNode.MakeVisible;
   end;
 
 begin
@@ -655,6 +667,14 @@ begin
   finally
     Edit.ReadOnly := False;
   end;
+end;
+
+procedure TCustomWorkForm.NavigatorFilterEditKeyPress(Sender: TObject; var Key: char);
+const
+  ESC = #27;
+begin
+  if Key = ESC then
+    (Sender as TEdit).Text := EmptyStr;
 end;
 
 procedure TCustomWorkForm.NewFolderActionExecute(Sender: TObject);
@@ -1443,10 +1463,9 @@ procedure TCustomWorkForm.FindActionExecute(Sender: TObject);
 var
   Editor: TCustomEditorFrame;
 begin
-  SetSearchMethod(TSearchBy((Sender as TAction).Tag));
+  SetSearchMethod(TSearchMode((Sender as TAction).Tag));
   Editor := ActiveEditor;
   if Assigned(Editor) then begin
-    FSearchFrame.ValidActions := Editor.ValidActions;
     FSearchFrame.WriteCache(Editor.SearchCache);
     if FSearchFrame.Criteria.IsEmpty then
       FSearchFrame.Criteria := Editor.SelectedText;
@@ -1460,7 +1479,7 @@ begin
   Action := Sender as TAction;
   Action.Enabled := Assigned(ActiveEditor);
   if Action.Enabled then
-    Action.Checked := TSearchBy(Action.Tag) = FSearchFrame.SearchBy
+    Action.Checked := TSearchMode(Action.Tag) = FSearchFrame.SearchMode
   else
     Action.Checked := False;
 end;
@@ -1622,7 +1641,7 @@ begin
             WorkPages.ActivePage := Node.Page
           else
             Node.Page := OpenFile(Node);
-          LineNumber := Item.SubItems[0].ToInteger + 1;
+          LineNumber := Item.SubItems[0].ToInteger;
           FItinerary.Post(Node, LineNumber);
           ActiveEditor.GotoLine(LineNumber);
         end;
@@ -1645,7 +1664,6 @@ begin
       CheckIfModified(Editor.Node);
       Navigator.Selected := Editor.Node;
       FSearchFrame.WriteCache(Editor.SearchCache);
-      FSearchFrame.ValidActions := Editor.ValidActions;
     end;
   end;
 end;
@@ -1767,6 +1785,24 @@ begin
   BringToFront;
 end;
 
+procedure TCustomWorkForm.AlternateRowColor(Sender: TCustomListView; Item: TListItem;
+  State: TCustomDrawState; var DefaultDraw: Boolean);
+begin
+  Sender.Canvas.Brush.Color := STRIPES[Odd(Item.Index)];
+end;
+
+procedure TCustomWorkForm.TextColumn(Sender: TCustomListView; Item: TListItem; SubItem: Integer;
+  State: TCustomDrawState; var DefaultDraw: Boolean);
+const
+  FONT_NAME = 'Courier New';
+begin
+  Sender.Canvas.Brush.Color := STRIPES[Odd(Item.Index)];
+  if SubItem = 2 then begin
+    Sender.Canvas.Font.Name := FONT_NAME;
+    Sender.Canvas.TextOut(2, 2, Item.SubItems[SubItem - 1]);
+  end;
+end;
+
 function TCustomWorkForm.GetIsModified: Boolean;
 var
   Editor: TCustomEditorFrame;
@@ -1801,12 +1837,12 @@ begin
     Result := nil;
 end;
 
-procedure TCustomWorkForm.SetSearchMethod(Method: TSearchBy);
+procedure TCustomWorkForm.SetSearchMethod(Method: TSearchMode);
 begin
-  if FSearchFrame.SearchBy = Method then
-    FSearchFrame.SearchBy := sbNone
+  if FSearchFrame.SearchMode = Method then
+    FSearchFrame.SearchMode := smNone
   else
-    FSearchFrame.SearchBy := Method;
+    FSearchFrame.SearchMode := Method;
 end;
 
 procedure TCustomWorkForm.SelectNode(Node: TTreeNode; LineNumber: Integer);
@@ -1818,8 +1854,7 @@ begin
       pkDocument, pkFile:
         if Assigned(Node.Page) then begin
           WorkPages.ActivePage := Node.Page;
-          WorkPages.ActivePage.Editor.GotoLine(LineNumber);
-        end
+          WorkPages.ActivePage.Editor.GotoLine(LineNumber); end
         else begin
           Node.Page := OpenFile(Node);
           Node.Status := Node.Page.Status;
@@ -2444,18 +2479,6 @@ var
   L: String = '';
   Item: TListItem;
 
-  function IsValidNode(const FileName: TFileName): Boolean;
-  var
-    Extention: String = '';
-  begin
-    Result := False;
-    for Extention in FExtensions do
-      if MatchesMask(FileName, Extention) then begin
-        Result := True;
-        Break;
-      end;
-  end;
-
   function WordExists(const Value: String; const Criteria:string; Options: TStringSearchOptions): Boolean;
   var
     Buffer: PChar;
@@ -2470,7 +2493,7 @@ var
   end;
 
 begin
-  if IsValidNode(Node.ShortName) then begin
+  if MatchesMaskList(Node.ShortName, FFilter) then begin
     FBuffer.LoadFromFile(Node.FullName);
     try
       for I := 0 to FBuffer.Count - 1 do begin
@@ -2479,8 +2502,8 @@ begin
           Item := FReport.Items.Add;
           Item.Caption := Node.LogicalName;
           Item.Data := Node;
-          Item.SubItems.Add(I.ToString);
-          Item.SubItems.Add(L);
+          Item.SubItems.Add((I + 1).ToString);
+          Item.SubItems.Add(Tab2Space(L, 4));
           Item.ImageIndex := 2;
         end;
       end;
@@ -2499,15 +2522,13 @@ const
 var
   Page: TTabSheet;
 
-  procedure AddColumn(View: TListView; const Caption: String; Width: Integer; Alignment: TAlignment; AutoSize: Boolean);
-  var
-    Column: TListColumn;
+  function AddColumn(View: TListView; const Caption: String; Width: Integer; Alignment: TAlignment; AutoSize: Boolean = False): TListColumn;
   begin
-    Column := View.Columns.Add;
-    Column.Caption := Caption;
-    Column.Alignment := Alignment;
-    Column.Width := Width;
-    Column.AutoSize := AutoSize;
+    Result := View.Columns.Add;
+    Result.Caption := Caption;
+    Result.Alignment := Alignment;
+    Result.Width := Width;
+    Result.AutoSize := AutoSize;
   end;
 
 begin
@@ -2525,9 +2546,11 @@ begin
   Result.RowSelect := True;
   Result.ViewStyle := vsReport;
   Result.SmallImages := FImages;
+  Result.OnCustomDrawItem := FProject.AlternateRowColor;
+  Result.OnCustomDrawSubItem := FProject.TextColumn;
   Result.OnDblClick := FProject.SearchEditDblClick;
-  AddColumn(Result, 'File', 200, taLeftJustify, False);
-  AddColumn(Result, 'Line', 50, taRightJustify, False);
+  AddColumn(Result, 'File', 200, taLeftJustify);
+  AddColumn(Result, 'Line', 50, taRightJustify);
   AddColumn(Result, 'Text', 362, taLeftJustify, True);
   Page.Tag := Integer(Result);
   FPages.ActivePage := Page;
@@ -2540,7 +2563,6 @@ begin
     FOptions := FOptions + [soMatchCase];
   if FMatchWholeWordOnly then
     FOptions := FOptions + [soWholeWord];
-  FExtensions := SplitString(Filter, ';');
   FReport := GeneratePage;
   FReport.Items.BeginUpdate;
   try
@@ -2577,20 +2599,8 @@ var
   L: String = '';
   Item: TListItem;
 
-  function IsValidNode(const FileName: TFileName): Boolean;
-  var
-    Extention: String;
-  begin
-    Result := False;
-    for Extention in FExtensions do
-      if MatchesMask(FileName, Extention) then begin
-        Result := True;
-        Break;
-      end;
-  end;
-
 begin
-  if IsValidNode(Node.ShortName) then begin
+  if MatchesMaskList(Node.ShortName, FFilter) then begin
     FBuffer.LoadFromFile(Node.FullName);
     try
       for I := 0 to FBuffer.Count - 1 do begin
@@ -2599,8 +2609,8 @@ begin
           Item := FReport.Items.Add;
           Item.Caption := Node.LogicalName;
           Item.Data := Node;
-          Item.SubItems.Add(I.ToString);
-          Item.SubItems.Add(L);
+          Item.SubItems.Add((I + 1).ToString);
+          Item.SubItems.Add(Tab2Space(L, 4));
           Item.ImageIndex := 2;
           MayContinue := False;
           Break;
@@ -2621,15 +2631,13 @@ const
 var
   Page: TTabSheet;
 
-  procedure AddColumn(View: TListView; const Caption: String; Width: Integer; Alignment: TAlignment; AutoSize: Boolean);
-  var
-    Column: TListColumn;
+  function AddColumn(View: TListView; const Caption: String; Width: Integer; Alignment: TAlignment; AutoSize: Boolean = False): TListColumn;
   begin
-    Column := View.Columns.Add;
-    Column.Caption := Caption;
-    Column.Alignment := Alignment;
-    Column.Width := Width;
-    Column.AutoSize := AutoSize;
+    Result := View.Columns.Add;
+    Result.Caption := Caption;
+    Result.Alignment := Alignment;
+    Result.Width := Width;
+    Result.AutoSize := AutoSize;
   end;
 
 begin
@@ -2647,9 +2655,11 @@ begin
   Result.RowSelect := True;
   Result.ViewStyle := vsReport;
   Result.SmallImages := FImages;
+  Result.OnCustomDrawItem := FProject.AlternateRowColor;
+  Result.OnCustomDrawSubItem := FProject.TextColumn;
   Result.OnDblClick := FProject.SearchEditDblClick;
-  AddColumn(Result, 'File', 200, taLeftJustify, False);
-  AddColumn(Result, 'Line', 50, taRightJustify, False);
+  AddColumn(Result, 'File', 200, taLeftJustify);
+  AddColumn(Result, 'Line', 50, taRightJustify);
   AddColumn(Result, 'Text', 362, taLeftJustify, True);
   Page.Tag := Integer(Result);
   FPages.ActivePage := Page;
@@ -2657,7 +2667,6 @@ end;
 
 procedure TGlobalOriginateEngine.Execute;
 begin
-  FExtensions := SplitString(Filter, ';');
   FReport := GeneratePage;
   FReport.Items.BeginUpdate;
   try

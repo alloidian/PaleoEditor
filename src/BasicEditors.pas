@@ -33,7 +33,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterVB, ConfigUtils;
+  SynHighlighterVB, ConfigUtils, Configs, Searches;
 
 { TBasicEditorFrame }
 
@@ -44,6 +44,8 @@ begin
   FHighlighter := TSynVBSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.Filter := Config.BasicSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 end.

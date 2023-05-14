@@ -38,7 +38,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterZ80, ConfigUtils;
+  SynHighlighterZ80, Utils, ConfigUtils, Configs, Searches;
 
 { TAssemblyEditorFrame }
 
@@ -49,12 +49,21 @@ begin
   FHighlighter := TSynZ80Syn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.SearchModes := SearchCache.SearchModes + [smLabel];
+  SearchCache.ValidActions := SearchCache.ValidActions + [vaLabel];
+  SearchCache.Filter := Config.AssemblySyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 procedure TAssemblyEditorFrame.Open(Page: TTabSheet; Node: TTreeNode);
 begin
   inherited Open(Page, Node);
-  RetrieveLabels(SearchCache.Labels);
+  if not Node.Matches('*.lst') then
+    RetrieveLabels(SearchCache.Labels)
+  else begin
+    SearchCache.SearchModes := SearchCache.SearchModes - [smLabel];
+    SearchCache.ValidActions := SearchCache.ValidActions - [vaLabel];
+  end;
 end;
 
 procedure TAssemblyEditorFrame.CompletionExecute(Sender: TObject);

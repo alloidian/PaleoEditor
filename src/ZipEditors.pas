@@ -65,7 +65,6 @@ constructor TZipEditorFrame.Create(AOwner: TComponent);
 begin
   FSyntax := ITEM_ZIP_SYNTAX;
   inherited Create(AOwner);
-  FValidActions := [];
 end;
 
 function TZipEditorFrame.GetIsModified: Boolean;

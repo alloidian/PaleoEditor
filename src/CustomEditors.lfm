@@ -17,7 +17,7 @@ object CustomEditorFrame: TCustomEditorFrame
     Panels = <    
       item
         Alignment = taCenter
-        Width = 55
+        Width = 65
       end    
       item
         Alignment = taCenter

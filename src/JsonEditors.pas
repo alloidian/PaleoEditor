@@ -36,7 +36,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterJson, ConfigUtils;
+  SynHighlighterJson, ConfigUtils, Configs, Searches;
 
 { TJsonEditorFrame }
 
@@ -47,6 +47,8 @@ begin
   FHighlighter := TSynJsonSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.Filter := Config.JsonSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 end.

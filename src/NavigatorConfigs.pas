@@ -44,9 +44,9 @@ type
     FAssemblySyntax: String;
     FBasicSyntax: String;
     FBatchSyntax: String;
+    FConfigSyntax: String;
     FHtmlSyntax: String;
     FImageSyntax: String;
-    FIniSyntax: String;
     FIntelHexSyntax: String;
     FJsonSyntax: String;
     FMarkdownSyntax: String;
@@ -83,12 +83,12 @@ type
     procedure SetBasicSyntax(const Value: String);
     function GetBatchSyntax: String;
     procedure SetBatchSyntax(const Value: String);
+    function GetConfigSyntax: String;
+    procedure SetConfigSyntax(const Value: String);
     function GetHtmlSyntax: String;
     procedure SetHtmlSyntax(const Value: String);
     function GetImageSyntax: String;
     procedure SetImageSyntax(const Value: String);
-    function GetIniSyntax: String;
-    procedure SetIniSyntax(const Value: String);
     function GetIntelHexSyntax: String;
     procedure SetIntelHexSyntax(const Value: String);
     function GetJsonSyntax: String;
@@ -125,9 +125,9 @@ type
     property AssemblySyntax: String read GetAssemblySyntax write SetAssemblySyntax;
     property BasicSyntax: String read GetBasicSyntax write SetBasicSyntax;
     property BatchSyntax: String read GetBatchSyntax write SetBatchSyntax;
+    property ConfigSyntax: String read GetConfigSyntax write SetConfigSyntax;
     property HtmlSyntax: String read GetHtmlSyntax write SetHtmlSyntax;
     property ImageSyntax: String read GetImageSyntax write SetImageSyntax;
-    property IniSyntax: String read GetIniSyntax write SetIniSyntax;
     property IntelHexSyntax: String read GetIntelHexSyntax write SetIntelHexSyntax;
     property JsonSyntax: String read GetJsonSyntax write SetJsonSyntax;
     property MarkdownSyntax: String read GetMarkdownSyntax write SetMarkdownSyntax;
@@ -166,9 +166,9 @@ begin
   ConfigEdit.Strings.AddPair(ITEM_ASSEMBLY_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_BASIC_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_BATCH_SYNTAX, EmptyStr);
+  ConfigEdit.Strings.AddPair(ITEM_CONFIG_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_HTML_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_IMAGE_SYNTAX, EmptyStr);
-  ConfigEdit.Strings.AddPair(ITEM_INI_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_INTEL_HEX_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_JSON_SYNTAX, EmptyStr);
   ConfigEdit.Strings.AddPair(ITEM_MARKDOWN_SYNTAX, EmptyStr);
@@ -198,9 +198,9 @@ const
     ITEM_ASSEMBLY_SYNTAX_DEF,
     ITEM_BASIC_SYNTAX_DEF,
     ITEM_BATCH_SYNTAX_DEF,
+    ITEM_CONFIG_SYNTAX_DEF,
     ITEM_HTML_SYNTAX_DEF,
     ITEM_IMAGE_SYNTAX_DEF,
-    ITEM_INI_SYNTAX_DEF,
     ITEM_INTEL_HEX_SYNTAX_DEF,
     ITEM_JSON_SYNTAX_DEF,
     ITEM_MARKDOWN_SYNTAX_DEF,
@@ -237,9 +237,9 @@ begin
     not AnsiSameText(AssemblySyntax, FAssemblySyntax) or
     not AnsiSameText(BasicSyntax, FBasicSyntax) or
     not AnsiSameText(BatchSyntax, FBatchSyntax) or
+    not AnsiSameText(ConfigSyntax, FConfigSyntax) or
     not AnsiSameText(HtmlSyntax, FHtmlSyntax) or
     not AnsiSameText(ImageSyntax, FImageSyntax) or
-    not AnsiSameText(IniSyntax, FIniSyntax) or
     not AnsiSameText(IntelHexSyntax, FIntelHexSyntax) or
     not AnsiSameText(JsonSyntax, FJsonSyntax) or
     not AnsiSameText(MarkdownSyntax, FMarkdownSyntax) or
@@ -384,6 +384,17 @@ begin
   FBatchSyntax := Value;
 end;
 
+function TNavigatorConfigFrame.GetConfigSyntax: String;
+begin
+  Result := ConfigEdit.Values[ITEM_CONFIG_SYNTAX];
+end;
+
+procedure TNavigatorConfigFrame.SetConfigSyntax(const Value: String);
+begin
+  ConfigEdit.Values[ITEM_CONFIG_SYNTAX] := Value;
+  FConfigSyntax := Value;
+end;
+
 function TNavigatorConfigFrame.GetHtmlSyntax: String;
 begin
   Result := ConfigEdit.Values[ITEM_HTML_SYNTAX];
@@ -404,17 +415,6 @@ procedure TNavigatorConfigFrame.SetImageSyntax(const Value: String);
 begin
   ConfigEdit.Values[ITEM_IMAGE_SYNTAX] := Value;
   FImageSyntax := Value;
-end;
-
-function TNavigatorConfigFrame.GetIniSyntax: String;
-begin
-  Result := ConfigEdit.Values[ITEM_INI_SYNTAX];
-end;
-
-procedure TNavigatorConfigFrame.SetIniSyntax(const Value: String);
-begin
-  ConfigEdit.Values[ITEM_INI_SYNTAX] := Value;
-  FIniSyntax := Value;
 end;
 
 function TNavigatorConfigFrame.GetIntelHexSyntax: String;
@@ -541,9 +541,9 @@ begin
   AssemblySyntax := Config.AssemblySyntax;
   BasicSyntax := Config.BasicSyntax;
   BatchSyntax := Config.BatchSyntax;
+  ConfigSyntax := Config.ConfigSyntax;
   HtmlSyntax := Config.HtmlSyntax;
   ImageSyntax := Config.ImageSyntax;
-  IniSyntax := Config.IniSyntax;
   IntelHexSyntax := Config.IntelHexSyntax;
   JsonSyntax := Config.JsonSyntax;
   MarkdownSyntax := Config.MarkdownSyntax;
@@ -570,9 +570,9 @@ begin
   Config.AssemblySyntax := AssemblySyntax;
   Config.BasicSyntax := BasicSyntax;
   Config.BatchSyntax := BatchSyntax;
+  Config.ConfigSyntax := ConfigSyntax;
   Config.ImageSyntax := ImageSyntax;
   Config.HtmlSyntax := HtmlSyntax;
-  Config.IniSyntax := IniSyntax;
   Config.IntelHexSyntax := IntelHexSyntax;
   Config.JsonSyntax := JsonSyntax;
   Config.MarkdownSyntax := MarkdownSyntax;

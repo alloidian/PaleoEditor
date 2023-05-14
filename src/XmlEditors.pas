@@ -33,7 +33,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterXml, ConfigUtils;
+  SynHighlighterXml, ConfigUtils, Configs, Searches;
 
 { TXmlEditorFrame }
 
@@ -44,6 +44,8 @@ begin
   FHighlighter := TSynXmlSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.Filter := Config.XmlSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 end.

@@ -70,7 +70,8 @@ constructor TRichTextEditorFrame.Create(AOwner: TComponent);
 begin
   FSyntax := ITEM_RTF_SYNTAX;
   inherited Create(AOwner);
-  FValidActions := [vaCase, vaWord, vaPrevious];
+  SearchCache.SearchModes := [smSearch];
+  SearchCache.ValidActions := [vaCase, vaWord, vaPrevious];
 end;
 
 procedure TRichTextEditorFrame.EditorChange(Sender: TObject);

@@ -33,7 +33,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterBat, ConfigUtils;
+  SynHighlighterBat, ConfigUtils, Configs, Searches;
 
 { TBatchEditorFrame }
 
@@ -44,6 +44,8 @@ begin
   FHighlighter := TSynBatSyn.Create(Self);
   Editor.Highlighter := FHighlighter;
   ExporterHTML.Highlighter := FHighlighter;
+  SearchCache.Filter := Config.BatchSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 end.

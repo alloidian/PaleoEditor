@@ -36,9 +36,9 @@ const
   ITEM_ASSEMBLY_SYNTAX        = 'Assembly Syntax';
   ITEM_BASIC_SYNTAX           = 'BASIC Syntax';
   ITEM_BATCH_SYNTAX           = 'Batch Syntax';
+  ITEM_CONFIG_SYNTAX          = 'Config Syntax';
   ITEM_HTML_SYNTAX            = 'HTML Syntax';
   ITEM_IMAGE_SYNTAX           = 'Image Syntax';
-  ITEM_INI_SYNTAX             = 'INI Syntax';
   ITEM_INTEL_HEX_SYNTAX       = 'Intel Hex Syntax';
   ITEM_JSON_SYNTAX            = 'JSON Syntax';
   ITEM_MARKDOWN_SYNTAX        = 'Markdown Syntax';
@@ -75,10 +75,10 @@ const
                                 '*.mac;*.lst;*.ins';
   ITEM_BASIC_SYNTAX_DEF       = '*.bas';
   ITEM_BATCH_SYNTAX_DEF       = '*.bat;*.cmd;*.ps1';
+  ITEM_CONFIG_SYNTAX_DEF      = '*.ini;*.prj;*.proj';
   ITEM_HTML_SYNTAX_DEF        = '*.html;*.htm';
   ITEM_IMAGE_SYNTAX_DEF       = '*.png;*.xpm;*.bmp;*.cur;*.ico;*.icns;*.jpeg;*.jpg;*.jpe;'  +
                                 '*.jfif;*.tif;*.tiff;*.gif;*.pgm;*.pgm;*.ppm';
-  ITEM_INI_SYNTAX_DEF         = '*.ini;*.prj;*.proj';
   ITEM_INTEL_HEX_SYNTAX_DEF   = '*.hex;*.h86;*.hxl;*.hxh;*.obl;*.obh;*.mcs;*.ihex;*.ihe;'   +
                                 '*.ihx;*.a43;*.a90;*.p00;*.pff';
   ITEM_JSON_SYNTAX_DEF        = '*.json';
@@ -242,7 +242,7 @@ type
       FileVersion: String;
     end;
   public type
-    TSyntax = (synAssembly, synBasic, synBatch, synHex, synHtml, synImage, synIni,
+    TSyntax = (synAssembly, synBasic, synBatch, synConfig, synHex, synHtml, synImage,
       synIntelHex, synJson, synMarkdown, synPascal, synPdf, synRtf, synSpin, synText,
       synXml, synZip);
     TSyntaxes = array[TSyntax] of String;
@@ -330,9 +330,9 @@ type
     property AssemblySyntax: String index synAssembly read GetSyntax write SetSyntax;
     property BasicSyntax: String index synBasic read GetSyntax write SetSyntax;
     property BatchSyntax: String index synBatch read GetSyntax write SetSyntax;
+    property ConfigSyntax: String index synConfig read GetSyntax write SetSyntax;
     property HtmlSyntax: String index synHtml read GetSyntax write SetSyntax;
     property ImageSyntax: String index synImage read GetSyntax write SetSyntax;
-    property IniSyntax: String index synIni read GetSyntax write SetSyntax;
     property IntelHexSyntax: String index synIntelHex read GetSyntax write SetSyntax;
     property JsonSyntax: String index synJson read GetSyntax write SetSyntax;
     property MarkdownSyntax: String index synMarkdown read GetSyntax write SetSyntax;
@@ -468,9 +468,9 @@ const
   INI_ASSEMBLY_SYNTAX      = 'Assembly';
   INI_BASIC_SYNTAX         = 'BASIC';
   INI_BATCH_SYNTAX         = 'Batch';
+  INI_CONFIG_SYNTAX        = 'Config';
   INI_HTML_SYNTAX          = 'HTML';
   INI_IMAGE_SYNTAX         = 'Image';
-  INI_INI_SYNTAX           = 'INI';
   INI_INTEL_HEX_SYNTAX     = 'IntelHex';
   INI_JSON_SYNTAX          = 'JSON';
   INI_MARKDOWN_SYNTAX      = 'Markdown';
@@ -1216,9 +1216,9 @@ var
     AssemblySyntax := Result.Read(INI_ASSEMBLY_SYNTAX, ITEM_ASSEMBLY_SYNTAX_DEF);
     BasicSyntax := Result.Read(INI_BASIC_SYNTAX, ITEM_BASIC_SYNTAX_DEF);
     BatchSyntax := Result.Read(INI_BATCH_SYNTAX, ITEM_BATCH_SYNTAX_DEF);
+    ConfigSyntax := Result.Read(INI_CONFIG_SYNTAX, ITEM_CONFIG_SYNTAX_DEF);
     HtmlSyntax := Result.Read(INI_HTML_SYNTAX, ITEM_HTML_SYNTAX_DEF);
     ImageSyntax := Result.Read(INI_IMAGE_SYNTAX, ITEM_IMAGE_SYNTAX_DEF);
-    IniSyntax := Result.Read(INI_INI_SYNTAX, ITEM_INI_SYNTAX_DEF);
     IntelHexSyntax := Result.Read(INI_INTEL_HEX_SYNTAX, ITEM_INTEL_HEX_SYNTAX_DEF);
     JsonSyntax := Result.Read(INI_JSON_SYNTAX, ITEM_JSON_SYNTAX_DEF);
     MarkdownSyntax := Result.Read(INI_MARKDOWN_SYNTAX, ITEM_MARKDOWN_SYNTAX_DEF);
@@ -1302,9 +1302,9 @@ var
     Result.Write(INI_ASSEMBLY_SYNTAX, AssemblySyntax);
     Result.Write(INI_BASIC_SYNTAX, BasicSyntax);
     Result.Write(INI_BATCH_SYNTAX, BatchSyntax);
+    Result.Write(INI_CONFIG_SYNTAX, ConfigSyntax);
     Result.Write(INI_HTML_SYNTAX, HtmlSyntax);
     Result.Write(INI_IMAGE_SYNTAX, ImageSyntax);
-    Result.Write(INI_INI_SYNTAX, IniSyntax);
     Result.Write(INI_INTEL_HEX_SYNTAX, IntelHexSyntax);
     Result.Write(INI_JSON_SYNTAX, JsonSyntax);
     Result.Write(INI_MARKDOWN_SYNTAX, MarkdownSyntax);
@@ -1633,7 +1633,7 @@ end;
 
 function TConfig.IsEditableFile(const FileName: TFileName): Boolean;
 const
-  EDITABLE = [synAssembly, synBasic, synBatch, synHex, synHtml, synIni, synIntelHex,
+  EDITABLE = [synAssembly, synBasic, synBatch, synConfig, synHex, synHtml, synIntelHex,
       synJson, synMarkdown, synPascal, synSpin, synText, synXml];
 var
   Syntax: TSyntax;
@@ -1681,7 +1681,7 @@ function TConfig.IsExcludedFolder(const FolderName: TFileName): Boolean;
 const
   INVALID_FOLDERS: array[0..1] of String = ('.', '..');
 begin
-  Result := AnsiMatchStr(FolderName, INVALID_FOLDERS);
+  Result := FolderName in INVALID_FOLDERS;
   if not Result then
     Result := MatchesMaskList(FolderName, ExcludeFolders);
 end;

@@ -42,7 +42,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ComCtrls, HtmlBuffer, MD5, SynHighlighterHtml, Searches, ConfigUtils;
+  ComCtrls, HtmlBuffer, MD5, SynHighlighterHtml, Searches, ConfigUtils, Configs;
 
 { THtmlEditorFrame }
 
@@ -57,7 +57,8 @@ begin
   FViewer := THtmlViewer.Create(Self);
   FViewer.Parent := PreviewPage;
   FViewer.Align := alClient;
-  FValidActions := [vaCase, vaWord];
+  SearchCache.Filter := Config.HtmlSyntax;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 procedure THtmlEditorFrame.PagesChange(Sender: TObject);
