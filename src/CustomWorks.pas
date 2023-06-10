@@ -35,6 +35,7 @@ type
   TCustomWorkForm = class(TForm)
     Images: TImageList;
     Actions: TActionList;
+    ViewJumpMenu: TMenuItem;
     NewFolderAction: TAction;
     NewFileAction: TAction;
     OpenFileAction: TAction;
@@ -228,6 +229,7 @@ type
     procedure ForwardActionUpdate(Sender: TObject);
     procedure BackwardActionExecute(Sender: TObject);
     procedure BackwardActionUpdate(Sender: TObject);
+    procedure JumpActionExecute(Sender: TObject);
     procedure RefreshActionExecute(Sender: TObject);
     procedure CollapseAllActionExecute(Sender: TObject);
     procedure ExpandAllActionExecute(Sender: TObject);
@@ -295,7 +297,8 @@ type
     procedure SetFilter(const Value: String);
     function GetActiveEditor: TCustomEditorFrame;
     procedure SetSearchMethod(Method: TSearchMode);
-    procedure SelectNode(Node: TTreeNode; LineNumber: Integer = 0);
+    procedure SelectNode(Node: TTreeNode; LineNumber: Integer = 0); overload;
+    procedure SelectNode(Stop: TStop); overload;
     function OpenFile(Node: TTreeNode): TTabSheet;
     procedure CloseFile(Page: TTabSheet);
     procedure DeleteFolderNode(Node: TTreeNode);
@@ -362,7 +365,7 @@ type
   public
     constructor Create(Navigator: TTreeView); virtual;
     destructor Destroy; override;
-    procedure Execute;
+    procedure Forward;
     procedure Backward;
     property OnIterate: TIterationEvent read FOnIterate write FOnIterate;
   end;
@@ -400,13 +403,11 @@ type
     FProject: TCustomWorkForm;
     FPages: TPageControl;
     FImages: TImageList;
-    FReport: TListView;
     FBuffer: TStringList;
     FCriteria: String;
     FFilter: String;
   protected
     procedure DoIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
-    function GeneratePage: TListView;
   public
     constructor Create(Project: TCustomWorkForm; Navigator: TTreeView; Pages: TPageControl;
       Images: TImageList); virtual;
@@ -477,7 +478,7 @@ begin
   FSearchFrame.OnGotoLine := DoGotoLine;
   FSearchFrame.SearchMode := smNone;
   FFindFileList := TFindFileList.Create(Navigator);
-  FItinerary := TItinerary.Create;
+  FItinerary := TItinerary.Create(ViewJumpMenu, JumpActionExecute);
   FSymbolFileName := EmptyStr;
   UploadSeparator.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
   UploadFileAction.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
@@ -1510,7 +1511,7 @@ var
 begin
   Stop := FItinerary.GoForward;
   if Assigned(Stop) then
-    SelectNode(Stop.Node, Stop.LineNumber);
+    SelectNode(Stop);
 end;
 
 procedure TCustomWorkForm.ForwardActionUpdate(Sender: TObject);
@@ -1524,12 +1525,20 @@ var
 begin
   Stop := FItinerary.GoBack;
   if Assigned(Stop) then
-    SelectNode(Stop.Node, Stop.LineNumber);
+    SelectNode(Stop);
 end;
 
 procedure TCustomWorkForm.BackwardActionUpdate(Sender: TObject);
 begin
   (Sender as TAction).Enabled := not FItinerary.IsFirst;
+end;
+
+procedure TCustomWorkForm.JumpActionExecute(Sender: TObject);
+var
+  Stop: TStop;
+begin
+  Stop := (Sender as TMenuItem).Stop;
+  SelectNode(Stop);
 end;
 
 procedure TCustomWorkForm.RefreshActionExecute(Sender: TObject);
@@ -1858,9 +1867,18 @@ begin
         else begin
           Node.Page := OpenFile(Node);
           Node.Status := Node.Page.Status;
-          FItinerary.Post(Node, 1);
+          WorkPages.ActivePage.Editor.GotoLine(LineNumber);
+          FItinerary.Post(Node, LineNumber);
         end;
     end;
+end;
+
+procedure TCustomWorkForm.SelectNode(Stop: TStop);
+begin
+  if Assigned(Stop) then begin
+    SelectNode(Stop.Node, Stop.LineNumber);
+    FItinerary.SetIndex(Stop.Index);
+  end;
 end;
 
 function TCustomWorkForm.OpenFile(Node: TTreeNode): TTabSheet;
@@ -2238,6 +2256,7 @@ end;
 procedure TCustomWorkForm.FindIdentifier(Sender: TObject; const Criteria, Filter: String;
   MatchCase, MatchWholeWordOnly: Boolean);
 begin
+  (Sender as TCustomEditorFrame).Post(FItinerary);
   DoOriginate(Sender, Criteria, Filter);
 end;
 
@@ -2426,7 +2445,7 @@ begin
     FOnIterate(Self, Node, MayContinue);
 end;
 
-procedure TNavigatorIterator.Execute;
+procedure TNavigatorIterator.Forward;
 var
   MayContinue: Boolean = True;
   Node: TTreeNode;
@@ -2566,7 +2585,7 @@ begin
   FReport := GeneratePage;
   FReport.Items.BeginUpdate;
   try
-    FEngine.Execute;
+    FEngine.Forward;
   finally
     FReport.Items.EndUpdate;
   end;
@@ -2597,8 +2616,6 @@ procedure TGlobalOriginateEngine.DoIterate(Sender: TObject; Node: TTreeNode; var
 var
   I: Integer = 0;
   L: String = '';
-  Item: TListItem;
-
 begin
   if MatchesMaskList(Node.ShortName, FFilter) then begin
     FBuffer.LoadFromFile(Node.FullName);
@@ -2606,12 +2623,7 @@ begin
       for I := 0 to FBuffer.Count - 1 do begin
         L := FBuffer[I];
         if AnsiStartsText(Criteria, L) then begin
-          Item := FReport.Items.Add;
-          Item.Caption := Node.LogicalName;
-          Item.Data := Node;
-          Item.SubItems.Add((I + 1).ToString);
-          Item.SubItems.Add(Tab2Space(L, 4));
-          Item.ImageIndex := 2;
+          FProject.SelectNode(Node, I + 1);
           MayContinue := False;
           Break;
         end;
@@ -2623,57 +2635,9 @@ begin
   end;
 end;
 
-function TGlobalOriginateEngine.GeneratePage: TListView;
-const
-  NAME_MASK = 'SearchPage_%d';
-  CAPTION_MASK = 'Results: ''%s''';
-  HINT_MASK = 'Criteria = ''%s''';
-var
-  Page: TTabSheet;
-
-  function AddColumn(View: TListView; const Caption: String; Width: Integer; Alignment: TAlignment; AutoSize: Boolean = False): TListColumn;
-  begin
-    Result := View.Columns.Add;
-    Result.Caption := Caption;
-    Result.Alignment := Alignment;
-    Result.Width := Width;
-    Result.AutoSize := AutoSize;
-  end;
-
-begin
-  Inc(Search_Index);
-  Page := TTabSheet.Create(FPages);
-  Page.PageControl := FPages;
-  Page.Name := Format(NAME_MASK, [Search_Index]);
-  Page.Caption := Format(CAPTION_MASK, [Criteria]);
-  Page.Hint := Format(HINT_MASK, [Criteria]);
-  Page.Visible := True;
-  Result := TListView.Create(Page);
-  Result.Parent := Page;
-  Result.Align := alClient;
-  Result.ReadOnly := True;
-  Result.RowSelect := True;
-  Result.ViewStyle := vsReport;
-  Result.SmallImages := FImages;
-  Result.OnCustomDrawItem := FProject.AlternateRowColor;
-  Result.OnCustomDrawSubItem := FProject.TextColumn;
-  Result.OnDblClick := FProject.SearchEditDblClick;
-  AddColumn(Result, 'File', 200, taLeftJustify);
-  AddColumn(Result, 'Line', 50, taRightJustify);
-  AddColumn(Result, 'Text', 362, taLeftJustify, True);
-  Page.Tag := Integer(Result);
-  FPages.ActivePage := Page;
-end;
-
 procedure TGlobalOriginateEngine.Execute;
 begin
-  FReport := GeneratePage;
-  FReport.Items.BeginUpdate;
-  try
-    FEngine.Execute;
-  finally
-    FReport.Items.EndUpdate;
-  end;
+  FEngine.Forward;
 end;
 
 { TFileRefreshEngine }
@@ -2705,7 +2669,7 @@ end;
 procedure TFileRefreshEngine.Execute;
 begin
   if not (FAction in [daFileRenamedOldName, daFileRenamedNewName]) then
-    FEngine.Execute;
+    FEngine.Forward;
 end;
 
 { TDocumentCleanEngine }
@@ -2745,7 +2709,7 @@ var
   Node: TTreeNode;
 begin
   FEngine.OnIterate:= DoSearchIterate;
-  FEngine.Execute;
+  FEngine.Forward;
   FEngine.OnIterate := DoCleanIterate;
   FEngine.Backward;
   for Node in FNodes do

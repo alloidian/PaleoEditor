@@ -355,6 +355,9 @@ object CustomWorkForm: TCustomWorkForm
       object ViewForwardMenu: TMenuItem
         Action = ForwardAction
       end
+      object ViewJumpMenu: TMenuItem
+        Caption = 'Jump &List'
+      end
       object ViewBackwardMenu: TMenuItem
         Action = BackwardAction
       end

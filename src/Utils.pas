@@ -20,7 +20,8 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Controls, ComCtrls, Generics.Collections, SynEditHighlighter, ConfigUtils;
+  Classes, SysUtils, Controls, ComCtrls, Menus, Generics.Collections, SynEditHighlighter,
+  ConfigUtils;
 
 const
   IMAGE_INDEX: array[Boolean] of Integer = (0, 1);
@@ -90,10 +91,12 @@ type
   private
     FNode: TTreeNode;
     FLineNumber: Integer;
+    FIndex: Integer;
   public
     constructor Create(Node: TTreeNode; LineNumber: Integer); virtual;
     property Node: TTreeNode read FNode;
     property LineNumber: Integer read FLineNumber;
+    property Index: Integer read FIndex write FIndex;
   end;
 
   TItinerary = class(TObject)
@@ -102,18 +105,23 @@ type
   private
     FList: TStopOvers;
     FIndex: Integer;
+    FMenu: TMenuItem;
+    FOnJump: TNotifyEvent;
   protected
     function GetCount: Integer;
     function GetItems(I: Integer): TStop;
     function GetIsFirst: Boolean;
     function GetIsLast: Boolean;
   public
-    constructor Create; virtual;
+    constructor Create(Menu: TMenuItem; OnJump: TNotifyEvent); virtual;
     destructor Destroy; override;
     procedure Clear;
     function Post(Node: TTreeNode; LineNumber: Integer): Boolean;
     function GoBack: TStop;
     function GoForward: TStop;
+    procedure SetIndex(Value: Integer);
+    procedure UpdateMenu;
+    procedure RefreshMenu;
     property Count: Integer read GetCount;
     property Items[I: Integer]: TStop read GetItems;
     property IsFirst: Boolean read GetIsFirst;
@@ -165,6 +173,16 @@ type
   public
     procedure AddInteger(const Text: String; Value: Integer);
     property AsInteger[I: Integer]: Integer read GetAsInteger write SetAsInteger;
+  end;
+
+  { TMenuItemHelper }
+
+  TMenuItemHelper = class helper for TMenuItem
+  private
+    function GetStop: TStop;
+    procedure SetStop(Value: TStop);
+  public
+    property Stop: TStop read GetStop write SetStop;
   end;
 
 { TSynCustomHighlighterHelper}
@@ -460,15 +478,18 @@ begin
   inherited Create;
   FNode := Node;
   FLineNumber := LineNumber;
+  FIndex := -1;
 end;
 
 { TItinerary }
 
-constructor TItinerary.Create;
+constructor TItinerary.Create(Menu: TMenuItem; OnJump: TNotifyEvent);
 begin
   inherited Create;
   FList := TStopOvers.Create(True);
   FIndex := -1;
+  FMenu := Menu;
+  FOnJump := OnJump;
 end;
 
 destructor TItinerary.Destroy;
@@ -509,13 +530,17 @@ end;
 function TItinerary.Post(Node: TTreeNode; LineNumber: Integer): Boolean;
 var
   I: Integer = 0;
+  Stop: TStop;
 begin
   Result := FIndex < FList.Count - 2;
   if Result then
     for I := FList.Count - 1 downto FIndex + 1 do
       FList.Delete(I);
-  FList.Add(TStop.Create(Node, LineNumber));
+  Stop := TStop.Create(Node, LineNumber);
+  FList.Add(Stop);
   FIndex := FList.Count - 1;
+  Stop.Index := FIndex;
+  RefreshMenu;
 end;
 
 function TItinerary.GoBack: TStop;
@@ -527,6 +552,7 @@ begin
     FIndex := 0;
     Result := nil;
   end;
+  UpdateMenu;
 end;
 
 function TItinerary.GoForward: TStop;
@@ -540,6 +566,45 @@ begin
   else begin
     FIndex := Last;
     Result := nil;
+  end;
+  UpdateMenu;
+end;
+
+procedure TItinerary.SetIndex(Value: Integer);
+begin
+  if Value < 0 then
+    FIndex := 0
+  else
+    if Value > FList.Count - 1 then
+      FIndex := FList.Count - 1
+    else
+      FIndex := Value;
+  UpdateMenu;
+end;
+
+procedure TItinerary.UpdateMenu;
+var
+  Menu: TMenuItem;
+begin
+  for Menu in FMenu do
+    Menu.Checked := Menu.Stop.Index = FIndex;
+end;
+
+procedure TItinerary.RefreshMenu;
+const
+  MASK = '%s [%d]';
+var
+  Stop: TStop;
+  Menu: TMenuItem;
+begin
+  FMenu.Clear;
+  for Stop in FList do begin
+    Menu := TMenuItem.Create(FMenu);
+    Menu.Caption := Format(MASK, [Stop.Node.LogicalName, Stop.LineNumber]);
+    Menu.Stop := Stop;
+    Menu.Checked := Stop.Index = FIndex;
+    Menu.OnClick := FOnJump;
+    FMenu.Add(Menu);
   end;
 end;
 
@@ -742,6 +807,21 @@ end;
 procedure TStringsHelper.AddInteger(const Text: String; Value: Integer);
 begin
   AddObject(Text, TObject(Value));
+end;
+
+{ TMenuItemHelper }
+
+function TMenuItemHelper.GetStop: TStop;
+begin
+  Result := TStop(Tag);
+end;
+
+procedure TMenuItemHelper.SetStop(Value: TStop);
+begin
+  if Assigned(Value) then
+    Tag := PtrInt(Value)
+  else
+    Tag := NULL;
 end;
 
 { TSynPaleoHighligher }

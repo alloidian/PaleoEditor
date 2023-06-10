@@ -76,6 +76,7 @@ type
     procedure RetrieveLabels(List: TStrings); virtual;
     procedure Idle; virtual; abstract;
     procedure RefreshConfig; virtual; abstract;
+    procedure Post(Itinerary: TItinerary);
     property SearchCache: TSearchCache read FSearchCache;
     property IsModified: Boolean read GetIsModified write SetIsModified;
     property Node: TTreeNode read FNode write FNode;
@@ -249,6 +250,11 @@ end;
 procedure TCustomEditorFrame.RetrieveLabels(List: TStrings);
 begin
   List.Clear;
+end;
+
+procedure TCustomEditorFrame.Post(Itinerary: TItinerary);
+begin
+  Itinerary.Post(Node, LineNumber);
 end;
 
 { TTreeNodeHelper }
