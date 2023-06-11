@@ -95,6 +95,13 @@ const
   ASSEMBLER_FOLDER_MASK       = '%s\tasm32';
   ASSEMBLER_FILE_MASK         = '%s\TASM.EXE';
 
+  clDeepPink: TColor          = $FF0080;
+  clDarkOrange: TColor        = $FF8000;
+  clSpringGreen: TColor       = $00FF80;
+  clChartreuse: TColor        = $80FF00;
+  clElectricIndigo: TColor    = $0080FF;
+  clDodgerBlue: TColor        = $0080FF;
+
 type
   TAssemblerPlatform = (apZ80, apZ180);
 

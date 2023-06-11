@@ -20,7 +20,8 @@ unit AssemblyEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, ComCtrls, Graphics, Dialogs, CustomTextEditors,
+  SynHighlighterZ80;
 
 type
 
@@ -28,9 +29,12 @@ type
 
   TAssemblyEditorFrame = class(TCustomTextEditorFrame)
     procedure CompletionExecute(Sender: TObject);
+  protected
+    FHighlighter: TSynZ80Syn;
   public
     constructor Create(AOwner: TComponent); override;
     procedure Open(Page: TTabSheet; Node: TTreeNode); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -38,7 +42,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterZ80, Utils, ConfigUtils, Configs, Searches;
+  Utils, ConfigUtils, Configs, Searches;
 
 { TAssemblyEditorFrame }
 
@@ -81,6 +85,16 @@ const
 begin
   inherited;
   UpdateItems(TOKENS);
+end;
+
+procedure TAssemblyEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atRegister, FHighlighter.RegisterAttribute);
+  UpdateHighlighter(atNumber, FHighlighter.EntityAttribute);
+  UpdateHighlighter(atDirective, FHighlighter.DotAttribute);
+  UpdateHighlighter(atDirective, FHighlighter.PreprocessorAttribute);
+  UpdateHighlighter(atNumber, FHighlighter.NumberAttribute);
 end;
 
 end.

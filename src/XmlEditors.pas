@@ -20,12 +20,15 @@ unit XmlEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors,    SynHighlighterXml;
 
 type
   TXmlEditorFrame = class(TCustomTextEditorFrame)
+  protected
+    FHighlighter: TSynXmlSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -33,7 +36,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterXml, ConfigUtils, Configs, Searches;
+  ConfigUtils, Configs, Searches;
 
 { TXmlEditorFrame }
 
@@ -46,6 +49,49 @@ begin
   ExporterHTML.Highlighter := FHighlighter;
   SearchCache.Filter := Config.XmlSyntax;
   SearchCache.Filters := SearchCache.Filter;
+end;
+
+procedure TXmlEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atIdentifier, FHighlighter.AttributeAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.AttributeValueAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.CDATAAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.DocTypeAttri);
+  UpdateHighlighter(atComment, FHighlighter.CommentAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.ElementAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.EntityRefAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.NamespaceAttributeAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.NamespaceAttributeValueAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.ProcessingInstructionAttri);
+  UpdateHighlighter(atWhitespace, FHighlighter.SpaceAttri);
+  UpdateHighlighter(atSymbol, FHighlighter.SymbolAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.TextAttri);
+  FHighlighter.ElementAttri.Foreground:= clMaroon;
+  FHighlighter.ElementAttri.Style:= [fsBold];
+  FHighlighter.DocTypeAttri.Foreground:= clBlue;
+  FHighlighter.DocTypeAttri.Style:= [fsItalic];
+  FHighlighter.CDATAAttri.Foreground:= clOlive;
+  FHighlighter.CDATAAttri.Style:= [fsItalic];
+  FHighlighter.EntityRefAttri.Foreground:= clBlue;
+  FHighlighter.EntityRefAttri.Style:= [fsbold];
+  FHighlighter.ProcessingInstructionAttri.Foreground:= clBlue;
+  FHighlighter.ProcessingInstructionAttri.Style:= [];
+  FHighlighter.TextAttri.Foreground:= clBlack;
+  FHighlighter.TextAttri.Style:= [fsBold];
+  FHighlighter.AttributeAttri.Foreground:= clMaroon;
+  FHighlighter.AttributeAttri.Style:= [];
+  FHighlighter.AttributeAttri.Foreground:= clRed;
+  FHighlighter.AttributeAttri.Style:= [];
+  FHighlighter.AttributeValueAttri.Foreground:= clNavy;
+  FHighlighter.AttributeValueAttri.Style:= [fsBold];
+  FHighlighter.AttributeValueAttri.Foreground:= clRed;
+  FHighlighter.AttributeValueAttri.Style:= [fsBold];
+  FHighlighter.CommentAttri.Background:= clSilver;
+  FHighlighter.CommentAttri.Foreground:= clGray;
+  FHighlighter.CommentAttri.Style:= [fsbold, fsItalic];
+  FHighlighter.SymbolAttri.Foreground:= clBlue;
+  FHighlighter.SymbolAttri.Style:= [];
 end;
 
 end.

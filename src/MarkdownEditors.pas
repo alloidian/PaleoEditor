@@ -20,7 +20,8 @@ unit MarkdownEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomPreviewEditors, HtmlView;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomPreviewEditors, HtmlView,
+  SynHighlighterMD;
 
 type
 
@@ -32,8 +33,10 @@ type
     FHash: String;
   protected
     FViewer: THtmlViewer;
+    FHighlighter: TSynMDSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -41,7 +44,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ComCtrls, HtmlBuffer, MD5, SynHighlighterMD, MarkdownProcessor, Searches, ConfigUtils,
+  ComCtrls, HtmlBuffer, MD5, MarkdownProcessor, Searches, ConfigUtils,
   Configs;
 
 { TMarkdownEditorFrame }
@@ -114,6 +117,16 @@ begin
       FViewer.LoadFromString(TBuffer.Convert(UTF8Decode(Value), CP_UTF8));
     end;
   end;
+end;
+
+procedure TMarkdownEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atSymbol, FHighlighter.Symbols);
+  UpdateHighlighter(atNumber, FHighlighter.Number);
+  UpdateHighlighter(atWhitespace, FHighlighter.Space);
+  UpdateHighlighter(atComment, FHighlighter.Comment);
+  UpdateHighlighter(atIdentifier, FHighlighter.Text);
 end;
 
 end.

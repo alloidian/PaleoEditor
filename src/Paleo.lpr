@@ -28,15 +28,14 @@ uses
   {$IFDEF DEBUG} SysUtils, {$ENDIF}
   Forms, printer4lazarus, lazcontrols, Main, Configs, CustomWorks, Searches,
   CustomEditors, Utils, CustomTextEditors, Executions, HexEditors, Actions, Abouts,
-  SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
-  NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
-  DirMonitors, EditorConfigs, Assemblers, ProjectConfigs,
+  SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks, NewFiles,
+  CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs, DirMonitors,
+  EditorConfigs, Assemblers, ProjectConfigs, SynHighlighterFlex,
   {$IFDEF TERMINAL} TerminalFrames, TerminalForms, TerminalConfigs, {$ENDIF}
-  Uploads, PackageEngines, AssemblyEditors, BatchEditors, SpinEditors,
-  BasicEditors, PascalEditors, CustomPreviewEditors, HtmlEditors, MarkdownEditors,
-  SynHighlighterMD, IntelHexEditors, SynHighlighterIntelHex, XmlEditors, 
-  JsonEditors, IniEditors, RichTextEditors, PdfEditors, ImageEditors,
-  ZipEditors;
+  Uploads, PackageEngines, AssemblyEditors, BatchEditors, SpinEditors, BasicEditors,
+  PascalEditors, CustomPreviewEditors, HtmlEditors, MarkdownEditors, SynHighlighterMD,
+  IntelHexEditors, SynHighlighterIntelHex, XmlEditors, JsonEditors, IniEditors,
+  RichTextEditors, PdfEditors, ImageEditors, ZipEditors;
 
 {$R *.res}
 

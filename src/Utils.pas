@@ -185,12 +185,13 @@ type
     property Stop: TStop read GetStop write SetStop;
   end;
 
-{ TSynCustomHighlighterHelper}
+{ TSynPaleoHighligher}
 
   TSynPaleoHighligher = class(TSynCustomHighlighter)
   protected
     function GenerateHighlighter(const Name: String; Attr: TAttributeType): TSynHighLighterAttributes;
   public
+    class procedure UpdateHighlighter(Attr: TAttributeType; Attribute: TSynHighLighterAttributes);
     property DefaultHandler[Index: Integer]: TSynHighlighterAttributes read GetDefaultAttribute;
   end;
 
@@ -827,11 +828,24 @@ end;
 { TSynPaleoHighligher }
 
 function TSynPaleoHighligher.GenerateHighlighter(const Name: String; Attr: TAttributeType): TSynHighLighterAttributes;
+var
+  Temp: TAttribute;
 begin
+  Temp := Config.Attributes[Attr];
   Result := TSynHighLighterAttributes.Create(Name);
-  Result.Foreground := Config.Attributes[Attr].Foreground;
-  Result.Background := Config.Attributes[Attr].Background;
-  Result.Style := Config.Attributes[Attr].Style;
+  Result.Foreground := Temp.Foreground;
+  Result.Background := Temp.Background;
+  Result.Style := Temp.Style;
+end;
+
+class procedure TSynPaleoHighligher.UpdateHighlighter(Attr: TAttributeType; Attribute: TSynHighLighterAttributes);
+var
+  Temp: TAttribute;
+begin
+  Temp := Config.Attributes[Attr];
+  Attribute.Foreground := Temp.Foreground;
+  Attribute.Background := Temp.Background;
+  Attribute.Style := Temp.Style;
 end;
 
 { TSynCustomHighlighterHelper }

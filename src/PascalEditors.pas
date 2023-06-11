@@ -20,12 +20,15 @@ unit PascalEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors, SynHighlighterPas;
 
 type
   TPascalEditorFrame = class(TCustomTextEditorFrame)
+  protected
+    FHighlighter: TSynPasSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -33,7 +36,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterPas, ConfigUtils, Configs, Searches;
+  ConfigUtils, Configs, Searches;
 
 { TPascalEditorFrame }
 
@@ -46,6 +49,14 @@ begin
   ExporterHTML.Highlighter := FHighlighter;
   SearchCache.Filter := Config.PascalSyntax;
   SearchCache.Filters := SearchCache.Filter;
+end;
+
+procedure TPascalEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atDirective, FHighlighter.DirectiveAttri);
+  UpdateHighlighter(atRegister, FHighlighter.AsmAttri);
+  UpdateHighlighter(atFlow, FHighlighter.CaseLabelAttri);
 end;
 
 end.

@@ -20,12 +20,15 @@ unit BasicEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors, SynHighlighterVB;
 
 type
   TBasicEditorFrame = class(TCustomTextEditorFrame)
+  protected
+    FHighlighter: TSynVBSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -33,7 +36,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterVB, ConfigUtils, Configs, Searches;
+  ConfigUtils, Configs, Searches;
 
 { TBasicEditorFrame }
 
@@ -46,6 +49,12 @@ begin
   ExporterHTML.Highlighter := FHighlighter;
   SearchCache.Filter := Config.BasicSyntax;
   SearchCache.Filters := SearchCache.Filter;
+end;
+
+procedure TBasicEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atNumber, FHighlighter.NumberAttri);
 end;
 
 end.

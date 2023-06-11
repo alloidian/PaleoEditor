@@ -20,13 +20,16 @@ unit SpinEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors, SynHighlighterSpin;
 
 type
   TSpinEditorFrame = class(TCustomTextEditorFrame)
     procedure CompletionExecute(Sender: TObject);
+  protected
+    FHighlighter: TSynSpinSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -34,7 +37,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterSpin, ConfigUtils, Configs, Searches;
+  ConfigUtils, Configs, Searches;
 
 { TSpinEditorFrame }
 
@@ -78,6 +81,23 @@ const
 begin
   inherited;
   UpdateItems(TOKENS);
+end;
+
+procedure TSpinEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atDirective, FHighlighter.DotAttribute);
+  UpdateHighlighter(atNumber, FHighlighter.EntityAttribute);
+  UpdateHighlighter(atNumber, FHighlighter.NumberAttribute);
+  UpdateHighlighter(atDirective, FHighlighter.PreprocessorAttribute);
+  UpdateHighlighter(atRegister, FHighlighter.RegisterAttribute);
+  UpdateHighlighter(atConfig, FHighlighter.ConfigAttribute);
+  UpdateHighlighter(atConstant, FHighlighter.ConstantAttribute);
+  UpdateHighlighter(atDeclaration, FHighlighter.DeclarationAttribute);
+  UpdateHighlighter(atDirective, FHighlighter.DirectAttribute);
+  UpdateHighlighter(atFlow, FHighlighter.FlowAttribute);
+  UpdateHighlighter(atMemory, FHighlighter.MemoryAttribute);
+  UpdateHighlighter(atDataType, FHighlighter.TypeAttribute);
 end;
 
 end.

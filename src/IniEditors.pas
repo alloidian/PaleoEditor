@@ -20,12 +20,15 @@ unit IniEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors, SynHighlighterIni;
 
 type
   TIniEditorFrame = class(TCustomTextEditorFrame)
+  protected
+    FHighlighter: TSynIniSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -33,7 +36,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterIni, ConfigUtils, Configs, Searches;
+  ConfigUtils, Configs, Searches;
 
 { TIniEditorFrame }
 
@@ -46,6 +49,14 @@ begin
   ExporterHTML.Highlighter := FHighlighter;
   SearchCache.Filter := Config.ConfigSyntax;
   SearchCache.Filters := SearchCache.Filter;
+end;
+
+procedure TIniEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atNumber, FHighlighter.NumberAttri);
+  UpdateHighlighter(atConstant, FHighlighter.SectionAttri);
+  UpdateHighlighter(atIdentifier, FHighlighter.TextAttri);
 end;
 
 end.

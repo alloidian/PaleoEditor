@@ -1892,6 +1892,7 @@ begin
   Editor := EditorFactory(Node.ShortName).Create(Result);
   Editor.Parent := Result;
   Editor.Align := alClient;
+  Editor.RefreshConfig;
   Editor.Open(Result, Node);
   Editor.ReadOnly := Config.IsReadonlyFile(Node.ShortName);
   Editor.OnLog := LogHandler;

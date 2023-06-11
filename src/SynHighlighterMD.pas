@@ -28,7 +28,7 @@ unit SynHighlighterMD;
 interface
 
 uses
-  Graphics, (* SynEditTypes, *) SynEditHighlighter, SysUtils, Classes;
+  Graphics, SynEditHighlighter, SysUtils, Classes;
 
 type
   TMDTokenKind = (tkMDLineComment, tkMDSubheading, tkMDItalic, tkMDBold, tkMDMonospace,
@@ -256,7 +256,9 @@ end;
 
 function TSynMDSyn.GetRange: Pointer;
 begin
+  {$PUSH}{$HINTS OFF}
   Result := Pointer(PtrInt(FRange));
+  {$POP}
 end;
 
 function TSynMDSyn.GetSampleSource: String;
@@ -608,7 +610,9 @@ end;
 
 procedure TSynMDSyn.SetRange(Value: Pointer);
 begin
+  {$PUSH}{$HINTS OFF}
   FRange := TMDRangeState(UIntPtr(Value));
+  {$POP}
 end;
 
 procedure TSynMDSyn.SpaceProc;

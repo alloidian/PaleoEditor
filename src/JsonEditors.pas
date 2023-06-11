@@ -20,15 +20,18 @@ unit JsonEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors, SynHighlighterJson;
 
 type
 
   { TJsonEditorFrame }
 
   TJsonEditorFrame = class(TCustomTextEditorFrame)
+  protected
+    FHighlighter: TSynJsonSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -36,7 +39,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterJson, ConfigUtils, Configs, Searches;
+  ConfigUtils, Configs, Searches;
 
 { TJsonEditorFrame }
 
@@ -49,6 +52,12 @@ begin
   ExporterHTML.Highlighter := FHighlighter;
   SearchCache.Filter := Config.JsonSyntax;
   SearchCache.Filters := SearchCache.Filter;
+end;
+
+procedure TJsonEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atRegister, FHighlighter.AttribAttri);
 end;
 
 end.

@@ -20,12 +20,15 @@ unit IntelHexEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors, SynHighlighterIntelHex;
 
 type
   TIntelHexEditorFrame = class(TCustomTextEditorFrame)
+  protected
+    FHighlighter: TSynIntelHexSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -33,7 +36,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterIntelHex, ConfigUtils, Configs, Searches;
+  ConfigUtils, Configs, Searches;
 
 { TIntelHexEditorFrame }
 
@@ -46,6 +49,12 @@ begin
   ExporterHTML.Highlighter := FHighlighter;
   SearchCache.Filter := Config.IntelHexSyntax;
   SearchCache.Filters := SearchCache.Filter;
+end;
+
+procedure TIntelHexEditorFrame.RefreshConfig;
+begin
+  inherited;
+  // Do nothing
 end;
 
 end.

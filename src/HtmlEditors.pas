@@ -21,7 +21,7 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomPreviewEditors,
-  HtmlView;
+  HtmlView, SynHighlighterHtml;
 
 type
 
@@ -33,8 +33,11 @@ type
     FHash: String;
   protected
     FViewer: THtmlViewer;
+  protected
+    FHighlighter: TSynHTMLSyn;
   public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -42,7 +45,7 @@ implementation
 {$R *.lfm}
 
 uses
-  ComCtrls, HtmlBuffer, MD5, SynHighlighterHtml, Searches, ConfigUtils, Configs;
+  ComCtrls, HtmlBuffer, MD5, Searches, ConfigUtils, Configs;
 
 { THtmlEditorFrame }
 
@@ -74,6 +77,25 @@ begin
       FViewer.LoadFromString(TBuffer.Convert(UTF8Decode(Value), CP_UTF8));
     end;
   end;
+end;
+
+procedure THtmlEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atIdentifier, FHighlighter.IdentifierAttri);
+  UpdateHighlighter(atKeyword,  FHighlighter.KeyAttri);
+  UpdateHighlighter(atSymbol, FHighlighter.SymbolAttri);
+  FHighlighter.ASPAttri.Foreground := clBlack;
+  FHighlighter.ASPAttri.Background := clYellow;
+  FHighlighter.CDATAAttri.Foreground := clGreen;
+  FHighlighter.DOCTYPEAttri.Foreground := clBlack;
+  FHighlighter.DOCTYPEAttri.Background := clYellow;
+  FHighlighter.DOCTYPEAttri.Style := [fsBold];
+  FHighlighter.UndefKeyAttri.Style := [fsBold];
+  FHighlighter.UndefKeyAttri.Foreground := clRed;
+  FHighlighter.ValueAttri.Foreground := clDarkOrange;
+  FHighlighter.AndAttri.Style := [fsBold];
+  FHighlighter.AndAttri.Foreground := clLime;
 end;
 
 end.

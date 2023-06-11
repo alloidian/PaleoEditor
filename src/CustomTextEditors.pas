@@ -21,8 +21,8 @@ interface
 
 uses
   Classes, SysUtils, Forms, Controls, ComCtrls, Graphics, Dialogs, Menus, ActnList,
-  StdActns, PrintersDlgs, CustomEditors, SynEdit, SynEditHighlighter, SynExportHTML,
-  SynCompletion, SynMacroRecorder, SynEditKeyCmds, SynEditTypes;
+  StdActns, PrintersDlgs, CustomEditors, ConfigUtils, SynEdit, SynEditHighlighter,
+  SynExportHTML, SynCompletion, SynMacroRecorder, SynEditKeyCmds, SynEditTypes;
 
 type
 
@@ -56,8 +56,8 @@ type
   private
     FToken: String;
   protected
-    FHighlighter: TSynCustomHighlighter;
     procedure UpdateItems(Tokens: array of String);
+    procedure UpdateHighlighter(Attr: TAttributeType; Attribute: TSynHighLighterAttributes);
     function GetIsModified: Boolean; override;
     procedure SetIsModified(Value: Boolean); override;
     function GetInsertMode: Boolean; override;
@@ -90,7 +90,7 @@ implementation
 {$R *.lfm}
 
 uses
-  StrUtils, Printers, Utils, ConfigUtils, Configs, Searches;
+  StrUtils, Printers, Utils, Configs, Searches;
 
 { TCustomTextEditorFrame }
 
@@ -164,6 +164,12 @@ begin
   for Token in Tokens do
     if AnsiStartsText(Candidate, Token) then
       Completion.ItemList.Add(Token);
+end;
+
+procedure TCustomTextEditorFrame.UpdateHighlighter(Attr: TAttributeType; Attribute: TSynHighLighterAttributes);
+begin
+  if Assigned(Attribute) then
+    TSynPaleoHighligher.UpdateHighlighter(Attr, Attribute);
 end;
 
 function TCustomTextEditorFrame.GetIsModified: Boolean;
@@ -383,6 +389,8 @@ begin
 end;
 
 procedure TCustomTextEditorFrame.RefreshConfig;
+var
+  Highlighter: TSynCustomHighlighter;
 begin
   if not AnsiSameText(Editor.Font.Name, Config.FontName) then
     Editor.Font.Name := Config.FontName;
@@ -390,6 +398,15 @@ begin
     Editor.Font.Size := Config.FontSize;
   if Editor.RightEdge <> Config.RightMargin then
     Editor.RightEdge := Config.RightMargin;
+  Highlighter := Editor.Highlighter;
+  if Assigned(Highlighter) then begin
+    UpdateHighlighter(atComment, Highlighter.CommentAttribute);
+    UpdateHighlighter(atIdentifier, Highlighter.IdentifierAttribute);
+    UpdateHighlighter(atKeyword, Highlighter.KeywordAttribute);
+    UpdateHighlighter(atString, Highlighter.StringAttribute);
+    UpdateHighlighter(atSymbol, Highlighter.SymbolAttribute);
+    UpdateHighlighter(atWhitespace, Highlighter.WhitespaceAttribute);
+  end;
 end;
 
 end.

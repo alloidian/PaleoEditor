@@ -20,12 +20,15 @@ unit BatchEditors;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors;
+  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, CustomTextEditors, SynHighlighterBat;
 
 type
   TBatchEditorFrame = class(TCustomTextEditorFrame)
   public
+    FHighlighter: TSynBatSyn;
+  public
     constructor Create(AOwner: TComponent); override;
+    procedure RefreshConfig; override;
   end;
 
 implementation
@@ -33,7 +36,7 @@ implementation
 {$R *.lfm}
 
 uses
-  SynHighlighterBat, ConfigUtils, Configs, Searches;
+  ConfigUtils, Configs, Searches;
 
 { TBatchEditorFrame }
 
@@ -46,6 +49,12 @@ begin
   ExporterHTML.Highlighter := FHighlighter;
   SearchCache.Filter := Config.BatchSyntax;
   SearchCache.Filters := SearchCache.Filter;
+end;
+
+procedure TBatchEditorFrame.RefreshConfig;
+begin
+  inherited;
+  UpdateHighlighter(atNumber, FHighlighter.NumberAttri);
 end;
 
 end.

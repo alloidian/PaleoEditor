@@ -154,7 +154,6 @@ begin
   SearchCache.ValidActions := [];
   InsertMode := True;
   ReadOnly := False;
-  RefreshConfig;
 end;
 
 destructor TCustomEditorFrame.Destroy;
