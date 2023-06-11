@@ -1506,7 +1506,8 @@ begin
       ComboBox.Items.Clear;
       for I := 0 to List.Count - 1 do begin
         L := List.Strings[I];
-        ComboBox.Items.Add(L);
+        if not L.IsEmpty then
+          ComboBox.Items.Add(L);
       end;
     finally
       ComboBox.Items.EndUpdate;
@@ -1529,7 +1530,8 @@ begin
     Project := Document.GetProject(FolderName);
     List := Project.GetArray(ComboBox.Name, True);
     for L in ComboBox.Items do
-      List.Add(L);
+      if not L.IsEmpty then
+        List.Add(L);
     SaveDocument(Document);
   finally
     Document.Free;

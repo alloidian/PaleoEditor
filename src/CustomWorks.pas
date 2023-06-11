@@ -153,7 +153,7 @@ type
     ClearStatusMenu: TMenuItem;
     NavigatorPanel: TPanel;
     NavigatorFilterPanel: TPanel;
-    NavigatorFilterEdit: TEdit;
+    NavigatorFilterEdit: TComboBox;
     Navigator: TTreeView;
     NavigatorSplitter: TSplitter;
     WorkPanel: TPanel;
@@ -172,6 +172,7 @@ type
     procedure IsFileUpdate(Sender: TObject);
     procedure NavigatorActionUpdate(Sender: TObject);
     procedure NavigatorFilterEditChange(Sender: TObject);
+    procedure NavigatorFilterEditSave(Sender: TObject);
     procedure NavigatorFilterEditKeyPress(Sender: TObject; var Key: char);
     procedure NewFolderActionExecute(Sender: TObject);
     procedure NewFileActionExecute(Sender: TObject);
@@ -530,6 +531,7 @@ begin
       Temp.Free;
     end;
   end;
+  Config.WriteConfig(NavigatorFilterEdit, FFolderName);
 end;
 
 procedure TCustomWorkForm.FormShow(Sender: TObject);
@@ -556,6 +558,7 @@ begin
     finally
       Temp.Free;
     end;
+    Config.ReadConfig(NavigatorFilterEdit, FFolderName);
     if Assigned(Node) then
       Navigator.Selected := Node;
   finally
@@ -598,7 +601,7 @@ end;
 
 procedure TCustomWorkForm.NavigatorFilterEditChange(Sender: TObject);
 var
-  Edit: TEdit;
+  Edit: TComboBox;
 
   procedure ClearFilter;
   var
@@ -658,7 +661,7 @@ var
   end;
 
 begin
-  Edit := Sender as TEdit;
+  Edit := Sender as TComboBox;
   Edit.ReadOnly := True;
   try
     if Filter.IsEmpty then
@@ -668,6 +671,11 @@ begin
   finally
     Edit.ReadOnly := False;
   end;
+end;
+
+procedure TCustomWorkForm.NavigatorFilterEditSave(Sender: TObject);
+begin
+  Utils.UpdateHistory(Sender as TComboBox);
 end;
 
 procedure TCustomWorkForm.NavigatorFilterEditKeyPress(Sender: TObject; var Key: char);

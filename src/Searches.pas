@@ -425,30 +425,11 @@ procedure TSearchFrame.UpdateHistory;
 var
   I: Integer = 0;
   Control: TControl;
-
-  procedure UpdateHistory(Edit: TComboBox);
-  var
-    Text: String = '';
-    I: Integer = 0;
-  begin
-    Text := Edit.Text;
-    I := Edit.Items.IndexOf(Text);
-    if I < 0 then begin
-      Edit.Items.Insert(0, Text);
-      while Edit.Items.Count > Edit.DropDownCount do
-        Edit.Items.Delete(Edit.Items.Count - 1); end
-    else
-      if I > 0 then begin
-        Edit.Items.Move(I, 0);
-        Edit.ItemIndex := 0;
-      end;
-  end;
-
 begin
   for I := 0 to ScrollBox.ControlCount - 1 do begin
     Control := ScrollBox.Controls[I];
     if Control.Enabled and (Control is TComboBox) then
-      UpdateHistory(Control as TComboBox);
+      Utils.UpdateHistory(Control as TComboBox);
   end;
 end;
 

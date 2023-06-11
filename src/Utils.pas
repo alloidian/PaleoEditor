@@ -20,8 +20,8 @@ unit Utils;
 interface
 
 uses
-  Classes, SysUtils, Controls, ComCtrls, Menus, Generics.Collections, SynEditHighlighter,
-  ConfigUtils;
+  Classes, SysUtils, Controls, ComCtrls, StdCtrls, Menus, Generics.Collections,
+  SynEditHighlighter, ConfigUtils;
 
 const
   IMAGE_INDEX: array[Boolean] of Integer = (0, 1);
@@ -209,6 +209,7 @@ function FilesToUploadFile(FileNames: TStrings; Drive: Char = 'A'; User: Byte = 
 procedure Flash(Control: TControl);
 function ReadStrFromFile(const FileName: TFileName): String;
 function WriteStrToFile(const FileName: TFileName; const Value: String): Boolean;
+procedure UpdateHistory(Edit: TComboBox);
 
 implementation
 
@@ -381,6 +382,26 @@ begin
       Stream.Free;
     end;
     Result := FileExists(FileName);
+  end;
+end;
+
+procedure UpdateHistory(Edit: TComboBox);
+var
+  Text: String = '';
+  I: Integer = 0;
+begin
+  Text := Trim(Edit.Text);
+  if not Text.IsEmpty then begin
+    I := Edit.Items.IndexOf(Text);
+    if I < 0 then begin
+      Edit.Items.Insert(0, Text);
+      while Edit.Items.Count > Edit.DropDownCount do
+        Edit.Items.Delete(Edit.Items.Count - 1); end
+    else
+      if I > 0 then begin
+        Edit.Items.Move(I, 0);
+        Edit.ItemIndex := 0;
+      end;
   end;
 end;
 

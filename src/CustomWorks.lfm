@@ -81,13 +81,16 @@ object CustomWorkForm: TCustomWorkForm
       ClientHeight = 32
       ClientWidth = 160
       TabOrder = 0
-      object NavigatorFilterEdit: TEdit
+      object NavigatorFilterEdit: TComboBox
         Left = 5
         Height = 23
         Top = 4
         Width = 140
         Anchors = [akTop, akLeft, akRight]
+        ItemHeight = 15
         OnChange = NavigatorFilterEditChange
+        OnDropDown = NavigatorFilterEditSave
+        OnExit = NavigatorFilterEditSave
         OnKeyPress = NavigatorFilterEditKeyPress
         TabOrder = 0
         TextHint = '(filter)'
