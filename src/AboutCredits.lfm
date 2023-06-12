@@ -1,0 +1,130 @@
+object AboutCreditFrame: TAboutCreditFrame
+  Left = 0
+  Height = 351
+  Top = 0
+  Width = 255
+  ClientHeight = 351
+  ClientWidth = 255
+  TabOrder = 0
+  DesignLeft = 322
+  DesignTop = 509
+  object HexEditTitleLabel: TLabel
+    Cursor = crHandPoint
+    Left = 3
+    Height = 39
+    Top = 0
+    Width = 245
+    AutoSize = False
+    Caption = 'TMPHexEditor by Marcus Stephany,'#13#10'ported to Lazarus by michalgw'#13#10'(https://github.com/michalgw/mphexeditor)'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -11
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = HexEditTitleLabelClick
+  end
+  object IconTitleLabel: TLabel
+    Cursor = crHandPoint
+    Left = 3
+    Height = 26
+    Top = 286
+    Width = 245
+    AutoSize = False
+    Caption = 'Caveman Icon by Fast Icon Design'#13#10'(http://www.fasticon.com)'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -11
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = IconTitleLabelClick
+  end
+  object AsyncProTitleLabel: TLabel
+    Cursor = crHandPoint
+    Left = 3
+    Height = 52
+    Top = 52
+    Width = 245
+    AutoSize = False
+    Caption = 'Async Professional'#13#10'originally by TurboPower Software Company'#13#10'partially ported to Lazarus by Steve García'#13#10'(https://sourceforge.net/projects/tpapro)'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -11
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = AsyncProTitleLabelClick
+  end
+  object HtmlViewerTitleLabel: TLabel
+    Cursor = crHandPoint
+    Left = 3
+    Height = 39
+    Top = 117
+    Width = 245
+    AutoSize = False
+    Caption = 'HTML Viewer by HtmlViewer Team'#13#10'originally by David Baldwin'#13#10'(https://github.com/BerndGabriel/HtmlViewer)'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -11
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = HtmlViewerTitleLabelClick
+  end
+  object MarkdownTitleLabel: TLabel
+    Cursor = crHandPoint
+    Left = 3
+    Height = 52
+    Top = 169
+    Width = 245
+    AutoSize = False
+    Caption = 'Markdown Processor for Pascal (Delphi/FPC)'#13#10'Copyright ©2011+, Health Intersections Pty Ltd'#13#10'(http://www.healthintersections.com.au)'#13#10'All rights reserved.'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -11
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = MarkdownTitleLabelClick
+  end
+  object PdfiumLibTitleLabel: TLabel
+    Cursor = crHandPoint
+    Left = 3
+    Height = 39
+    Top = 234
+    Width = 245
+    AutoSize = False
+    Caption = 'PDFiumLib by Andreas Hausladen'#13#10'Ported to Lazarus by Hero Member taazz'#13#10'(https://github.com/ahausladen/PdfiumLib)'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -11
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = PdfiumLibTitleLabelClick
+  end
+  object SilkTitleLabel: TLabel
+    Cursor = crHandPoint
+    Left = 3
+    Height = 26
+    Top = 325
+    Width = 245
+    AutoSize = False
+    Caption = 'Silk Icon Set 1.3 by Mark James'#13#10'(http://www.famfamfam.com/lab/icons/silk)'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -11
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentColor = False
+    ParentFont = False
+    WordWrap = True
+    OnClick = SilkTitleLabelClick
+  end
+end

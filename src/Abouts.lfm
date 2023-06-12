@@ -24,6 +24,101 @@ object AboutForm: TAboutForm
     ModalResult = 1
     TabOrder = 0
   end
+  object TitleLabel: TLabel
+    Left = 8
+    Height = 30
+    Top = 6
+    Width = 136
+    AutoSize = False
+    Caption = 'Paleo Editor'
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -22
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
+  object CopyrightLabel: TLabel
+    Cursor = crHandPoint
+    Left = 8
+    Height = 15
+    Top = 239
+    Width = 158
+    AutoSize = False
+    Caption = 'Copyright ©2023 Steve García'
+    ParentColor = False
+    OnClick = CopyrightLabelClick
+  end
+  object DescriptionLabel: TLabel
+    Cursor = crHandPoint
+    Left = 8
+    Height = 15
+    Top = 35
+    Width = 150
+    AutoSize = False
+    Caption = 'for RomWBW Development'
+    ParentColor = False
+    WordWrap = True
+    OnClick = DescriptionLabelClick
+  end
+  object ToolLabel: TLabel
+    Cursor = crHandPoint
+    Left = 8
+    Height = 15
+    Top = 50
+    Width = 150
+    AutoSize = False
+    Caption = 'Built with Lazarus'
+    ParentColor = False
+    WordWrap = True
+    OnClick = ToolLabelClick
+  end
+  object VersionLabel: TLabel
+    Left = 8
+    Height = 30
+    Top = 70
+    Width = 135
+    AutoSize = False
+    Caption = 'Version 0.0.0.0 WinXX Pre-Release'
+    ParentColor = False
+    WordWrap = True
+  end
+  object LicenseLabel: TLabel
+    Cursor = crHandPoint
+    Left = 8
+    Height = 15
+    Top = 255
+    Width = 158
+    AutoSize = False
+    Caption = 'Licensed by GNU GPL V3'
+    ParentColor = False
+    OnClick = LicenseLabelClick
+  end
+  object CreditBox: TScrollBox
+    Left = 5
+    Height = 104
+    Top = 130
+    Width = 263
+    HorzScrollBar.Page = 1
+    HorzScrollBar.Visible = False
+    VertScrollBar.Increment = 13
+    VertScrollBar.Page = 1
+    VertScrollBar.Tracking = True
+    BorderStyle = bsNone
+    TabOrder = 1
+  end
+  object ThirdPartyLabel: TLabel
+    Left = 8
+    Height = 16
+    Top = 110
+    Width = 240
+    AutoSize = False
+    Caption = 'Third-Party Components:'
+    Font.Style = [fsBold]
+    ParentColor = False
+    ParentFont = False
+  end
   object Image: TImage
     Left = 145
     Height = 129
@@ -583,111 +678,5 @@ object AboutForm: TAboutForm
       FF0F80FFF1F2FF00F81F2FFF0781FCA07FFB8CC1AF0000000049454E44AE4260
       82
     }
-  end
-  object TitleLabel: TLabel
-    Left = 8
-    Height = 30
-    Top = 6
-    Width = 136
-    AutoSize = False
-    Caption = 'Paleo Editor'
-    Font.CharSet = ANSI_CHARSET
-    Font.Height = -22
-    Font.Pitch = fpVariable
-    Font.Quality = fqDraft
-    Font.Style = [fsBold]
-    ParentColor = False
-    ParentFont = False
-  end
-  object CopyrightLabel: TLabel
-    Cursor = crHandPoint
-    Left = 8
-    Height = 15
-    Top = 232
-    Width = 158
-    AutoSize = False
-    Caption = 'Copyright ©2023 Steve García'
-    ParentColor = False
-    OnClick = CopyrightLabelClick
-  end
-  object DescriptionLabel: TLabel
-    Cursor = crHandPoint
-    Left = 8
-    Height = 15
-    Top = 35
-    Width = 150
-    AutoSize = False
-    Caption = 'for RomWBW Development'
-    ParentColor = False
-    WordWrap = True
-    OnClick = DescriptionLabelClick
-  end
-  object ThirdPartyLabel: TLabel
-    Left = 8
-    Height = 16
-    Top = 110
-    Width = 240
-    AutoSize = False
-    Caption = 'Third-Party Components:'
-    Font.Style = [fsBold]
-    ParentColor = False
-    ParentFont = False
-  end
-  object HexEditTitleLabel: TLabel
-    Cursor = crHandPoint
-    Left = 8
-    Height = 48
-    Top = 135
-    Width = 259
-    AutoSize = False
-    Caption = 'TMPHexEditor by Marcus Stephany, ported to Lazarus by michalgw (https://github.com/michalgw/mphexeditor)'
-    ParentColor = False
-    WordWrap = True
-    OnClick = HexEditTitleLabelClick
-  end
-  object IconTitleLabel: TLabel
-    Cursor = crHandPoint
-    Left = 8
-    Height = 32
-    Top = 190
-    Width = 259
-    AutoSize = False
-    Caption = 'Caveman Icon by Fast Icon Design (http://www.fasticon.com)'
-    ParentColor = False
-    WordWrap = True
-    OnClick = IconTitleLabelClick
-  end
-  object ToolLabel: TLabel
-    Cursor = crHandPoint
-    Left = 8
-    Height = 15
-    Top = 50
-    Width = 150
-    AutoSize = False
-    Caption = 'Built with Lazarus'
-    ParentColor = False
-    WordWrap = True
-    OnClick = ToolLabelClick
-  end
-  object VersionLabel: TLabel
-    Left = 8
-    Height = 30
-    Top = 70
-    Width = 135
-    AutoSize = False
-    Caption = 'Version 0.0.0.0 WinXX Pre-Release'
-    ParentColor = False
-    WordWrap = True
-  end
-  object LicenseLabel: TLabel
-    Cursor = crHandPoint
-    Left = 8
-    Height = 15
-    Top = 252
-    Width = 158
-    AutoSize = False
-    Caption = 'Licensed by GNU GPL V3'
-    ParentColor = False
-    OnClick = LicenseLabelClick
   end
 end

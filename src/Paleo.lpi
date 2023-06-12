@@ -521,6 +521,12 @@
         <Filename Value="SynHighlighterFlex.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="AboutCredits.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="AboutCreditFrame"/>
+        <ResourceBaseClass Value="Frame"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
