@@ -10,4 +10,4 @@ folders, without the need to manage security issues.
 The editor saves its configuration data in the user's
 roaming AppData folder:
 
-%APPDATA%\Paleo\Editor.ini
+%APPDATA%\Paleo\Editor.json
