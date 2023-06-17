@@ -525,6 +525,7 @@
         <Filename Value="AboutCredits.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="AboutCreditFrame"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Frame"/>
       </Unit>
     </Units>
