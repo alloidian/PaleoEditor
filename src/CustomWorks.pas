@@ -1143,10 +1143,15 @@ begin
 end;
 
 procedure TCustomWorkForm.ChildActionExecute(Sender: TObject);
+var
+  Node: TTreeNode;
 begin
   Screen.BeginWaitCursor;
   try
-    PopulateChildren(Navigator.Selected);
+    Node := Navigator.Selected;
+    PopulateChildren(Node);
+    if Node.HasChildren and not Node.Expanded then
+      Node.Expand(False);
   finally
     Screen.EndWaitCursor;
   end;
@@ -1795,6 +1800,7 @@ begin
     Temp.Free;
     FSymbolFileName := EmptyStr;
   end;
+  ChildAction.Execute;
 end;
 
 procedure TCustomWorkForm.WindowClickHandler(Sender: TObject);
@@ -2246,6 +2252,7 @@ end;
 procedure TCustomWorkForm.DoExecuteComplete(Sender: TObject);
 begin
   FDirMonitor.Resume;
+  ChildAction.Execute;
 end;
 
 function TCustomWorkForm.DoUploadFile(const FileName: TFileName): Boolean;
