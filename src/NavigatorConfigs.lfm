@@ -9,7 +9,6 @@ inherited NavigatorConfigFrame: TNavigatorConfigFrame
     DefaultColWidth = 144
     FixedCols = 0
     RowCount = 8
-    ScrollBars = ssAutoHorizontal
     TabOrder = 0
     OnButtonClick = ConfigEditButtonClick
     Options = [goFixedHorzLine, goHorzLine, goEditing, goAlwaysShowEditor, goThumbTracking]
@@ -28,7 +27,7 @@ inherited NavigatorConfigFrame: TNavigatorConfigFrame
     )
     ColWidths = (
       144
-      236
+      240
     )
   end
   object SaveWorkspaceEdit: TCheckBox[1]

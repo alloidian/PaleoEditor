@@ -1,0 +1,2 @@
+inherited JsonEditorFrame: TJsonEditorFrame
+end

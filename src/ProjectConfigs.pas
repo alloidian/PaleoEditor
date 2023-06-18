@@ -1,6 +1,6 @@
 unit ProjectConfigs;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit ProjectConfigs;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -46,8 +46,8 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure ReadConfig(Config: TConfig); override; overload;
     procedure WriteConfig(Config: TConfig); override; overload;
-    procedure ReadConfig(Config: TCustomConfig); override; overload;
-    procedure WriteConfig(Config: TCustomConfig); override; overload;
+    procedure ReadConfig(Config: TBaseConfig); override; overload;
+    procedure WriteConfig(Config: TBaseConfig); override; overload;
     property ToolFolderName: TFileName read GetToolFolderName write SetToolFolderName;
   end;
 
@@ -95,7 +95,7 @@ function TProjectConfigFrame.GetIsModified: Boolean;
 const
   COLORS: array[Boolean] of TColor = (clRed, clDefault);
 var
-  Temp: String;
+  Temp: String = '';
 begin
   Temp := ToolFolderName;
   ToolFolderNameEdit.Font.Color := COLORS[DirectoryExists(Temp)];
@@ -114,7 +114,7 @@ begin
   // Do nothing
 end;
 
-procedure TProjectConfigFrame.ReadConfig(Config: TCustomConfig);
+procedure TProjectConfigFrame.ReadConfig(Config: TBaseConfig);
 begin
   if Assigned(Config) then begin
     ToolFolderName := Config.ToolFolderName;
@@ -122,7 +122,7 @@ begin
   end;
 end;
 
-procedure TProjectConfigFrame.WriteConfig(Config: TCustomConfig);
+procedure TProjectConfigFrame.WriteConfig(Config: TBaseConfig);
 begin
   if Assigned(Config) then begin
     Config.ToolFolderName := ToolFolderName;

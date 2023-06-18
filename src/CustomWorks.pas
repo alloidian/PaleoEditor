@@ -1,6 +1,6 @@
 unit CustomWorks;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,23 +15,27 @@ unit CustomWorks;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
 uses
   Classes, Windows, SysUtils, Forms, Controls, StrUtils, Graphics, Dialogs, ComCtrls,
-  StdCtrls, ExtCtrls, Menus, ActnList, StdActns, Types, Utils, CustomEditors, Searches,
-  ConfigUtils, Executions, DirMonitors;
+  StdCtrls, ExtCtrls, Menus, ActnList, StdActns, ShellCtrls, ExtendedNotebook, Types,
+  Generics.Collections, Utils, CustomEditors, Searches, ConfigUtils, Executions,
+  DirMonitors;
 
 type
   TIterateTreeNodeProc = procedure(Node: TTreeNode; var Continue: Boolean);
+  TQueryTerminalEvent = procedure(Sender: TObject; var IsTerminalAvailable: Boolean) of object;
+  TFileUploadEvent = procedure(Sender: TObject; const FileName: TFileName; var Successful: Boolean) of object;
 
   { TCustomWorkForm }
 
   TCustomWorkForm = class(TForm)
     Images: TImageList;
     Actions: TActionList;
+    ViewJumpMenu: TMenuItem;
     NewFolderAction: TAction;
     NewFileAction: TAction;
     OpenFileAction: TAction;
@@ -44,6 +48,9 @@ type
     CloseUnmodifiedFilesAction: TAction;
     RevertFileAction: TAction;
     DeleteFolderAction: TAction;
+    UploadFileAction: TAction;
+    CopyFileAction: TAction;
+    ChildAction: TAction;
     AssembleAction: TAction;
     ExecuteCommandAction: TAction;
     LaunchExecuteAction: TAction;
@@ -65,10 +72,6 @@ type
     ViewStatusAction: TAction;
     ForwardAction: TAction;
     BackwardAction: TAction;
-    MoveFarRightAction: TAction;
-    MoveFarLeftAction: TAction;
-    MoveRightAction: TAction;
-    MoveLeftAction: TAction;
     RefreshAction: TAction;
     CollapseAllAction: TAction;
     ExpandAllAction: TAction;
@@ -92,6 +95,10 @@ type
     FileCloseUnmodifiedMenu: TMenuItem;
     FileRevertMenu: TMenuItem;
     FileDeleteFileMenu: TMenuItem;
+    UploadSeparator: TMenuItem;
+    UploadFileMenu: TMenuItem;
+    CopyFileMenu: TMenuItem;
+    AddChildrenMenu: TMenuItem;
     ExecuteSeparator: TMenuItem;
     FileAssembleMenu: TMenuItem;
     FileExecuteMenu: TMenuItem;
@@ -125,11 +132,6 @@ type
     EditorCloseMenu: TMenuItem;
     EditorCloseAllMenu: TMenuItem;
     EditorCloseUnchangedMenu: TMenuItem;
-    EditorMoveSeparator: TMenuItem;
-    EditMoveLeftMenu: TMenuItem;
-    EditorModeFarLeftMenu: TMenuItem;
-    EditorMoveRightMenu: TMenuItem;
-    EditorMoveFarRightMenu: TMenuItem;
     EditorOpenSeparator: TMenuItem;
     EditorOpenExmplorerMenu: TMenuItem;
     EditorOpenConsoleMenu: TMenuItem;
@@ -149,11 +151,14 @@ type
     StatusPopupMenu: TPopupMenu;
     CloseStatusMenu: TMenuItem;
     ClearStatusMenu: TMenuItem;
+    NavigatorPanel: TPanel;
+    NavigatorFilterPanel: TPanel;
+    NavigatorFilterEdit: TComboBox;
     Navigator: TTreeView;
     NavigatorSplitter: TSplitter;
     WorkPanel: TPanel;
     SearchPanel: TPanel;
-    WorkPages: TPageControl;
+    WorkPages: TExtendedNotebook;
     StatusPages: TPageControl;
     MessagePage: TTabSheet;
     LogEdit: TMemo;
@@ -166,6 +171,9 @@ type
     procedure IsFolderUpdate(Sender: TObject);
     procedure IsFileUpdate(Sender: TObject);
     procedure NavigatorActionUpdate(Sender: TObject);
+    procedure NavigatorFilterEditChange(Sender: TObject);
+    procedure NavigatorFilterEditSave(Sender: TObject);
+    procedure NavigatorFilterEditKeyPress(Sender: TObject; var Key: char);
     procedure NewFolderActionExecute(Sender: TObject);
     procedure NewFileActionExecute(Sender: TObject);
     procedure OpenFileActionExecute(Sender: TObject);
@@ -188,6 +196,12 @@ type
     procedure RevertActionUpdate(Sender: TObject);
     procedure DeleteFolderActionExecute(Sender: TObject);
     procedure DeleteFolderActionUpdate(Sender: TObject);
+    procedure UploadFileActionExecute(Sender: TObject);
+    procedure UploadFileActionUpdate(Sender: TObject);
+    procedure CopyFileActionExecute(Sender: TObject);
+    procedure CopyFileActionUpdate(Sender: TObject);
+    procedure ChildActionExecute(Sender: TObject);
+    procedure ChildActionUpdate(Sender: TObject);
     procedure AssembleActionExecute(Sender: TObject);
     procedure AssembleActionUpdate(Sender: TObject);
     procedure ExecuteCommandActionExecute(Sender: TObject);
@@ -216,14 +230,7 @@ type
     procedure ForwardActionUpdate(Sender: TObject);
     procedure BackwardActionExecute(Sender: TObject);
     procedure BackwardActionUpdate(Sender: TObject);
-    procedure MoveLeftActionExecute(Sender: TObject);
-    procedure MoveLeftActionUpdate(Sender: TObject);
-    procedure MoveFarLeftActionExecute(Sender: TObject);
-    procedure MoveFarLeftActionUpdate(Sender: TObject);
-    procedure MoveRightActionExecute(Sender: TObject);
-    procedure MoveRightActionUpdate(Sender: TObject);
-    procedure MoveFarRightActionExecute(Sender: TObject);
-    procedure MoveFarRightActionUpdate(Sender: TObject);
+    procedure JumpActionExecute(Sender: TObject);
     procedure RefreshActionExecute(Sender: TObject);
     procedure CollapseAllActionExecute(Sender: TObject);
     procedure ExpandAllActionExecute(Sender: TObject);
@@ -238,33 +245,61 @@ type
     procedure NavigatorKeyPress(Sender: TObject; var Key: char);
     procedure SearchEditDblClick(Sender: TObject);
     procedure WorkPagesChange(Sender: TObject);
+    procedure WorkPagesChanging(Sender: TObject; var AllowChange: Boolean);
     procedure DoSearch(Sender: TObject; const Criteria: String; First, Backwards, MatchCase,
       MatchWholeWordOnly, ForFile: Boolean; var WasFound: Boolean);
     procedure DoSearchAll(Sender: TObject; const Criteria, Filter: String; MatchCase,
       MatchWholeWordOnly: Boolean);
     procedure DoReplace(Sender: TObject; const Criteria, Replacement: String; All, MatchCase,
       MatchWholeWordOnly: Boolean);
-    procedure DoRetrieveLabels(Sender: TObject; List: TStrings);
     procedure DoGotoLine(Sender: TObject; LineNumber: Integer);
     procedure DoOriginate(Sender: TObject; const Criteria, Filter: String);
     procedure AdjustSymbolFile(Sender: TObject);
     procedure WindowClickHandler(Sender: TObject);
-    procedure WorkPagesDragDrop(Sender, Source: TObject; X, Y: Integer);
-    procedure WorkPagesDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState;
-      var Accept: Boolean);
-    procedure WorkPagesMouseDown(Sender: TObject; Button: TMouseButton;Shift: TShiftState;
-      X, Y: Integer);
+  private const
+    STRIPES: array[Boolean] of TColor = (clWindow, clMoneyGreen);
+  private type
+    TFindFileList = class(TObjectList<TTreeNode>)
+    private
+      FView: TTreeView;
+      FNodeIndex: Integer;
+      FNode: TTreeNode;
+      FFileName: TFileName;
+      FWordCase: Boolean;
+      FWholeWord: Boolean;
+      FBackwards: Boolean;
+    public
+      constructor Create(View: TTreeView); virtual;
+      function Populate: Boolean;
+      function First: Boolean;
+      function Prev: Boolean;
+      function Next: Boolean;
+      function Last: Boolean;
+      property FileName: TFileName read FFileName write FFileName;
+      property WordCase: Boolean read FWordCase write FWordCase ;
+      property WholeWord: Boolean read FWholeWord write FWholeWord;
+      property Backwards: Boolean read FBackwards write FBackwards;
+      property Node: TTreeNode read FNode;
+    end;
   private
     FSearchFrame: TSearchFrame;
-    FFindFileName: TFileName;
-    FFindNode: TTreeNode;
+    FFindFileList: TFindFileList;
     FItinerary: TItinerary;
     FSymbolFileName: TFileName;
+    FOnTerminalQuery: TQueryTerminalEvent;
+    FOnFileUpload: TFileUploadEvent;
+    procedure AlternateRowColor(Sender: TCustomListView; Item: TListItem;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure TextColumn(Sender: TCustomListView; Item: TListItem; SubItem: Integer;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
     function GetIsModified: Boolean;
     function GetIsAllModified: Boolean;
+    function GetFilter: String;
+    procedure SetFilter(const Value: String);
     function GetActiveEditor: TCustomEditorFrame;
-    procedure SetSearchMethod(Method: TSearchBy);
-    procedure SelectNode(Node: TTreeNode; LineNumber: Integer = 0);
+    procedure SetSearchMethod(Method: TSearchMode);
+    procedure SelectNode(Node: TTreeNode; LineNumber: Integer = 0); overload;
+    procedure SelectNode(Stop: TStop); overload;
     function OpenFile(Node: TTreeNode): TTabSheet;
     procedure CloseFile(Page: TTabSheet);
     procedure DeleteFolderNode(Node: TTreeNode);
@@ -277,7 +312,7 @@ type
     function FullPath(HomeFolder: String; FileName: String): String;
     function SearchNode(const FileName: TFileName): TTreeNode; overload;
     function SearchNode(Node: TTreeNode; const FileName: TFileName): TTreeNode; overload;
-    function FindFirstFile(const FileName: TFileName; Backwards: Boolean): Boolean;
+    function FindFirstFile(const FileName: TFileName; MatchCase: Boolean; WholeWord: Boolean; Backwards: Boolean): Boolean;
     function FindNextFile(Backwards: Boolean): Boolean;
     procedure SetNavigatorVisible(Value: Boolean);
     procedure SetStatusVisible(Value: Boolean);
@@ -286,8 +321,10 @@ type
       MatchCase, MatchWholeWordOnly: Boolean);
   protected
     FFolderName: TFileName;
-    FConfigs: TCustomConfig;
+    FConfigs: TBaseConfig;
     FDirMonitor: TDirMonitor;
+    procedure PopulateChildren(Node: TTreeNode; MasterList: TStringList = nil);
+    procedure CleanDocuments;
     procedure RefreshView; virtual; abstract;
     procedure Log(const Text: String); overload;
     procedure Log(const Mask: String; Args: array of const); overload;
@@ -296,18 +333,25 @@ type
     procedure DoFileEvent(Sender: TObject; Action: TDirMonitorAction;
       const FileName: TFileName); virtual;
     procedure DoExecuteComplete(Sender: TObject);
+    function DoUploadFile(const FileName: TFileName): Boolean;
+    function IsTerminalAvailable: Boolean;
     procedure FindIdentifier(Sender: TObject; const Criteria, Filter: String;
       MatchCase, MatchWholeWordOnly: Boolean);
-    procedure RetrieveLabels(List: TStrings);
     procedure CheckIfModified(Node: TTreeNode);
+    property FindFileList: TFindFileList read FFindFileList;
   public
-    procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); virtual; abstract;
+    procedure Open(const FolderName: TFileName; ParentMenu: TMenuItem); virtual;
+    procedure CloseAll;
     procedure Idle;
     procedure RefreshConfig;
+    property Filter: String read GetFilter write SetFilter;
     property ActiveEditor: TCustomEditorFrame read GetActiveEditor;
-    property Configs: TCustomConfig read FConfigs;
+    property Configs: TBaseConfig read FConfigs;
     property IsModified: Boolean read GetIsModified;
     property IsAllModified: Boolean read GetIsAllModified;
+  published
+    property OnTerminalQuery: TQueryTerminalEvent read FOnTerminalQuery write FOnTerminalQuery;
+    property OnFileUpload: TFileUploadEvent read FOnFileUpload write FOnFileUpload;
   end;
 
   TNavigatorIterator = class(TObject)
@@ -322,7 +366,8 @@ type
   public
     constructor Create(Navigator: TTreeView); virtual;
     destructor Destroy; override;
-    procedure Execute;
+    procedure Forward;
+    procedure Backward;
     property OnIterate: TIterationEvent read FOnIterate write FOnIterate;
   end;
 
@@ -335,7 +380,6 @@ type
     FReport: TListView;
     FBuffer: TStringList;
     FCriteria: String;
-    FExtensions: TStringDynArray;
     FFilter: String;
     FMatchCase: Boolean;
     FMatchWholeWordOnly: Boolean;
@@ -360,14 +404,11 @@ type
     FProject: TCustomWorkForm;
     FPages: TPageControl;
     FImages: TImageList;
-    FReport: TListView;
     FBuffer: TStringList;
     FCriteria: String;
-    FExtensions: TStringDynArray;
     FFilter: String;
   protected
     procedure DoIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
-    function GeneratePage: TListView;
   public
     constructor Create(Project: TCustomWorkForm; Navigator: TTreeView; Pages: TPageControl;
       Images: TImageList); virtual;
@@ -393,13 +434,28 @@ type
     property FileName: TFileName read FFileName write FFileName;
   end;
 
+  TDocumentCleanEngine = class(TObject)
+  private type
+    TNodes = class(TObjectList<TTreeNode>);
+  private
+    FEngine: TNavigatorIterator;
+    FFiles: TStringList;
+    FNodes: TNodes;
+    protected
+      procedure DoSearchIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
+      procedure DoCleanIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
+    public
+      constructor Create(Form: TCustomWorkForm); virtual;
+      destructor Destroy; override;
+      procedure Execute;
+  end;
+
 implementation
 
 {$R *.lfm}
 
 uses
-  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf, Generics.Collections,
-  SyntaxEditors, HexEditors, Configs, NewFiles, Assemblers;
+  System.UITypes, Masks, FileUtil, PrintersDlgs, LCLIntf, Configs, NewFiles, Assemblers;
 
 var
   Search_Index: Integer;
@@ -419,12 +475,14 @@ begin
   FSearchFrame.OnSearchAll := DoSearchAll;
   FSearchFrame.OnSearchDeclaration := DoOriginate;
   FSearchFrame.OnReplace := DoReplace;
-  FSearchFrame.OnRetrieveLabels := DoRetrieveLabels;
   FSearchFrame.OnLabelLookup := DoGotoLine;
   FSearchFrame.OnGotoLine := DoGotoLine;
-  FSearchFrame.SearchBy := sbNone;
-  FItinerary := TItinerary.Create;
+  FSearchFrame.SearchMode := smNone;
+  FFindFileList := TFindFileList.Create(Navigator);
+  FItinerary := TItinerary.Create(ViewJumpMenu, JumpActionExecute);
   FSymbolFileName := EmptyStr;
+  UploadSeparator.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
+  UploadFileAction.Visible := {$IFDEF TERMINAL} True {$ELSE} False {$ENDIF};
 end;
 
 procedure TCustomWorkForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -444,7 +502,7 @@ end;
 procedure TCustomWorkForm.FormDestroy(Sender: TObject);
 var
   Temp: TStringList;
-  I: Integer;
+  I: Integer = 0;
   Page: TTabSheet;
   Editor: TCustomEditorFrame;
   Node: TTreeNode;
@@ -455,8 +513,8 @@ begin
   FConfigs.WriteConfig;
   FConfigs.Free;
   FItinerary.Free;
-  Config.WriteConfig(Navigator, FFolderName);
-  Config.WriteConfig(StatusPages, FFolderName);
+  FFindFileList.Free;
+  Config.WriteConfig(NavigatorPanel, StatusPages, FFolderName);
   if Config.SaveWorkspace then begin
     Temp := TStringList.Create;
     try
@@ -473,30 +531,39 @@ begin
       Temp.Free;
     end;
   end;
+  Config.WriteConfig(NavigatorFilterEdit, FFolderName);
 end;
 
 procedure TCustomWorkForm.FormShow(Sender: TObject);
 var
   Temp: TStringList;
-  I: Integer;
-  ProjectName: String;
+  I: Integer = 0;
+  ProjectName: String = '';
   Node: TTreeNode = nil;
 begin
-  Config.ReadConfig(Navigator, FFolderName);
-  Config.ReadConfig(StatusPages, FFolderName);
-  Temp := Config.ReadWorkspace(FFolderName);
+  Screen.BeginWaitCursor;
   try
-    for I := 0 to Temp.Count - 1 do begin
-      ProjectName := Temp.Names[I];
-      Node := SearchNode(ProjectName);
-      if Assigned(Node) then
-        Node.Page := OpenFile(Node);
+    Config.ReadConfig(NavigatorPanel, StatusPages, FFolderName);
+    Temp := Config.ReadWorkspace(FFolderName);
+    try
+      for I := 0 to Temp.Count - 1 do begin
+        ProjectName := Temp.Names[I];
+        Node := SearchNode(ProjectName);
+        if Assigned(Node) then begin
+          Node.Page := OpenFile(Node);
+          Node.Status := Node.Page.Status;
+        end;
+        Application.ProcessMessages;
+      end;
+    finally
+      Temp.Free;
     end;
+    Config.ReadConfig(NavigatorFilterEdit, FFolderName);
+    if Assigned(Node) then
+      Navigator.Selected := Node;
   finally
-    Temp.Free;
+    Screen.EndWaitCursor;
   end;
-  if Assigned(Node) then
-    Navigator.Selected := Node;
 end;
 
 function GetTabIndex(APageControl: TPageControl; X, Y: Integer): Integer;
@@ -524,7 +591,7 @@ var
   Node: TTreeNode;
 begin
   Node := Navigator.Selected;
-  (Sender as TAction).Enabled := Assigned(Node) and (Node.Kind = pkFile);
+  (Sender as TAction).Enabled := Assigned(Node) and (Node.Kind in [pkDocument, pkFile]);
 end;
 
 procedure TCustomWorkForm.NavigatorActionUpdate(Sender: TObject);
@@ -532,10 +599,97 @@ begin
   (Sender as TAction).Enabled := Navigator.Items.Count > 0;
 end;
 
+procedure TCustomWorkForm.NavigatorFilterEditChange(Sender: TObject);
+var
+  Edit: TComboBox;
+
+  procedure ClearFilter;
+  var
+    I: Integer;
+    Child: TTreeNode;
+  begin
+    for I := Navigator.Items.Count - 1 downto 0 do begin
+      Child := Navigator.Items[I];
+      Child.Visible := True;
+      if Assigned(Child.Page) then
+        Child.Page.TabVisible := True;
+    end;
+    if Assigned(Navigator.Selected) then
+      Navigator.Selected.MakeVisible;
+  end;
+
+  function HasVisibleChildren(Node: TTreeNode): Boolean;
+  var
+    I: Integer;
+    Child: TTreeNode;
+  begin
+    Result := False;
+    for I := 0 to Node.Count - 1 do begin
+      Child := Node.Items[I];
+      Result := Child.Visible;
+      if not Result then
+        Result := HasVisibleChildren(Child);
+      if Result then
+        Break;
+    end;
+  end;
+
+  procedure SetFilter(const Filter: String);
+  var
+    I: Integer;
+    Node: TTreeNode;
+    LastNode: TTreeNode = nil;
+  begin
+    for I := Navigator.Items.Count - 1 downto 0 do begin
+      Node := Navigator.Items[I];
+      if Node.Kind in [pkUnknown, pkFolder] then begin
+        Node.Visible := HasVisibleChildren(Node);
+        if Node.Visible then
+          Node.Expand(True); end
+      else
+        if Node.Matches(Filter) then
+          Node.Visible := True
+        else
+          Node.Visible := HasVisibleChildren(Node);
+      if Assigned(Node.Page) then
+        Node.Page.TabVisible := Node.Visible;
+      if Node.Visible then
+        LastNode := Node;
+    end;
+    if Assigned(LastNode) then
+      LastNode.MakeVisible;
+  end;
+
+begin
+  Edit := Sender as TComboBox;
+  Edit.ReadOnly := True;
+  try
+    if Filter.IsEmpty then
+      ClearFilter
+    else
+      SetFilter(Filter);
+  finally
+    Edit.ReadOnly := False;
+  end;
+end;
+
+procedure TCustomWorkForm.NavigatorFilterEditSave(Sender: TObject);
+begin
+  Utils.UpdateHistory(Sender as TComboBox);
+end;
+
+procedure TCustomWorkForm.NavigatorFilterEditKeyPress(Sender: TObject; var Key: char);
+const
+  ESC = #27;
+begin
+  if Key = ESC then
+    (Sender as TEdit).Text := EmptyStr;
+end;
+
 procedure TCustomWorkForm.NewFolderActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
-  FolderName: TFileName;
+  FolderName: TFileName = '';
   Attribute: TFileAttribute;
   Child: TTreeNode;
 begin
@@ -548,8 +702,8 @@ begin
           ForceDirectories(FolderName);
         Attribute := TFileAttribute.CreateFolder(FolderName);
         Child := Navigator.Items.AddChildFirst(Node, Attribute.ShortName);
-        Child.ImageIndex := 0;
-        Child.SelectedIndex := 4;
+        Child.ImageIndex := WHITE_CLOSED_FOLDER_INDEX;
+        Child.SelectedIndex := BLACK_CLOSED_FOLDER_INDEX;
         Child.Data := Attribute;
       end;
       Node.Expand(False);
@@ -560,7 +714,7 @@ end;
 procedure TCustomWorkForm.NewFileActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
-  FileName: TFileName;
+  FileName: TFileName = '';
   Attribute: TFileAttribute;
   Child: TTreeNode;
 begin
@@ -570,10 +724,10 @@ begin
     if CreateNewFile(Node.FullName, FileName) then begin
       if not FileExists(FileName) then
         CloseHandle(FileCreate(FileName));
-      Attribute := TFileAttribute.CreateFile(FileName, FFolderName);
+      Attribute := TFileAttribute.CreateDocument(FileName, FFolderName);
       Child := Navigator.Items.AddChildFirst(Node, Attribute.ShortName);
-      Child.ImageIndex := 2;
-      Child.SelectedIndex := 5;
+      Child.ImageIndex := WHITE_DOCUMENT_INDEX;
+      Child.SelectedIndex := BLACK_DOCUMENT_INDEX;
       Child.Data := Attribute;
     end;
     Node.Expand(False);
@@ -590,11 +744,12 @@ begin
     case Node.Kind of
       pkFolder:
         Node.Expand(False);
-      pkFile:
+      pkDocument, pkFile:
         if Assigned(Node.Page) then
           WorkPages.ActivePage := Node.Page
         else begin
           Node.Page := OpenFile(Node);
+          Node.Status := Node.Page.Status;
           FItinerary.Post(Node, 1);
         end;
     end;
@@ -613,7 +768,7 @@ begin
     case Node.Kind of
       pkFolder:
         Action.Hint := Format('Open the ''%s'' folder.', [Node.LogicalName]);
-      pkFile:
+      pkDocument, pkFile:
         if Assigned(Node.Page) then
           Action.Hint := Format('Select the ''%s'' file.', [Node.LogicalName])
         else
@@ -699,9 +854,9 @@ const
   FAILURE = 'Cannot rename ''%s'' to ''%s''.';
 var
   Node: TTreeNode;
-  OldFileName: String;
-  NewFileName: String;
-  Temp: String;
+  OldFileName: String = '';
+  NewFileName: String = '';
+  Temp: String = '';
 
   function Rename(const OldFileName, NewFileName: TFileName): Boolean;
   begin
@@ -744,7 +899,7 @@ var
 begin
   Action := Sender as TAction;
   Node := Navigator.Selected;
-  Action.Enabled := Assigned(Node) and (Node.Kind = pkFile);
+  Action.Enabled := Assigned(Node) and (Node.Kind in [pkDocument, pkFile]);
   if not Assigned(Node) then
     Action.Hint := 'Cannot rename an invalid file.'
   else
@@ -778,7 +933,7 @@ end;
 
 procedure TCustomWorkForm.CloseAllFilesActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   for I := WorkPages.PageCount - 1 downto 0 do
     CloseFile(WorkPages.Pages[I]);
@@ -795,7 +950,7 @@ type
   TIntList = TList<Integer>;
 var
   List: TIntList;
-  I: Integer;
+  I: Integer = 0;
 begin
   List := TIntList.Create;
   try
@@ -820,7 +975,7 @@ type
   TIntList = TList<Integer>;
 var
   List: TIntList;
-  I: Integer;
+  I: Integer = 0;
 begin
   List := TIntList.Create;
   try
@@ -839,10 +994,9 @@ end;
 
 procedure TCustomWorkForm.CloseUnmodifiedFilesActionUpdate(Sender: TObject);
 var
-  Temp: Boolean;
-  I: Integer;
+  Temp: Boolean = False;
+  I: Integer = 0;
 begin
-  Temp := False;
   for I := 0 to WorkPages.PageCount - 1 do
     if not WorkPages.Pages[I].Editor.IsModified then begin
       Temp := True;
@@ -856,7 +1010,7 @@ const
   PROMPT = 'Are you sure you want to revert your changes?';
 var
   Editor: TCustomEditorFrame;
-  CurrentLine: Integer;
+  CurrentLine: Integer = 0;
 begin
   Editor := ActiveEditor;
   if Assigned(Editor) then
@@ -895,8 +1049,10 @@ begin
   Node := Navigator.Selected;
   if Assigned(Node) then begin
     case Node.Kind of
-      pkFolder : DeleteFolder(Node);
-      pkFile: DeleteFile(Node);
+      pkFolder:
+	    DeleteFolder(Node);
+      pkDocument, pkFile:
+	    DeleteFile(Node);
     end;
   end;
 end;
@@ -904,9 +1060,10 @@ end;
 procedure TCustomWorkForm.DeleteFolderActionUpdate(Sender: TObject);
 const
   NAMES: array[TFileAttribute.TPropertyKind] of String =
-   ('node',    // pkUnknown
-    'folder',  // pkFolder
-    'file');   // pkFile
+   ('node',        // pkUnknown
+    'folder',      // pkFolder
+    'document',    // pkDocument
+    'file');       // pkFile
 var
   Action: TAction;
   Node: TTreeNode;
@@ -920,22 +1077,105 @@ begin
     Action.Hint := 'Cannot delete an invalid node.';
 end;
 
+procedure TCustomWorkForm.UploadFileActionExecute(Sender: TObject);
+var
+  Node: TTreeNode;
+  FileName: TFileName;
+  WasSuccessful: Boolean;
+begin
+  if Assigned(FOnFileUpload) then begin
+    Node := Navigator.Selected;
+    if Assigned(Node) then begin
+      WasSuccessful := False;
+      FileName := Node.FullName;
+      if FileExists(FileName) then
+        FOnFileUpload(Self, FileName, WasSuccessful);
+    end;
+  end;
+end;
+
+procedure TCustomWorkForm.UploadFileActionUpdate(Sender: TObject);
+var
+  Action: TAction;
+begin
+  Action := Sender as TAction;
+  Action.Enabled := IsTerminalAvailable;
+end;
+
+procedure TCustomWorkForm.CopyFileActionExecute(Sender: TObject);
+const
+  MASK = 'A:\%s';
+var
+  Node: TTreeNode;
+  FileName: TFileName = '';
+begin
+  Screen.BeginWaitCursor;
+  try
+    Node := Navigator.Selected;
+    FileName := Format(MASK, [ExtractFileName(Node.FullName)]);
+    if FileExists(FileName) then
+      SysUtils.DeleteFile(FileName);
+    CopyFile(Node.FullName, FileName);
+  finally
+    Screen.EndWaitCursor;
+  end;
+end;
+
+procedure TCustomWorkForm.CopyFileActionUpdate(Sender: TObject);
+const
+  DRIVE_A = 1;
+var
+  Action: TAction;
+  OldErrorMode: Word = 0;
+  DriveList: DWORD = 0;
+begin
+  Action := Sender as TAction;
+  DriveList := GetLogicalDrives;
+  Action.Enabled := DriveList and DRIVE_A > 0;
+  if Action.Enabled then begin
+    OldErrorMode := SetErrorMode(SEM_FailCriticalErrors);
+    try
+      Action.Enabled := DirectoryExists('A:\');
+    finally
+      SetErrorMode(OldErrorMode);
+    end;
+  end;
+end;
+
+procedure TCustomWorkForm.ChildActionExecute(Sender: TObject);
+var
+  Node: TTreeNode;
+begin
+  Screen.BeginWaitCursor;
+  try
+    Node := Navigator.Selected;
+    PopulateChildren(Node);
+    if Node.HasChildren and not Node.Expanded then
+      Node.Expand(False);
+  finally
+    Screen.EndWaitCursor;
+  end;
+end;
+
+procedure TCustomWorkForm.ChildActionUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := True;
+end;
+
 procedure TCustomWorkForm.AssembleActionExecute(Sender: TObject);
 const
   MASK = 'TASMTABS=%s';
 var
   Node: TTreeNode;
-  Parameters: String;
+  Parameters: String = '';
   Platform: TAssemblerPlatform;
-  UpdateSymbols: Boolean;
+  UpdateSymbols: Boolean = False;
   Engine: TExecutionThread;
 begin
   if FConfigs.HasAssembler then begin
     Node := Navigator.Selected;
     if Assigned(Node) then begin
-      Parameters := EmptyStr;
       Platform := apZ80;
-      UpdateSymbols := False;
       if AssembleFile(Node, Parameters, Platform, UpdateSymbols) then begin
         if not StatusPages.Visible then
           SetStatusVisible(True);
@@ -992,12 +1232,11 @@ end;
 procedure TCustomWorkForm.ExecuteCommandActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
-  Parameters: String;
+  Parameters: String = '';
   Engine: TExecutionThread;
 begin
   Node := Navigator.Selected;
   if Assigned(Node) then
-    Parameters := EmptyStr;
     if ExecuteFile(Node, Parameters) then begin
       if not StatusPages.Visible then
         SetStatusVisible(True);
@@ -1046,11 +1285,13 @@ var
 begin
   Action := Sender as TAction;
   Node := Navigator.Selected;
-  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkFile]);
+  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkDocument, pkFile]);
   if Action.Enabled then
     case Node.Kind of
-      pkFolder: Action.Hint := Format('Open the ''%s'' folder in Windows Explorer.', [Node.LogicalName]);
-      pkFile: Action.Hint := Format('Open the folder containing the ''%s'' file in Windows Explorer.', [Node.LogicalName]);
+      pkFolder:
+        Action.Hint := Format('Open the ''%s'' folder in Windows Explorer.', [Node.LogicalName]);
+      pkDocument, pkFile:
+        Action.Hint := Format('Open the folder containing the ''%s'' file in Windows Explorer.', [Node.LogicalName]);
     end
   else
     Action.Hint := 'Cannot open Windows Explorer.';
@@ -1061,12 +1302,8 @@ var
   Node: TTreeNode;
 begin
   Node := Navigator.Selected;
-  if Assigned(Node) then begin
-    case Node.Kind of
-      pkFolder: OpenConsole(Node);
-      pkFile: OpenConsole(Node);
-    end;
-  end;
+  if Assigned(Node) then
+    OpenConsole(Node);
 end;
 
 procedure TCustomWorkForm.LaunchConsoleActionUpdate(Sender: TObject);
@@ -1076,11 +1313,13 @@ var
 begin
   Action := Sender as TAction;
   Node := Navigator.Selected;
-  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkFile]);
+  Action.Enabled := Assigned(Node) and (Node.Kind in [pkFolder, pkDocument, pkFile]);
   if Action.Enabled then
     case Node.Kind of
-      pkFolder: Action.Hint := Format('Open the ''%s'' folder in console.', [Node.LogicalName]);
-      pkFile: Action.Hint := Format('Open the folder containing the ''%s'' file in console.', [Node.LogicalName]);
+      pkFolder:
+        Action.Hint := Format('Open the ''%s'' folder in console.', [Node.LogicalName]);
+      pkDocument, pkFile:
+        Action.Hint := Format('Open the folder containing the ''%s'' file in console.', [Node.LogicalName]);
     end
   else
     Action.Hint := 'Cannot open the console.';
@@ -1092,7 +1331,7 @@ var
 begin
   if Assigned(ActiveEditor) then begin
     Node := ActiveEditor.Node;
-    if Assigned(Node) and (Node.Kind = pkFile) then
+    if Assigned(Node) and (Node.Kind in [pkDocument, pkFile]) then
       OpenExplorer(Node);
   end;
 end;
@@ -1105,11 +1344,13 @@ begin
   if Assigned(ActiveEditor) then begin
     Action := Sender as TAction;
     Node := ActiveEditor.Node;
-    Action.Enabled := Assigned(Node) and (Node.Kind in [pkFile]);
+    Action.Enabled := Assigned(Node) and (Node.Kind in [pkDocument, pkFile]);
     if Action.Enabled then
       case Node.Kind of
-        pkFolder: Action.Hint := Format('Open the ''%s'' editro in Windows Explorer.', [Node.LogicalName]);
-        pkFile: Action.Hint := Format('Open the folder containing the ''%s'' editor in Windows Explorer.', [Node.LogicalName]);
+        pkFolder:
+          Action.Hint := Format('Open the ''%s'' editro in Windows Explorer.', [Node.LogicalName]);
+        pkDocument, pkFile:
+          Action.Hint := Format('Open the folder containing the ''%s'' editor in Windows Explorer.', [Node.LogicalName]);
       end
     else
       Action.Hint := 'Cannot open Windows Explorer.';
@@ -1122,7 +1363,7 @@ var
 begin
   if Assigned(ActiveEditor) then begin
     Node := ActiveEditor.Node;
-    if Assigned(Node) and (Node.Kind = pkFile) then
+    if Assigned(Node) and (Node.Kind in [pkDocument, pkFile]) then
       OpenConsole(Node);
   end;
 end;
@@ -1135,11 +1376,13 @@ begin
   if Assigned(ActiveEditor) then begin
     Action := Sender as TAction;
     Node := ActiveEditor.Node;
-    Action.Enabled := Assigned(Node) and (Node.Kind in [pkFile]);
+    Action.Enabled := Assigned(Node) and (Node.Kind in [pkDocument, pkFile]);
     if Action.Enabled then
       case Node.Kind of
-        pkFolder: Action.Hint := Format('Open the ''%s'' editor in console.', [Node.LogicalName]);
-        pkFile: Action.Hint := Format('Open the folder containing the ''%s'' editor in console.', [Node.LogicalName]);
+        pkFolder:
+          Action.Hint := Format('Open the ''%s'' editor in console.', [Node.LogicalName]);
+        pkDocument, pkFile:
+          Action.Hint := Format('Open the folder containing the ''%s'' editor in console.', [Node.LogicalName]);
       end
     else
       Action.Hint := 'Cannot open the console.';
@@ -1149,11 +1392,10 @@ end;
 procedure TCustomWorkForm.LaunchExecuteActionExecute(Sender: TObject);
 var
   Node: TTreeNode;
-  Parameters: String;
+  Parameters: String = '';
 begin
   Node := Navigator.Selected;
   if Assigned(Node) then begin
-    Parameters := EmptyStr;
     if ExecuteFile(Node, Parameters) then begin
       FDirMonitor.Pause;
       try
@@ -1182,8 +1424,7 @@ end;
 procedure TCustomWorkForm.ExportHtmlActionExecute(Sender: TObject);
 var
   Editor: TCustomEditorFrame;
-  FileName: TFileName;
-
+  FileName: TFileName = '';
 begin
   Editor := ActiveEditor;
   if Assigned(Editor) then begin
@@ -1215,25 +1456,33 @@ end;
 
 procedure TCustomWorkForm.FilePrintActionExecute(Sender: TObject);
 var
+  Editor: TCustomEditorFrame;
   Dialog: TPrintDialog;
 begin
-  Dialog := TPrintDialog.Create(nil);
-  try
-    Dialog.Title := 'Print File';
-    if Dialog.Execute then
-      ShowMessage(UNIMPLEMENTED_PROMPT);
-  finally
-    Dialog.Free;
+  Editor := ActiveEditor;
+  if Assigned(Editor) then begin
+    Dialog := TPrintDialog.Create(nil);
+    try
+      Dialog.Title := 'Print File';
+      Dialog.Options := [poPageNums, poSelection, poDisablePrintToFile];
+      if Dialog.Execute then
+        Editor.PrintFile(Dialog);
+    finally
+      Dialog.Free;
+    end;
   end;
 end;
 
 procedure TCustomWorkForm.FindActionExecute(Sender: TObject);
+var
+  Editor: TCustomEditorFrame;
 begin
-  SetSearchMethod(TSearchBy((Sender as TAction).Tag));
-  if Assigned(ActiveEditor) then begin
-    FSearchFrame.ValidActions := ActiveEditor.ValidActions;
+  SetSearchMethod(TSearchMode((Sender as TAction).Tag));
+  Editor := ActiveEditor;
+  if Assigned(Editor) then begin
+    FSearchFrame.WriteCache(Editor.SearchCache);
     if FSearchFrame.Criteria.IsEmpty then
-      FSearchFrame.Criteria := ActiveEditor.SelectedText;
+      FSearchFrame.Criteria := Editor.SelectedText;
   end;
 end;
 
@@ -1244,7 +1493,7 @@ begin
   Action := Sender as TAction;
   Action.Enabled := Assigned(ActiveEditor);
   if Action.Enabled then
-    Action.Checked := TSearchBy(Action.Tag) = FSearchFrame.SearchBy
+    Action.Checked := TSearchMode(Action.Tag) = FSearchFrame.SearchMode
   else
     Action.Checked := False;
 end;
@@ -1275,7 +1524,7 @@ var
 begin
   Stop := FItinerary.GoForward;
   if Assigned(Stop) then
-    SelectNode(Stop.Node, Stop.LineNumber);
+    SelectNode(Stop);
 end;
 
 procedure TCustomWorkForm.ForwardActionUpdate(Sender: TObject);
@@ -1289,7 +1538,7 @@ var
 begin
   Stop := FItinerary.GoBack;
   if Assigned(Stop) then
-    SelectNode(Stop.Node, Stop.LineNumber);
+    SelectNode(Stop);
 end;
 
 procedure TCustomWorkForm.BackwardActionUpdate(Sender: TObject);
@@ -1297,56 +1546,21 @@ begin
   (Sender as TAction).Enabled := not FItinerary.IsFirst;
 end;
 
-procedure TCustomWorkForm.MoveLeftActionExecute(Sender: TObject);
+procedure TCustomWorkForm.JumpActionExecute(Sender: TObject);
+var
+  Stop: TStop;
 begin
-  WorkPages.ActivePage.PageIndex := WorkPages.ActivePage.TabIndex - 1;
-end;
-
-procedure TCustomWorkForm.MoveLeftActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := WorkPages.ActivePageIndex > 0;
-end;
-
-procedure TCustomWorkForm.MoveFarLeftActionExecute(Sender: TObject);
-begin
-  WorkPages.ActivePage.PageIndex := 0;
-end;
-
-procedure TCustomWorkForm.MoveFarLeftActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := WorkPages.ActivePageIndex > 1;
-end;
-
-procedure TCustomWorkForm.MoveRightActionExecute(Sender: TObject);
-begin
-  WorkPages.ActivePage.PageIndex := WorkPages.ActivePage.TabIndex + 1;
-end;
-
-procedure TCustomWorkForm.MoveRightActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := (WorkPages.ActivePageIndex > -1) and (WorkPages.ActivePageIndex < WorkPages.PageCount - 1);
-end;
-
-procedure TCustomWorkForm.MoveFarRightActionExecute(Sender: TObject);
-begin
-  WorkPages.ActivePage.PageIndex := WorkPages.PageCount - 1;
-end;
-
-procedure TCustomWorkForm.MoveFarRightActionUpdate(Sender: TObject);
-begin
-  (Sender as TAction).Enabled := (WorkPages.ActivePageIndex > -1) and (WorkPages.ActivePageIndex < WorkPages.PageCount - 2);
+  Stop := (Sender as TMenuItem).Stop;
+  SelectNode(Stop);
 end;
 
 procedure TCustomWorkForm.RefreshActionExecute(Sender: TObject);
-var
-  OldCursor: TCursor;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     RefreshView;
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 
@@ -1411,7 +1625,7 @@ const
   STYLES: array[Boolean] of TFontStyles = ([], [fsBold]);
 var
   Font: TFont;
-  IsFolder: Boolean;
+  IsFolder: Boolean = False;
 begin
   Font := Sender.Canvas.Font;
   IsFolder := Node.Kind = pkFolder;
@@ -1434,7 +1648,7 @@ var
   View: TListView;
   Item: TListItem;
   Node: TTreeNode;
-  LineNumber: Integer;
+  LineNumber: Integer = 0;
 begin
   Page := StatusPages.ActivePage;
   if Assigned(Page) and (Page.Tag > 0) then begin
@@ -1449,7 +1663,7 @@ begin
             WorkPages.ActivePage := Node.Page
           else
             Node.Page := OpenFile(Node);
-          LineNumber := Item.SubItems[0].ToInteger + 1;
+          LineNumber := Item.SubItems[0].ToInteger;
           FItinerary.Post(Node, LineNumber);
           ActiveEditor.GotoLine(LineNumber);
         end;
@@ -1471,8 +1685,21 @@ begin
     if Assigned(Editor) then begin
       CheckIfModified(Editor.Node);
       Navigator.Selected := Editor.Node;
-      FSearchFrame.ValidActions := Editor.ValidActions;
+      FSearchFrame.WriteCache(Editor.SearchCache);
     end;
+  end;
+end;
+
+procedure TCustomWorkForm.WorkPagesChanging(Sender: TObject; var AllowChange: Boolean);
+var
+  Page: TTabSheet;
+  Editor: TCustomEditorFrame;
+begin
+  Page := WorkPages.ActivePage;
+  if Assigned(Page) then begin
+    Editor := Page.Editor;
+    if Assigned(Editor) then
+      FSearchFrame.ReadCache(Editor.SearchCache);
   end;
 end;
 
@@ -1483,7 +1710,7 @@ var
 begin
   if ForFile then
     if First then
-      WasFound := FindFirstFile(Criteria, Backwards)
+      WasFound := FindFirstFile(Criteria, MatchCase, MatchWholeWordOnly, Backwards)
     else
       WasFound := FindNextFile(Backwards)
   else begin
@@ -1524,11 +1751,6 @@ begin
   end;
 end;
 
-procedure TCustomWorkForm.DoRetrieveLabels(Sender: TObject; List: TStrings);
-begin
-  RetrieveLabels(List);
-end;
-
 procedure TCustomWorkForm.DoGotoLine(Sender: TObject; LineNumber: Integer);
 var
   Editor: TCustomEditorFrame;
@@ -1558,8 +1780,8 @@ end;
 procedure TCustomWorkForm.AdjustSymbolFile(Sender: TObject);
 var
   Temp: TStringList;
-  I: Integer;
-  L: String;
+  I: Integer = 0;
+  L: String = '';
 begin
   FDirMonitor.Resume;
   Temp := TStringList.Create;
@@ -1578,6 +1800,7 @@ begin
     Temp.Free;
     FSymbolFileName := EmptyStr;
   end;
+  ChildAction.Execute;
 end;
 
 procedure TCustomWorkForm.WindowClickHandler(Sender: TObject);
@@ -1585,65 +1808,22 @@ begin
   BringToFront;
 end;
 
-procedure TCustomWorkForm.WorkPagesDragDrop(Sender, Source: TObject; X, Y: Integer);
-var
-  SenderPages: TPageControl;
-  SourcePages: TPageControl;
-
-  procedure DoTabDragDrop(Sender, Source: TPageControl; X, Y: Integer);
-  var
-    SourceIndex: Integer;
-    TargetIndex: Integer;
-    ATabSheet: TTabSheet;
-  begin
-     if Sender = Source then begin
-       TargetIndex := GetTabIndex(Sender, X, Y);
-       if TargetIndex > -1  then begin
-         if TargetIndex > Sender.ActivePage.PageIndex then
-           Dec(TargetIndex);
-         Sender.ActivePage.PageIndex := TargetIndex;
-       end; end
-     else begin
-       SourceIndex := Source.ActivePage.PageIndex;
-       TargetIndex := GetTabIndex(Sender, X, Y);
-       if TargetIndex > -1 then begin
-         ATabSheet := Source.Pages[SourceIndex];
-         ATabSheet.PageControl := Sender;
-         ATabSheet.PageIndex := TargetIndex;
-       end;
-    end;
-  end;
-
+procedure TCustomWorkForm.AlternateRowColor(Sender: TCustomListView; Item: TListItem;
+  State: TCustomDrawState; var DefaultDraw: Boolean);
 begin
-  Exit;
-  if (Sender is TPageControl) and (Source is TPageControl) then begin
-    SenderPages := Sender as TPageControl;
-    SourcePages := Source as TPageControl;
-    DoTabDragDrop(SenderPages, SourcePages, X, Y);
-    SourcePages.EndDrag(True);
-  end;
+  Sender.Canvas.Brush.Color := STRIPES[Odd(Item.Index)];
 end;
 
-procedure TCustomWorkForm.WorkPagesDragOver(Sender, Source: TObject; X, Y: Integer;
-  State: TDragState; var Accept: Boolean);
-var
-  SenderPages: TPageControl;
+procedure TCustomWorkForm.TextColumn(Sender: TCustomListView; Item: TListItem; SubItem: Integer;
+  State: TCustomDrawState; var DefaultDraw: Boolean);
+const
+  FONT_NAME = 'Courier New';
 begin
-  Exit;
-  if Sender is TPageControl then begin
-    SenderPages := Sender as TPageControl;
-    SenderPages.Repaint;
-    if State <> dsDragLeave then
-      Accept := True;
+  Sender.Canvas.Brush.Color := STRIPES[Odd(Item.Index)];
+  if SubItem = 2 then begin
+    Sender.Canvas.Font.Name := FONT_NAME;
+    Sender.Canvas.TextOut(2, 2, Item.SubItems[SubItem - 1]);
   end;
-end;
-
-procedure TCustomWorkForm.WorkPagesMouseDown(Sender: TObject; Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
-begin
-  Exit;
-  if (Sender is TPageControl) then
-    (Sender as TPageControl).BeginDrag(False);
 end;
 
 function TCustomWorkForm.GetIsModified: Boolean;
@@ -1662,6 +1842,16 @@ begin
   Result := False;
 end;
 
+function TCustomWorkForm.GetFilter: String;
+begin
+  Result := NavigatorFilterEdit.Text;
+end;
+
+procedure TCustomWorkForm.SetFilter(const Value: String);
+begin
+  NavigatorFilterEdit.Text := Value;
+end;
+
 function TCustomWorkForm.GetActiveEditor: TCustomEditorFrame;
 begin
   if Assigned(WorkPages.ActivePage) then
@@ -1670,12 +1860,12 @@ begin
     Result := nil;
 end;
 
-procedure TCustomWorkForm.SetSearchMethod(Method: TSearchBy);
+procedure TCustomWorkForm.SetSearchMethod(Method: TSearchMode);
 begin
-  if FSearchFrame.SearchBy = Method then
-    FSearchFrame.SearchBy := sbNone
+  if FSearchFrame.SearchMode = Method then
+    FSearchFrame.SearchMode := smNone
   else
-    FSearchFrame.SearchBy := Method;
+    FSearchFrame.SearchMode := Method;
 end;
 
 procedure TCustomWorkForm.SelectNode(Node: TTreeNode; LineNumber: Integer);
@@ -1684,16 +1874,25 @@ begin
     case Node.Kind of
       pkFolder:
         Node.Expand(False);
-      pkFile:
+      pkDocument, pkFile:
         if Assigned(Node.Page) then begin
           WorkPages.ActivePage := Node.Page;
-          WorkPages.ActivePage.Editor.GotoLine(LineNumber);
-        end
+          WorkPages.ActivePage.Editor.GotoLine(LineNumber); end
         else begin
           Node.Page := OpenFile(Node);
-          FItinerary.Post(Node, 1);
+          Node.Status := Node.Page.Status;
+          WorkPages.ActivePage.Editor.GotoLine(LineNumber);
+          FItinerary.Post(Node, LineNumber);
         end;
     end;
+end;
+
+procedure TCustomWorkForm.SelectNode(Stop: TStop);
+begin
+  if Assigned(Stop) then begin
+    SelectNode(Stop.Node, Stop.LineNumber);
+    FItinerary.SetIndex(Stop.Index);
+  end;
 end;
 
 function TCustomWorkForm.OpenFile(Node: TTreeNode): TTabSheet;
@@ -1703,18 +1902,17 @@ begin
   Result := TTabSheet.Create(WorkPages);
   Result.Caption := Node.ShortName;
   Result.PageControl := WorkPages;
-  Result.ImageIndex := 2;
-  if Config.IsEditableFile(Node.ShortName) then
-    Editor := TSyntaxEditorFrame.Create(Result)
-  else
-    Editor := THexEditorFrame.Create(Result);
+  Result.ImageIndex := Node.ImageIndex;
+  Editor := EditorFactory(Node.ShortName).Create(Result);
   Editor.Parent := Result;
   Editor.Align := alClient;
+  Editor.RefreshConfig;
   Editor.Open(Result, Node);
   Editor.ReadOnly := Config.IsReadonlyFile(Node.ShortName);
   Editor.OnLog := LogHandler;
   Editor.OnFindIdentifier := FindIdentifier;
   WorkPages.ActivePage := Result;
+  FSearchFrame.WriteCache(Editor.SearchCache);
 end;
 
 procedure TCustomWorkForm.CloseFile(Page: TTabSheet);
@@ -1729,21 +1927,23 @@ begin
       if Editor.IsModified then
         if MessageDlg(Format(PROMPT, [Editor.LogicalName]), mtWarning, [mbYes, mbNo], 0) = mrYes then
           Editor.Save;
-      Editor.Node.Page := nil;
+    Editor.Node.Page := nil;
     Page.Free;
   end;
 end;
 
 procedure TCustomWorkForm.DeleteFolderNode(Node: TTreeNode);
 var
-  I: Integer;
+  I: Integer = 0;
   Child: TTreeNode;
 begin
   for I := Node.Count - 1 downto 0 do begin
     Child := Node.Items[I];
     case Child.Kind of
-      pkFolder: DeleteFolderNode(Child);
-      pkFile: DeleteFileNode(Child);
+      pkFolder:
+        DeleteFolderNode(Child);
+      pkDocument, pkFile:
+        DeleteFileNode(Child);
     end;
   end;
   if DeleteDirectory(Node.FullName, False) then
@@ -1783,16 +1983,16 @@ const
   SHELL = 'explorer.exe';
   PARAM = '/select,"%s"';
 var
-  FolderName: TFileName;
-  Parameters: String;
+  FolderName: TFileName = '';
+  Parameters: String = '';
 begin
-  if Assigned(Node) and (Node.Kind in [pkFolder, pkFile]) then begin
+  if Assigned(Node) and (Node.Kind in [pkFolder, pkDocument, pkFile]) then begin
     case Node.Kind of
       pkFolder: begin
         FolderName := Node.FullName;
         Parameters := Node.FullName;
         end;
-      pkFile: begin
+      pkDocument, pkFile: begin
         FolderName := ExtractFilePath(Node.FullName);
         Parameters := Format(PARAM, [Node.FullName]);
         end;
@@ -1806,13 +2006,13 @@ const
   SHELL = 'cmd.exe';
   MASK = '/K "cd /d "%s""';
 var
-  FolderName: TFileName;
+  FolderName: TFileName = '';
 begin
-  if Assigned(Node) and (Node.Kind in [pkFolder, pkFile]) then begin
+  if Assigned(Node) and (Node.Kind in [pkFolder, pkDocument, pkFile]) then begin
     case Node.Kind of
       pkFolder:
         FolderName := Node.FullName;
-      pkFile:
+      pkDocument, pkFile:
         FolderName := ExtractFilePath(Node.FullName);
     end;
     ShellExecute(0, nil, PChar(SHELL), PChar(Format(MASK, [FolderName])), PChar(FolderName), SW_NORMAL);
@@ -1859,43 +2059,29 @@ begin
       Result := SearchNode(Node.GetNext, FileName);
 end;
 
-function TCustomWorkForm.FindFirstFile(const FileName: TFileName; Backwards: Boolean): Boolean;
+
+function TCustomWorkForm.FindFirstFile(const FileName: TFileName; MatchCase: Boolean; WholeWord: Boolean; Backwards: Boolean): Boolean;
 begin
-  FFindFileName := FileName;
-  FFindNode := Navigator.TopItem;
-  Result := AnsiSameText(FFindNode.ShortName, FileName);
+  FindFileList.FileName := FileName;
+  FindFileList.WordCase := MatchCase;
+  FindFileList.WholeWord := WholeWord;
+  FindFileList.Backwards := Backwards;
+  Result := FindFileList.Populate;
   if Result then
-    Navigator.Selected := FFindNode
-  else
-    Result := FindNextFile(Backwards);
+    Navigator.Selected := FindFileList.Node;
 end;
 
 function TCustomWorkForm.FindNextFile(Backwards: Boolean): Boolean;
-var
-  OldColor: TColor;
 begin
-  Result := false;
-  repeat
-    if Backwards then
-      FFindNode := FFindNode.GetPrev
-    else
-      FFindNode := FFindNode.GetNext;
-    if not Assigned(FFindNode) then begin
-      FFindFileName :=  EmptyStr;
-      OldColor := Navigator.Color;
-      Navigator.Color := clRed;
-      try
-        Application.ProcessMessages;
-        Beep;
-      finally
-        Navigator.Color := OldColor;
-      end;
-      Break;
-    end;
-    Result := AnsiSameText(FFindNode.ShortName, FFindFileName);
-    if Result then
-      Navigator.Selected := FFindNode
-  until Result or not Assigned(FFindNode);
+  if Backwards then
+    Result := FindFileList.Prev
+  else
+    Result := FindFileList.Next;
+  if Result then
+    Navigator.Selected := FindFileList.Node
+  else
+    Flash(Navigator);
+  Result := True;
 end;
 
 procedure TCustomWorkForm.SetNavigatorVisible(Value: Boolean);
@@ -1928,6 +2114,87 @@ begin
   try
     Engine.Criteria := Criteria;
     Engine.Filter := Filter;
+    Engine.Execute;
+  finally
+    Engine.Free;
+  end;
+end;
+
+procedure TCustomWorkForm.PopulateChildren(Node: TTreeNode; MasterList: TStringList);
+var
+  FileList: TStringList;
+
+  procedure ClearList(ParentNode: TTreeNode; List: TStringList);
+  var
+    I: Integer;
+    Node: TTreeNode;
+    J: Integer;
+  begin
+    for I := ParentNode.Count - 1 downto 0 do begin
+      Node := ParentNode.Items[I];
+      J := List.IndexOf(Node.FullName);
+      if J > -1 then
+        List.Delete(J);
+    end;
+  end;
+
+  procedure ClearNode(ParentNode: TTreeNode; List: TStringList);
+  var
+    I: Integer;
+    Node: TTreeNode;
+  begin
+    for I := ParentNode.Count - 1 downto 0 do begin
+      Node := ParentNode.Items[I];
+      if List.IndexOf(Node.FullName) < 0 then
+        Node.Delete;
+    end;
+  end;
+
+  procedure UpdateNode(ParentNode: TTreeNode; List: TStringList);
+  var
+    FileName: String;
+    Node: TTreeNode;
+    Attribute: TFileAttribute;
+  begin
+    for FileName in List do begin
+      Attribute := TFileAttribute.CreateFile(FileName, FFolderName);
+      Node := Navigator.Items.AddChild(ParentNode, Attribute.ShortName);
+      Node.ImageIndex := WHITE_FILE_INDEX;
+      Node.SelectedIndex := BLACK_FILE_INDEX;
+      Node.Data := Attribute;
+    end;
+  end;
+
+  procedure UpdateList(List: TStringList; MasterList: TStringList);
+  var
+    FileName: String;
+  begin
+    if Assigned(MasterList) then
+      for FileName in List do
+        if MasterList.IndexOf(FileName) < 0 then
+          MasterList.Add(FileName);
+  end;
+
+begin
+  if Assigned(Node) then begin
+    FileList := Utils.GetChildren(Node.FullName);
+    try
+      ClearList(Node, FileList);
+//    ClearNode(Node, FileList);
+      UpdateNode(Node, FileList);
+      UpdateList(FileList, MasterList);
+    finally
+      FileList.Free;
+    end;
+  end;
+end;
+
+procedure TCustomWorkForm.CleanDocuments;
+var
+  Engine: TDocumentCleanEngine;
+begin
+  Engine := TDocumentCleanEngine.Create(Self);
+  try
     Engine.Execute;
   finally
     Engine.Free;
@@ -1985,20 +2252,28 @@ end;
 procedure TCustomWorkForm.DoExecuteComplete(Sender: TObject);
 begin
   FDirMonitor.Resume;
+  ChildAction.Execute;
+end;
+
+function TCustomWorkForm.DoUploadFile(const FileName: TFileName): Boolean;
+begin
+  Result := Assigned(FOnFileUpload);
+  if Result then
+    FOnFileUpload(Self, FileName, Result);
+end;
+
+function TCustomWorkForm.IsTerminalAvailable: Boolean;
+begin
+  Result := Assigned(FOnTerminalQuery);
+  if Result then
+    FOnTerminalQuery(Self, Result);
 end;
 
 procedure TCustomWorkForm.FindIdentifier(Sender: TObject; const Criteria, Filter: String;
   MatchCase, MatchWholeWordOnly: Boolean);
 begin
+  (Sender as TCustomEditorFrame).Post(FItinerary);
   DoOriginate(Sender, Criteria, Filter);
-end;
-
-procedure TCustomWorkForm.RetrieveLabels(List: TStrings);
-begin
-  if Assigned(ActiveEditor) then
-    ActiveEditor.RetrieveLabels(List)
-  else
-    List.Clear;
 end;
 
 procedure TCustomWorkForm.CheckIfModified(Node: TTreeNode);
@@ -2015,6 +2290,35 @@ begin
   end;
 end;
 
+procedure TCustomWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
+var
+  IsImage: Boolean = False;
+  WindowMenu: TMenuItem;
+begin
+  FFolderName := FolderName;
+  IsImage := AnsiSameText(ExtractFileExt(FolderName), '.lst');
+  WindowMenu := TMenuItem.Create(Self);
+  WindowMenu.Caption := FolderName;
+  WindowMenu.Hint := Format(JUMP_MASK, [FolderName]);
+  WindowMenu.Tag := IMAGE_INDEX[IsImage];
+  WindowMenu.ImageIndex := WindowMenu.Tag;
+  WindowMenu.GroupIndex := 5;
+  WindowMenu.OnClick := WindowClickHandler;
+  ParentMenu.Add(WindowMenu);
+  Caption := FFolderName;
+  RefreshView;
+  FSearchFrame.ReadConfig(FolderName);
+  if Config.MonitorFolder then begin
+    FDirMonitor.Directory := FolderName;
+    FDirMonitor.Start
+  end;
+end;
+
+procedure TCustomWorkForm.CloseAll;
+begin
+  CloseAllFileAction.Execute;
+end;
+
 procedure TCustomWorkForm.Idle;
 begin
   if Assigned(ActiveEditor) then
@@ -2023,12 +2327,118 @@ end;
 
 procedure TCustomWorkForm.RefreshConfig;
 var
-  I: Integer;
+  I: Integer = 0;
   Page: TTabSheet;
 begin
   for I := 0 to WorkPages.PageCount - 1 do begin
     Page := WorkPages.Pages[I];
     Page.Editor.RefreshConfig;
+  end;
+end;
+
+{ TCustomWorkForm.TFindFileList }
+
+constructor TCustomWorkForm.TFindFileList.Create(View: TTreeView);
+begin
+  inherited Create(False);
+  FView := View;
+end;
+
+function A(Node: TTreeNode; const Text: String): Boolean;
+begin
+  Result := Node.Visible and AnsiSameStr(Node.ShortName, Text);
+end;
+
+function B(Node: TTreeNode; const Text: String): Boolean;
+begin
+  Result := Node.Visible and AnsiContainsStr(Node.ShortName, Text);
+end;
+
+function C(Node: TTreeNode; const Text: String): Boolean;
+begin
+  Result := Node.Visible and AnsiSameText(Node.ShortName, Text);
+end;
+
+function D(Node: TTreeNode; const Text: String): Boolean;
+begin
+  Result := Node.Visible and AnsiContainsText(Node.ShortName, Text);
+end;
+
+function TCustomWorkForm.TFindFileList.Populate: Boolean;
+type
+  TCompare = function(Node: TTreeNode; const Text: String): Boolean;
+  TCompares = array[Boolean, Boolean] of TCompare;
+var
+  Compares: TCompares;
+  Compare: TCompare;
+  Node: TTreeNode;
+begin
+  Clear;
+  FNodeIndex := -1;
+  FNode := nil;
+  Compares[True, True]   := A;
+  Compares[True, False]  := B;
+  Compares[False, True]  := C;
+  Compares[False, False] := D;
+  Compare := Compares[WordCase, WholeWord];
+  FView.Items.BeginUpdate;
+  try
+    Node := FView.TopItem;
+    while Assigned(Node) do begin
+      if Compare(Node, FileName) then
+        Add(Node);
+      Node := Node.GetNext;
+    end;
+  finally
+    FView.Items.EndUpdate;
+  end;
+  Result := Count > 0;
+  if Result then
+    if Backwards then
+      Result := Last
+    else
+      Result := First;
+end;
+
+function TCustomWorkForm.TFindFileList.First: Boolean;
+begin
+  Result := Count > 0;
+  if Result then begin
+    FNodeIndex := 0;
+    FNode := Items[FNodeIndex]; end
+  else begin
+    FNodeIndex := -1;
+    FNode := nil;
+  end;
+end;
+
+function TCustomWorkForm.TFindFileList.Prev: Boolean;
+begin
+  Result := FNodeIndex > 0;
+  if Result then begin
+    Dec(FNodeIndex);
+    FNode := Items[FNodeIndex]
+  end;
+end;
+
+function TCustomWorkForm.TFindFileList.Next: Boolean;
+begin
+  Result := FNodeIndex < Count - 1;
+  if Result then begin
+    Inc(FNodeIndex);
+    FNode := Items[FNodeIndex]
+  end;
+end;
+
+function TCustomWorkForm.TFindFileList.Last: Boolean;
+begin
+  Result := Count > 0;
+  if Result then begin
+    FNodeIndex := Count - 1;
+    FNode := Items[FNodeIndex]; end
+  else begin
+    FNodeIndex := -1;
+    FNode := nil;
   end;
 end;
 
@@ -2051,17 +2461,29 @@ begin
     FOnIterate(Self, Node, MayContinue);
 end;
 
-procedure TNavigatorIterator.Execute;
+procedure TNavigatorIterator.Forward;
 var
-  MayContinue: Boolean;
+  MayContinue: Boolean = True;
   Node: TTreeNode;
 begin
-  MayContinue := True;
   Node := Navigator.TopItem;
   while Assigned(Node) and MayContinue do begin
-    if Node.Kind = pkFile then
+    if Node.Kind in [pkDocument, pkFile] then
       DoIterate(Node, MayContinue);
     Node := Node.GetNext;
+  end;
+end;
+
+procedure TNavigatorIterator.Backward;
+var
+  MayContinue: Boolean = True;
+  Node: TTreeNode;
+begin
+  Node := Navigator.BottomItem;
+  while Assigned(Node) and MayContinue do begin
+    if Node.Kind in [pkDocument, pkFile] then
+      DoIterate(Node, MayContinue);
+    Node := Node.GetPrev;
   end;
 end;
 
@@ -2088,26 +2510,14 @@ end;
 
 procedure TGlobalSearchEngine.DoIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
 var
-  I: Integer;
-  L: String;
+  I: Integer = 0;
+  L: String = '';
   Item: TListItem;
-
-  function IsValidNode(const FileName: TFileName): Boolean;
-  var
-    Extention: String;
-  begin
-    Result := False;
-    for Extention in FExtensions do
-      if MatchesMask(FileName, Extention) then begin
-        Result := True;
-        Break;
-      end;
-  end;
 
   function WordExists(const Value: String; const Criteria:string; Options: TStringSearchOptions): Boolean;
   var
     Buffer: PChar;
-    Size : Integer;
+    Size : Integer = 0;
   begin
     Result := not Value.IsEmpty;
     if Result then begin
@@ -2118,7 +2528,7 @@ var
   end;
 
 begin
-  if IsValidNode(Node.ShortName) then begin
+  if MatchesMaskList(Node.ShortName, FFilter) then begin
     FBuffer.LoadFromFile(Node.FullName);
     try
       for I := 0 to FBuffer.Count - 1 do begin
@@ -2127,8 +2537,8 @@ begin
           Item := FReport.Items.Add;
           Item.Caption := Node.LogicalName;
           Item.Data := Node;
-          Item.SubItems.Add(I.ToString);
-          Item.SubItems.Add(L);
+          Item.SubItems.Add((I + 1).ToString);
+          Item.SubItems.Add(Tab2Space(L, 4));
           Item.ImageIndex := 2;
         end;
       end;
@@ -2147,15 +2557,13 @@ const
 var
   Page: TTabSheet;
 
-  procedure AddColumn(View: TListView; const Caption: String; Width: Integer; Alignment: TAlignment; AutoSize: Boolean);
-  var
-    Column: TListColumn;
+  function AddColumn(View: TListView; const Caption: String; Width: Integer; Alignment: TAlignment; AutoSize: Boolean = False): TListColumn;
   begin
-    Column := View.Columns.Add;
-    Column.Caption := Caption;
-    Column.Alignment := Alignment;
-    Column.Width := Width;
-    Column.AutoSize := AutoSize;
+    Result := View.Columns.Add;
+    Result.Caption := Caption;
+    Result.Alignment := Alignment;
+    Result.Width := Width;
+    Result.AutoSize := AutoSize;
   end;
 
 begin
@@ -2173,9 +2581,11 @@ begin
   Result.RowSelect := True;
   Result.ViewStyle := vsReport;
   Result.SmallImages := FImages;
+  Result.OnCustomDrawItem := FProject.AlternateRowColor;
+  Result.OnCustomDrawSubItem := FProject.TextColumn;
   Result.OnDblClick := FProject.SearchEditDblClick;
-  AddColumn(Result, 'File', 200, taLeftJustify, False);
-  AddColumn(Result, 'Line', 50, taRightJustify, False);
+  AddColumn(Result, 'File', 200, taLeftJustify);
+  AddColumn(Result, 'Line', 50, taRightJustify);
   AddColumn(Result, 'Text', 362, taLeftJustify, True);
   Page.Tag := Integer(Result);
   FPages.ActivePage := Page;
@@ -2188,11 +2598,10 @@ begin
     FOptions := FOptions + [soMatchCase];
   if FMatchWholeWordOnly then
     FOptions := FOptions + [soWholeWord];
-  FExtensions := SplitString(Filter, ';');
   FReport := GeneratePage;
   FReport.Items.BeginUpdate;
   try
-    FEngine.Execute;
+    FEngine.Forward;
   finally
     FReport.Items.EndUpdate;
   end;
@@ -2221,35 +2630,16 @@ end;
 
 procedure TGlobalOriginateEngine.DoIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
 var
-  I: Integer;
-  L: String;
-  Item: TListItem;
-
-  function IsValidNode(const FileName: TFileName): Boolean;
-  var
-    Extention: String;
-  begin
-    Result := False;
-    for Extention in FExtensions do
-      if MatchesMask(FileName, Extention) then begin
-        Result := True;
-        Break;
-      end;
-  end;
-
+  I: Integer = 0;
+  L: String = '';
 begin
-  if IsValidNode(Node.ShortName) then begin
+  if MatchesMaskList(Node.ShortName, FFilter) then begin
     FBuffer.LoadFromFile(Node.FullName);
     try
       for I := 0 to FBuffer.Count - 1 do begin
         L := FBuffer[I];
         if AnsiStartsText(Criteria, L) then begin
-          Item := FReport.Items.Add;
-          Item.Caption := Node.LogicalName;
-          Item.Data := Node;
-          Item.SubItems.Add(I.ToString);
-          Item.SubItems.Add(L);
-          Item.ImageIndex := 2;
+          FProject.SelectNode(Node, I + 1);
           MayContinue := False;
           Break;
         end;
@@ -2261,58 +2651,9 @@ begin
   end;
 end;
 
-function TGlobalOriginateEngine.GeneratePage: TListView;
-const
-  NAME_MASK = 'SearchPage_%d';
-  CAPTION_MASK = 'Results: ''%s''';
-  HINT_MASK = 'Criteria = ''%s''';
-var
-  Page: TTabSheet;
-
-  procedure AddColumn(View: TListView; const Caption: String; Width: Integer; Alignment: TAlignment; AutoSize: Boolean);
-  var
-    Column: TListColumn;
-  begin
-    Column := View.Columns.Add;
-    Column.Caption := Caption;
-    Column.Alignment := Alignment;
-    Column.Width := Width;
-    Column.AutoSize := AutoSize;
-  end;
-
-begin
-  Inc(Search_Index);
-  Page := TTabSheet.Create(FPages);
-  Page.PageControl := FPages;
-  Page.Name := Format(NAME_MASK, [Search_Index]);
-  Page.Caption := Format(CAPTION_MASK, [Criteria]);
-  Page.Hint := Format(HINT_MASK, [Criteria]);
-  Page.Visible := True;
-  Result := TListView.Create(Page);
-  Result.Parent := Page;
-  Result.Align := alClient;
-  Result.ReadOnly := True;
-  Result.RowSelect := True;
-  Result.ViewStyle := vsReport;
-  Result.SmallImages := FImages;
-  Result.OnDblClick := FProject.SearchEditDblClick;
-  AddColumn(Result, 'File', 200, taLeftJustify, False);
-  AddColumn(Result, 'Line', 50, taRightJustify, False);
-  AddColumn(Result, 'Text', 362, taLeftJustify, True);
-  Page.Tag := Integer(Result);
-  FPages.ActivePage := Page;
-end;
-
 procedure TGlobalOriginateEngine.Execute;
 begin
-  FExtensions := SplitString(Filter, ';');
-  FReport := GeneratePage;
-  FReport.Items.BeginUpdate;
-  try
-    FEngine.Execute;
-  finally
-    FReport.Items.EndUpdate;
-  end;
+  FEngine.Forward;
 end;
 
 { TFileRefreshEngine }
@@ -2344,7 +2685,51 @@ end;
 procedure TFileRefreshEngine.Execute;
 begin
   if not (FAction in [daFileRenamedOldName, daFileRenamedNewName]) then
-    FEngine.Execute;
+    FEngine.Forward;
+end;
+
+{ TDocumentCleanEngine }
+
+constructor TDocumentCleanEngine.Create(Form: TCustomWorkForm);
+begin
+  inherited Create;
+  FEngine := TNavigatorIterator.Create(Form.Navigator);
+  FFiles := TStringList.Create;
+  FNodes := TNodes.Create;
+end;
+
+destructor TDocumentCleanEngine.Destroy;
+begin
+  FNodes.Free;
+  FFiles.Free;
+  FEngine.Free;
+  inherited;
+end;
+
+procedure TDocumentCleanEngine.DoSearchIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
+begin
+  if Node.Kind = pkFile then
+    if FFiles.IndexOf(Node.FullName) < 0 then
+      FFiles.Add(Node.FullName);
+end;
+
+procedure TDocumentCleanEngine.DoCleanIterate(Sender: TObject; Node: TTreeNode; var MayContinue: Boolean);
+begin
+  if Node.Kind = pkDocument then
+    if FFiles.IndexOf(Node.FullName) > -1 then
+      FNodes.Add(Node);
+end;
+
+procedure TDocumentCleanEngine.Execute;
+var
+  Node: TTreeNode;
+begin
+  FEngine.OnIterate:= DoSearchIterate;
+  FEngine.Forward;
+  FEngine.OnIterate := DoCleanIterate;
+  FEngine.Backward;
+  for Node in FNodes do
+    Node.Delete;
 end;
 
 initialization

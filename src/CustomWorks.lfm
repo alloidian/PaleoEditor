@@ -1,12 +1,12 @@
 object CustomWorkForm: TCustomWorkForm
   Left = 40
-  Height = 482
+  Height = 421
   Top = 30
-  Width = 864
-  ActiveControl = Navigator
+  Width = 773
+  ActiveControl = NavigatorFilterEdit
   Caption = 'Project'
-  ClientHeight = 462
-  ClientWidth = 864
+  ClientHeight = 421
+  ClientWidth = 773
   Constraints.MinHeight = 421
   Constraints.MinWidth = 773
   FormStyle = fsMDIChild
@@ -18,12 +18,11 @@ object CustomWorkForm: TCustomWorkForm
   OnShow = FormShow
   Position = poDefaultPosOnly
   ShowHint = True
-  LCLVersion = '2.2.2.0'
   object StatusPages: TPageControl
     Left = 0
     Height = 104
-    Top = 358
-    Width = 864
+    Top = 317
+    Width = 773
     ActivePage = MessagePage
     Align = alBottom
     Constraints.MaxHeight = 300
@@ -36,12 +35,12 @@ object CustomWorkForm: TCustomWorkForm
     object MessagePage: TTabSheet
       Caption = 'Messages'
       ClientHeight = 76
-      ClientWidth = 856
+      ClientWidth = 765
       object LogEdit: TMemo
         Left = 0
         Height = 76
         Top = 0
-        Width = 856
+        Width = 765
         Align = alClient
         Font.Name = 'Courier New'
         ParentFont = False
@@ -56,109 +55,178 @@ object CustomWorkForm: TCustomWorkForm
     Cursor = crVSplit
     Left = 0
     Height = 8
-    Top = 350
-    Width = 864
+    Top = 309
+    Width = 773
     Align = alBottom
     ResizeAnchor = akBottom
     Visible = False
   end
-  object Navigator: TTreeView
+  object NavigatorPanel: TPanel
     Left = 0
-    Height = 350
+    Height = 309
     Top = 0
     Width = 160
     Align = alLeft
-    BorderStyle = bsNone
-    Constraints.MaxWidth = 500
-    Constraints.MinWidth = 160
-    Images = Images
-    PopupMenu = NavigatorPopupMenu
-    ReadOnly = True
-    RightClickSelect = True
+    BevelOuter = bvNone
+    ClientHeight = 309
+    ClientWidth = 160
     TabOrder = 2
-    OnAdvancedCustomDrawItem = NavigatorAdvancedCustomDrawItem
-    OnDblClick = NavigatorDblClick
-    OnDeletion = NavigatorDeletion
-    OnKeyPress = NavigatorKeyPress
-    Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
+    object NavigatorFilterPanel: TPanel
+      Left = 0
+      Height = 32
+      Top = 0
+      Width = 160
+      Align = alTop
+      BevelOuter = bvNone
+      ClientHeight = 32
+      ClientWidth = 160
+      TabOrder = 0
+      object NavigatorFilterEdit: TComboBox
+        Left = 5
+        Height = 23
+        Top = 4
+        Width = 140
+        Anchors = [akTop, akLeft, akRight]
+        ItemHeight = 15
+        OnChange = NavigatorFilterEditChange
+        OnDropDown = NavigatorFilterEditSave
+        OnExit = NavigatorFilterEditSave
+        OnKeyPress = NavigatorFilterEditKeyPress
+        TabOrder = 0
+        TextHint = '(filter)'
+      end
+    end
+    object Navigator: TTreeView
+      Left = 0
+      Height = 277
+      Top = 32
+      Width = 160
+      Align = alClient
+      BorderStyle = bsNone
+      Constraints.MaxWidth = 500
+      Constraints.MinWidth = 160
+      Images = Images
+      PopupMenu = NavigatorPopupMenu
+      ReadOnly = True
+      RightClickSelect = True
+      StateImages = Images
+      TabOrder = 1
+      OnAdvancedCustomDrawItem = NavigatorAdvancedCustomDrawItem
+      OnDblClick = NavigatorDblClick
+      OnDeletion = NavigatorDeletion
+      OnKeyPress = NavigatorKeyPress
+      Options = [tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoRightClickSelect, tvoShowButtons, tvoShowLines, tvoShowRoot, tvoToolTips]
+    end
   end
   object NavigatorSplitter: TSplitter
     Left = 160
-    Height = 350
+    Height = 309
     Top = 0
     Width = 8
   end
   object WorkPanel: TPanel
     Left = 168
-    Height = 350
+    Height = 309
     Top = 0
-    Width = 696
+    Width = 605
     Align = alClient
     BevelOuter = bvNone
-    ClientHeight = 350
-    ClientWidth = 696
+    ClientHeight = 309
+    ClientWidth = 605
     TabOrder = 4
     object SearchPanel: TPanel
-      Left = 440
-      Height = 350
+      Left = 349
+      Height = 309
       Top = 0
       Width = 256
       Align = alRight
       BevelOuter = bvNone
       TabOrder = 0
     end
-    object WorkPages: TPageControl
+    object WorkPages: TExtendedNotebook
       Left = 0
-      Height = 350
+      Height = 309
       Top = 0
-      Width = 440
+      Width = 349
       Align = alClient
       Images = Images
       PopupMenu = EditorMenu
       TabOrder = 1
       OnChange = WorkPagesChange
-      OnDragDrop = WorkPagesDragDrop
-      OnDragOver = WorkPagesDragOver
-      OnMouseDown = WorkPagesMouseDown
+      OnChanging = WorkPagesChanging
+      TabDragMode = dmAutomatic
+      TabDragAcceptMode = dmAutomatic
     end
   end
   object Images: TImageList
     Left = 58
     Top = 64
     Bitmap = {
-      4C7A080000001000000010000000F80300000000000078DAED973B68535118C7
-      6FED203E401D1C9C4A11717272109C1C142727074584A20EA28238084EA2B854
-      05C1C5D7508AAD6D5AF34E9AD2071210A162C14105E9586BF36813D3DA47124D
-      7BFCFED773D29BDBFB3A270591E6831FCDBDCDFF3BE77CF7FCBF7BA2695AB3A6
-      69BB0C6CD7E4E20DD16900D7C724F43ED335C68F12610F3CB6D0CB441F91E239
-      5448D539BEAFA1DFF47AB37F6480D6EC5F199AB5FAE381C9937E629F84BEDF74
-      7D8018226EB970CAA67F205A88232E0CF25E03FD6EE22ED12EC127E222D75F27
-      CEF2716518E1FA0E628F42EDC35C1F56D0EE24BA8800F15A417F94B8497C26EE
-      29E8AF102788DFC46905FD0B622FC188FD8AB543FC249A24B55B78DD10EF14C6
-      3EC8F790A6E8FF61E238D7ABF8DFEA1D9FB479C7BDE7B56EF2584F73B4F1FDFD
-      D4258793FE2471C625879B5E73C9E1A4EF37F8FE23F14842BFC3C2F73109BDD7
-      B536F49B5B9F9438B7260D3A73FFD826D9CB26780F16FC923CFF330B72C49807
-      9ED8E865B8435C5604DA421D63E73760FE0DFE6F26EAD4FEEBF3FF43DE4F0471
-      C9F3BFD5BADE4A9CFF856692F82AC117622BD7DE206E4B9EFFC1396289B8AAF8
-      FC4AFC7CF54C518FDF20CF792F54D17713D7F81A54F438FF5FA863FFE20C7BA9
-      0E3DCEFFF715B5D37CFF0C29EA07B93EA3A86FB7797F7AA152E7F9DFEA1D6FB7
-      87705E38EFE1FCEFA44F7AF80DE1A6672E39BCE89D7238E9DBF8BB5E704842BF
-      4CA44D0C48E8AD186BE81BFA8DD02712F175C4E3512D168BB0818158B7D5FF9D
-      80361C0EB25C2ECFA2D13072486943A1004BA7330C81CFB8871C46ECC70DB04C
-      26C3E6E7E7747D5F5F2F0B06FD3AA1909F615E914848CF69A75D5C5860D3DFA7
-      985D64B3D9EABC8C5ACCB9B8BCCC66E8FF59CA9349A76B40F4F474EB7F310E34
-      D0623EB82E974B2C9FCFAD23979BD541F87CAFD8ECEC4C751ED0624D08AC796E
-      AE6049A1F043FFCEF8F807D64B39C43C443D30FE6A65852D2D2EEAEBB7A25C2E
-      AFAB056A4A5BE830EA914AA5D92ADD2B158B7A1D003E5B512E96AA7AD4702D47
-      4ABF5FA9548815E616914890896768CE617CFE18A79680AEEDECEC081AF7C1DF
-      1C7E7A96E99AF539D062DE87B8BFB6FF4352FBDF9803FEA3F927464686B4D1D1
-      61A7EFDA05E6D7EA76F8769B0B7A00E662F68C17B076F400D4023571CB61F6B9
-      E80708F8CBE83B2BFF0B3FE0B909DF630F087F187D67E57F78CA2ED013E00373
-      0E63EFA8F1B8C9FFE809E80DF005D662F4BF1877EADB2479BC47FF2C7C6FD513
-      D02B309ED1FF1817FD011E47C0F376FD40F447512B73C0EB767D003D02BD428C
-      2FF4F0B49DDF8DFD003D02BD02CF127B143E740BF402F404A66B53552DEA0F0F
-      2307EE997D6E7CFE565AEE9F16278FAFEDBF74B51FA8EE7F19ADA0ABEB6502FE
-      B3D37A8856BE16CBF8034EBA13D2
+      4C7A0C0000001000000010000000FC0700000000000078DAED9A0B50156514C7
+      17757819833773C29AD1A9A69AA62CF1051A164D9694D02026A2A8E435D1AB96
+      6529182AF8CA47BE70AC740A2F724550DE20863A0E953A3EB86A6163E94C93A5
+      022A86262AE4E59ECED9BEC565D9375AE3C837F39B7BBFBDFB3FE7FBCE7EE7EC
+      7E3B97E3B88E1CC7F98BF0E58CB5BD885D04F5430DE8B3247DF25F8414E860AD
+      8CDE48CB46AA980D3354B5D17F56BBFEBED74BF3C708A495E6AF113A726D6FCB
+      253999837437A0DF26E93F899421091A4428D40F6A3D91200D76B25A43FA2E48
+      0AB2D400958895E9DF4762985F23EC66FA34C46222F6054C5F6042FB009281E4
+      22DB4DE807211F2327908526F436E435E41632C2847E23D20D01E40993B1A3F6
+      17E26150DB81C58DDA7E13BE9F666B883399FFBB90214C6F26FF9BEFF1C05A68
+      6828C4C4C4B422282808E2E3E3C1ED76835A8B8C8C943D9E9E9E0E56AB156C36
+      9BAA0D416FB7DB21393999FF14F4656565909D9DAD6A43CD3FE9A9A9D950F31F
+      1D1D0D8989893C8181813073E64CDDFEEBEBEBE1CC99332D888888D0ED5FEF5C
+      95FC1BD50BFEE510C6D4EEFFEEF937AB57CA5F39E85CA1896A52B9C233EE2156
+      6B3D74D653698B63F7B72F346CA8E98722A3346C68E9390D1B6AFA6DA2FBFE31
+      6495017D6799FB7EB101BDDEB9B6EBEF6F7DB9817D6BB948277D7EF031F82C73
+      8A3D8309FC6D70FF0F32D4220775F0B982DE08C9C8649390B6AE0DBE2FDF81F1
+      B7736F73AA8DDAFF7BFFBF82D513811283FB7FB9797D6F60FF2F687E477E36C0
+      4F8817D37E80CC33B8FF27C620D791A926AF5F037BBEFAD2A49EDE416C60B5D0
+      8CDE814C637330A3A7FDFF8436AC5FDAC34E6C839EF6FFCB4C6ACFB3F5536652
+      BF93E96B4CEA972ADC3FF5E06AE3FEDF47BAFF0F0E0E96F545FB0587C3A1B9FF
+      57D3D37E43EB1D82A05FB76E1DECDBB78FFF14EBE9BB9A0D2DFF425FC9869A7F
+      7A07909292D24C6565A56EFF3E3E3E101010D08261C386E9F62F079DABD7BF51
+      BDE05F0E614CEDFEEF9EFFFF5A2FBA0F2BDD4368BF3056C7FE5F4D5FAEE31D82
+      961E346CE8D1ABD950D3C7B1677D815E06F437906A093B0CE8E538D8AE6FD7DF
+      097D6969492B4A4A8AB8E2E242D8B1A3D821F7BB1AA42D28C883DADACB505454
+      40360C69F3F373A1BABA86AF4DF49D8E910D31CA7E73A1A6A606AE5EBDC2DEF7
+      6F85BCBC1C9EFCFC1CA0711516E6F33695B4F5D7AEC1F97367159F532E5CB8D0
+      3C2EB196C67CF3C60DB888BF5F403B35D5D52DA09699E9E03FC90F69484BE3A1
+      7E6363035CBE5CDB8ADADA4B3CD4B2B2B6C0A54B179BC7415A9A13359AF3952B
+      75B2D4D5FDC99F53517104B6A20D611C423CC8BFDBD504D7EBEBF9F9CBD1D8D8
+      D82A1614535C427D291E5555D5404F550D376FF27120E8BB1C8D371B9AF514C3
+      DB36AAF8E32E970B69D27C0F5E589807C23594DA105F7FF2D3925C5E6BB7A7E5
+      89D7C1BF3672F05A56B7989F0A3DA5EB908EDF5EFFF986D6BFD806E51F8EBF74
+      F7EE326ECF9E5D6AE72A351ADF635A9B6FADB1500DA0B14873460F3477AA0114
+      0B8A89960D699E0BF5801AE59738EFE4F25FC807BA6E42DED31A10F2439C7772
+      F94F39A5D4A826501E486D886B478B1C97E43FD504AA0D9417341771FE0B7ECF
+      FEF13BE67826FF5DC87BB99A40B582FC89F39FFC527DA01CA74639AF540F84FA
+      28C44ADA28D795EA00D508AA15827F414F39AD94EFE27A4035826A055D4B5AA3
+      94875A8D6A01D504E0B555CD5A8A3FE530D9A063D23C175F7F392DCB9F9E6A39
+      7E7BFD5537D703B3EBDF88562023637329E59F9256477B8CCD45B6857F30F49E
+      22627374EA1B5F0F4F36A54F1F996A2D990EE30BA640E8DAB03946B4C3EC6FA7
+      4E289E060B7E5C0D730E2D86E8CC38085AF452921EED9B9B46A4C615DA20E5F8
+      4A987F7C058CDAFA0E042F7E19FACE1BE82D9C337E8FEDD5D86FE227B5D2A645
+      A5D278E71F5B0EF38E2DE3FD0E5810E2EA3337F8B676B72D2476E7A4AAE9DF26
+      C2DB39E36708C7314EA9E3F227C3DCA3CB20E9E8A73072CB78E89FF2A22B3029
+      A8593B6ED794D7C7944E3A97787809241F5B099199A35D18A719615F457E169B
+      1B0F49CE259058B1184638C642BFE441AEDE9F0CF0168F6FF48E777D620AAD30
+      75EF2C5854B906E61C5E0C71C536A038271C5E0809150B202A2316FACE1FD8D4
+      7B4E7F6FB9F84465C7FAA25FB0964EE7E7F889F35398752405661D4E81E19B47
+      539CDC2F24F6F3568D715A946FD8C64818933311661F59001F1D9A0791F618C0
+      38B99F4F50D70ABC921AE6FBF2AAD761048EF7AD4DD1807172F79ADDD7DBC83A
+      C1EBEA3B606108609C6EF59AD5C7CBCC3AC538F93EF771A0D7BD969B771B8EDB
+      86B57ABB130933AECDEC825BF9C284047AE7918536B2C2F46B333C39CEB169C8
+      9093B556EB459831A3C1857DA73EADDD83E3D29704061E381F15751AC2C34FDE
+      F2F7CF39C1719BC35B9EF75518E2A44FC9715B8F1E25BF86861E7287841C687A
+      F0C16DBF70DCD7135B9EF3056ABF747EF86163137D529F1D0FEFD469E3898080
+      0C57D7AE696E4FCF0DA7F1F7A4D6635CE79C32E5EADF83071F80B8B81A17F591
+      F73A74585FE1EFEF68B058B68097D786DFF0D84A8E5BDFA1B57E35FA5FE51C3E
+      FCD7C6871E2A86C1837F68A0BE9FDFF66B164B11F8F8A49DC3FE268E5BE3AD1C
+      A7656863A9B377EF23372C967278EA2927D067E7CED917F1783EC7ADE8A21DEB
+      456863A1B37BF7EFEA2D1627F8F995D679782CDAC3714B1ED57FAD47A18D994E
+      5FDFAD351E1EB3F763FF196D0DFF7F407FF62CD10B6FB7F11C1787317C7624F6
+      9F411E471E41BAB2FF5D7AD23B28919EDE4779B3FFA13ECCCEEDCEBE7763FF0D
+      F563FFDBF364EFFC3DEE444EFD0362773468
     }
   end
   object MainMenu: TMainMenu
@@ -290,6 +358,9 @@ object CustomWorkForm: TCustomWorkForm
       object ViewForwardMenu: TMenuItem
         Action = ForwardAction
       end
+      object ViewJumpMenu: TMenuItem
+        Caption = 'Jump &List'
+      end
       object ViewBackwardMenu: TMenuItem
         Action = BackwardAction
       end
@@ -414,6 +485,21 @@ object CustomWorkForm: TCustomWorkForm
       Hint = 'Delete the selected folder and all of its contents.'
       OnExecute = DeleteFolderActionExecute
       OnUpdate = DeleteFolderActionUpdate
+    end
+    object UploadFileAction: TAction
+      Caption = '&Upload File…'
+      OnExecute = UploadFileActionExecute
+      OnUpdate = UploadFileActionUpdate
+    end
+    object CopyFileAction: TAction
+      Caption = 'Copy File to A:'
+      OnExecute = CopyFileActionExecute
+      OnUpdate = CopyFileActionUpdate
+    end
+    object ChildAction: TAction
+      Caption = 'Add &Children'
+      OnExecute = ChildActionExecute
+      OnUpdate = ChildActionUpdate
     end
     object ExpandAllAction: TAction
       Caption = '&Expand All'
@@ -558,7 +644,7 @@ object CustomWorkForm: TCustomWorkForm
     object BackwardAction: TAction
       Caption = 'Jump &Backward'
       Hint = 'Move to last visisted fie.'
-      ImageIndex = 6
+      ImageIndex = 8
       OnExecute = BackwardActionExecute
       OnUpdate = BackwardActionUpdate
       ShortCut = 32805
@@ -566,34 +652,10 @@ object CustomWorkForm: TCustomWorkForm
     object ForwardAction: TAction
       Caption = 'Jump &Forward'
       Hint = 'Move to previously visited file.'
-      ImageIndex = 7
+      ImageIndex = 9
       OnExecute = ForwardActionExecute
       OnUpdate = ForwardActionUpdate
       ShortCut = 32807
-    end
-    object MoveLeftAction: TAction
-      Caption = 'Move Tab Left'
-      Hint = 'Move the selected tab place position to the left.'
-      OnExecute = MoveLeftActionExecute
-      OnUpdate = MoveLeftActionUpdate
-    end
-    object MoveRightAction: TAction
-      Caption = 'Move Tab Right'
-      Hint = 'Move the selected file one position to the right.'
-      OnExecute = MoveRightActionExecute
-      OnUpdate = MoveRightActionUpdate
-    end
-    object MoveFarLeftAction: TAction
-      Caption = 'Move Tab Far Left'
-      Hint = 'Move the selected file to the extreme left.'
-      OnExecute = MoveFarLeftActionExecute
-      OnUpdate = MoveFarLeftActionUpdate
-    end
-    object MoveFarRightAction: TAction
-      Caption = 'Move Tab Far Right'
-      Hint = 'Move the selected file to the extreme right.'
-      OnExecute = MoveFarRightActionExecute
-      OnUpdate = MoveFarRightActionUpdate
     end
   end
   object NavigatorPopupMenu: TPopupMenu
@@ -619,6 +681,18 @@ object CustomWorkForm: TCustomWorkForm
     end
     object NavigatorDeleteMenu: TMenuItem
       Action = DeleteFolderAction
+    end
+    object UploadSeparator: TMenuItem
+      Caption = '-'
+    end
+    object UploadFileMenu: TMenuItem
+      Action = UploadFileAction
+    end
+    object CopyFileMenu: TMenuItem
+      Action = CopyFileAction
+    end
+    object AddChildrenMenu: TMenuItem
+      Action = ChildAction
     end
     object LaunchSeparator: TMenuItem
       Caption = '-'
@@ -657,21 +731,6 @@ object CustomWorkForm: TCustomWorkForm
     end
     object EditorCloseUnchangedMenu: TMenuItem
       Action = CloseUnmodifiedFilesAction
-    end
-    object EditorMoveSeparator: TMenuItem
-      Caption = '-'
-    end
-    object EditMoveLeftMenu: TMenuItem
-      Action = MoveLeftAction
-    end
-    object EditorModeFarLeftMenu: TMenuItem
-      Action = MoveFarLeftAction
-    end
-    object EditorMoveRightMenu: TMenuItem
-      Action = MoveRightAction
-    end
-    object EditorMoveFarRightMenu: TMenuItem
-      Action = MoveFarRightAction
     end
     object EditorOpenSeparator: TMenuItem
       Caption = '-'

@@ -38,6 +38,9 @@ object ConfigForm: TConfigForm
     object EditorPage: TTabSheet
       Caption = 'Editor'
     end
+    object TerminalPage: TTabSheet
+      Caption = 'Terminal'
+    end
   end
   object ButtonPanel: TPanel
     Left = 0

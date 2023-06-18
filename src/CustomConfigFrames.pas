@@ -1,6 +1,6 @@
 unit CustomConfigFrames;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit CustomConfigFrames;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -33,8 +33,8 @@ type
   public
     procedure ReadConfig(Config: TConfig); virtual; abstract; overload;
     procedure WriteConfig(Config: TConfig); virtual; abstract; overload;
-    procedure ReadConfig(Config: TCustomConfig); virtual; overload;
-    procedure WriteConfig(Config: TCustomConfig); virtual; overload;
+    procedure ReadConfig(Config: TBaseConfig); virtual; overload;
+    procedure WriteConfig(Config: TBaseConfig); virtual; overload;
     property IsModified: Boolean read GetIsModified;
   end;
 
@@ -44,12 +44,12 @@ implementation
 
 { TCustomConfigFrame }
 
-procedure TCustomConfigFrame.ReadConfig(Config: TCustomConfig);
+procedure TCustomConfigFrame.ReadConfig(Config: TBaseConfig);
 begin
   // Do nothing
 end;
 
-procedure TCustomConfigFrame.WriteConfig(Config: TCustomConfig);
+procedure TCustomConfigFrame.WriteConfig(Config: TBaseConfig);
 begin
   // Do nothing
 end;

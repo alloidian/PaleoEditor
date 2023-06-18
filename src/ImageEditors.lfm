@@ -1,0 +1,28 @@
+inherited ImageEditorFrame: TImageEditorFrame
+  inherited StatusBar: TStatusBar
+    ParentColor = False
+  end
+  object ScrollBox: TScrollBox[1]
+    Left = 0
+    Height = 361
+    Top = 0
+    Width = 512
+    HorzScrollBar.Page = 90
+    VertScrollBar.Page = 90
+    Align = alClient
+    ClientHeight = 357
+    ClientWidth = 508
+    Color = clMoneyGreen
+    ParentColor = False
+    TabOrder = 1
+    object Editor: TImage
+      Left = 0
+      Height = 357
+      Top = 0
+      Width = 508
+      Align = alClient
+      AutoSize = True
+      Transparent = True
+    end
+  end
+end

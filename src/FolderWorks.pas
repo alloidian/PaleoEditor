@@ -1,6 +1,6 @@
 unit FolderWorks;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,12 +15,12 @@ unit FolderWorks;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Dialogs, Menus, CustomWorks, ConfigUtils, DirMonitors;
+  Classes, SysUtils, Forms, Controls, Dialogs, Menus, CustomWorks, ConfigUtils;
 
 type
 
@@ -54,7 +54,7 @@ procedure TFolderWorkForm.RefreshView;
 
   procedure LinkPage(Node: TTreeNode);
   var
-    I: Integer;
+    I: Integer = 0;
     Page: TTabSheet;
     Editor: TCustomEditorFrame;
   begin
@@ -73,9 +73,10 @@ procedure TFolderWorkForm.RefreshView;
   procedure PopulateFolder(Parent: TTreeNode; const FolderName: TFileName);
   var
     Files: TStringList;
-    Name: String;
+    Name: String = '';
     Attribute: TFileAttribute;
     Node: TTreeNode;
+    List: TStringList;
   begin
     if DirectoryExists(FolderName) then begin
       Files := GetDirectories(FolderName);
@@ -83,26 +84,36 @@ procedure TFolderWorkForm.RefreshView;
         for Name in Files do begin
           Attribute := TFileAttribute.CreateFolder(Name);
           Node := Navigator.Items.AddChild(Parent, Attribute.ShortName);
-          Node.ImageIndex := 0;
-          Node.SelectedIndex := 4;
+          Node.ImageIndex := WHITE_CLOSED_FOLDER_INDEX;
+          Node.SelectedIndex := BLACK_OPENED_FOLDER_INDEX;
           Node.Data := Attribute;
           PopulateFolder(Node, Name);
         end;
       finally
         Files.Free;
       end;
-      Files := GetFiles(FolderName);
+      List := TStringlist.Create;
       try
-        for Name in Files do begin
-          Attribute := TFileAttribute.CreateFile(Name, FFolderName);
-          Node := Navigator.Items.AddChild(Parent, Attribute.ShortName);
-          Node.ImageIndex := 2;
-          Node.SelectedIndex := 5;
-          Node.Data := Attribute;
-          LinkPage(Node);
+        Files := GetFiles(FolderName);
+        try
+          for Name in Files do begin
+            if List.IndexOf(Name) < 0 then begin
+              Attribute := TFileAttribute.CreateDocument(Name, FFolderName);
+              Node := Navigator.Items.AddChild(Parent, Attribute.ShortName);
+              Node.ImageIndex := WHITE_DOCUMENT_INDEX;
+              Node.SelectedIndex := BLACK_DOCUMENT_INDEX;
+              Node.StateIndex := STATUS_UNATTACHED_INDEX;
+              Node.Data := Attribute;
+              if Node.HasExtension('.asm;.z80;.azm;.cmd') then
+                PopulateChildren(Node, List);
+              LinkPage(Node);
+            end;
+          end;
+        finally
+          Files.Free;
         end;
       finally
-        Files.Free;
+        List.Free;
       end;
     end;
   end;
@@ -118,35 +129,15 @@ begin
 end;
 
 procedure TFolderWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
-var
-  OldCursor: TCursor;
-  IsImage: Boolean;
-  WindowMenu: TMenuItem;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     if not DirectoryExists(FolderName) then
       ForceDirectories(FolderName);
-    IsImage := AnsiSameText(ExtractFileExt(FolderName), '.lst');
-    FFolderName := FolderName;
+    inherited Open(FolderName, ParentMenu);
     FConfigs.ReadConfig(FFolderName);
-    WindowMenu := TMenuItem.Create(Self);
-    WindowMenu.Caption := FolderName;
-    WindowMenu.Hint := Format(JUMP_MASK, [FolderName]);
-    WindowMenu.Tag := IMAGE_INDEX[IsImage];
-    WindowMenu.ImageIndex := WindowMenu.Tag;
-    WindowMenu.GroupIndex := 5;
-    WindowMenu.OnClick := WindowClickHandler;
-    ParentMenu.Add(WindowMenu);
-    Caption := FFolderName;
-    RefreshView;
-    if Config.MonitorFolder then begin
-      FDirMonitor.Directory := FolderName;
-      FDirMonitor.Start
-    end;
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 

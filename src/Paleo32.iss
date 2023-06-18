@@ -1,4 +1,4 @@
-; Copyright ©2022 by Steve Garcia. All rights reserved.
+; Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 ;
 ; This file is part of the Paleo Editor project.
 ;
@@ -14,13 +14,14 @@
 ; Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
 #define PaleoAppName "Paleo Editor"
-#define PaleoAppVersion "0.1.3"
+#define PaleoAppVersion "0.1.4"
 #define PaleoAppPublisher "Steve García"
-#define PaleoAppURL "https://homebrew.computer/"
-#define PaleoAppExeName "..\bin\PaleoEditor32.exe"
+#define PaleoAppURL "https://dynocomputer.com/"
+#define PaleoAppExeName "..\bin\x86\PaleoEditor.exe"
+#define PaleoPdfDllName "..\bin\x86\pdfium.dll"
 #define PaleoReadMeName "..\doc\Readme.txt"
 #define PaleoLocalName "PaleoEditor.exe"
-#define PaleoAppFolder "Paleo"
+#define PaleoAppFolder "Paleo\Editor"
 
 [Setup]
 AppId={{078001C3-E7FC-4157-A87A-DD61373CAC04}
@@ -58,6 +59,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "{#PaleoAppExeName}"; DestDir: "{app}"; DestName: "{#PaleoLocalName}"; Flags: ignoreversion
+Source: "{#PaleoPdfDllName}"; DestDir: "{app}";
 Source: "{#PaleoReadMeName}"; DestDir: "{app}"; 
 
 [Icons]

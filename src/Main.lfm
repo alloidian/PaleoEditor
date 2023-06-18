@@ -20,7 +20,7 @@ object MainForm: TMainForm
   object StatusBar: TStatusBar
     Left = 0
     Height = 23
-    Top = 497
+    Top = 517
     Width = 819
     Panels = <    
       item
@@ -72,7 +72,7 @@ object MainForm: TMainForm
     end
     object WindowMenu: TMenuItem
       Caption = '&Window'
-      GroupIndex = 4
+      GroupIndex = 5
       object WindowTileVertialMenu: TMenuItem
         Caption = 'File &Vertically'
         GroupIndex = 4
@@ -84,6 +84,12 @@ object MainForm: TMainForm
       object WindowCascadeMenu: TMenuItem
         Caption = '&Cascade'
         GroupIndex = 4
+      end
+      object TerminalSeparator: TMenuItem
+        Caption = '-'
+      end
+      object ShowTerminalMenu: TMenuItem
+        Action = ShowTerminalAction
       end
       object WindowSeparator: TMenuItem
         Caption = '-'
@@ -168,6 +174,11 @@ object MainForm: TMainForm
       Caption = '&About Paleo Editor…'
       Hint = 'Show the About Paleo Editor dialog.'
       OnExecute = ShowAboutActionExecute
+    end
+    object ShowTerminalAction: TAction
+      Caption = '&Terminal…'
+      OnExecute = ShowTerminalActionExecute
+      OnUpdate = ShowTerminalActionUpdate
     end
   end
   object Images: TImageList

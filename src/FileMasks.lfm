@@ -18,23 +18,27 @@ object EditFileMaskForm: TEditFileMaskForm
   Position = poMainFormCenter
   ShowHint = True
   LCLVersion = '2.2.2.0'
-  object MoveUpButton: TSpeedButton
+  object MoveUpButton: TBitBtn
     Left = 327
     Height = 22
     Top = 68
     Width = 23
     Action = MoveUpAction
+    Margin = 0
     Images = Images
     ImageIndex = 0
+    TabOrder = 1
   end
-  object MoveDownButton: TSpeedButton
+  object MoveDownButton: TBitBtn
     Left = 327
     Height = 22
     Top = 112
     Width = 23
     Action = MoveDownAction
+    Margin = 0
     Images = Images
     ImageIndex = 1
+    TabOrder = 2
   end
   object DirectoryLabel: TLabel
     Left = 10
@@ -52,7 +56,7 @@ object EditFileMaskForm: TEditFileMaskForm
     Width = 75
     Action = OKAction
     Anchors = [akRight, akBottom]
-    TabOrder = 6
+    TabOrder = 8
   end
   object CancelButton: TButton
     Left = 246
@@ -62,7 +66,7 @@ object EditFileMaskForm: TEditFileMaskForm
     Action = CancelAction
     Anchors = [akRight, akBottom]
     Cancel = True
-    TabOrder = 7
+    TabOrder = 9
   end
   object ReplaceButton: TButton
     Left = 84
@@ -71,7 +75,7 @@ object EditFileMaskForm: TEditFileMaskForm
     Width = 75
     Action = ReplaceAction
     Anchors = [akRight, akBottom]
-    TabOrder = 2
+    TabOrder = 4
   end
   object AddButton: TButton
     Left = 165
@@ -80,7 +84,7 @@ object EditFileMaskForm: TEditFileMaskForm
     Width = 75
     Action = AddAction
     Anchors = [akRight, akBottom]
-    TabOrder = 3
+    TabOrder = 5
   end
   object DeleteButton: TButton
     Left = 246
@@ -89,7 +93,7 @@ object EditFileMaskForm: TEditFileMaskForm
     Width = 75
     Action = DeleteAction
     Anchors = [akRight, akBottom]
-    TabOrder = 4
+    TabOrder = 6
   end
   object DirectoryEdit: TListBox
     Left = 10
@@ -97,8 +101,13 @@ object EditFileMaskForm: TEditFileMaskForm
     Top = 20
     Width = 311
     Anchors = [akTop, akLeft, akRight, akBottom]
+    DragMode = dmAutomatic
     ItemHeight = 0
     OnClick = DirectoryEditClick
+    OnDragDrop = DirectoryEditDragDrop
+    OnDragOver = DirectoryEditDragOver
+    OnEndDrag = DirectoryEditEndDrag
+    OnMouseDown = DirectoryEditMouseDown
     TabOrder = 0
   end
   object FolderEdit: TEdit
@@ -108,7 +117,7 @@ object EditFileMaskForm: TEditFileMaskForm
     Top = 214
     Width = 311
     Anchors = [akLeft, akRight, akBottom]
-    TabOrder = 1
+    TabOrder = 3
   end
   object DefaultButton: TButton
     Left = 10
@@ -116,7 +125,8 @@ object EditFileMaskForm: TEditFileMaskForm
     Top = 289
     Width = 75
     Action = DefaultAction
-    TabOrder = 5
+    Anchors = [akLeft, akBottom]
+    TabOrder = 7
   end
   object Actions: TActionList
     Images = Images
@@ -173,10 +183,24 @@ object EditFileMaskForm: TEditFileMaskForm
     Left = 112
     Top = 144
     Bitmap = {
-      4C7A020000001000000010000000560000000000000078DA6360C00BFE335006
-      FE53A6F7FF7F0ACCA0443F54EF7F72CDA0443F9A5E92CDA0443F0EBD449BF11F
-      15FFFF8F293624E27F98E8671860FDA3F1477A9AA728FF509A7F07BAFC190CE5
-      EF60493F74A97F012146C53B
+      4C7A040000001000000010000000160200000000000078DAEDD5EB4B5A711CC7
+      F11EF9678CEE352A680861D005164AD356567463B8C2769CDBBA5A8D72296598
+      5DEC7EA144AAB51BDBF2C9D803415A2ECDD222BBD126FD213EFCF42B42BA10FA
+      3B72B2D584DF1339AF1FE77BCE799F03200A1CAD97AE1637B3DAE46463156BAA
+      5DADA70FEF36F4905995DE509D72BD95A770AA8E3A3D06CC1D7E81F9E0135AEC
+      1A942D3DF7493F57F18279C6D16C93AF34F83B5C3D301D7CC0CCFE7B681CBD28
+      FA58E917CF955A433D8F673F194CEFCD6372C70CD9128327E61201CDFCE5966A
+      4C784D18DD9E41BE490ADAEB4766C5F0D614063727F0785C4CEDC9AC18F08CC1
+      E01E46D6401EB5174E1540BF6E84CED58F0C5D36B5CF1D12A17BCD00AD438F47
+      EA0C6A9FA9CF85665507F5EF2EA4A8D2A93D5F93890EBB166F573A91F82685DA
+      A7B5F1D1BAAC866AB91DB14C22B54F6E4843C2AB87887991800735B100879D72
+      B1488720FD83F40FF9AF7AB0E81F8B7FBF63E1CFD793FEA97DADBD31D07FD58F
+      5A6A5F6D7B1DE8BFF49B8CDA9FEFBF70B182DADFE7FEF3262582425319ABFEC9
+      ACD66CA3D0CF58EA02FD4BC6A548AA4FF5C72B936DC13C999527E8C9F115CF56
+      04FA170D4910A7483A8A96C7F128FAF7E68F3C85D0283EE97F974D43A47F27E9
+      DFCD65A7417E410FE0D0137B7A8288803FB360BB4738FE92A5DE231C7F8D0D79
+      0F5C5CC0D5FFFE89FB7F477C5484FDFFFB47FFCC87D54FB8FD46FAFD731BDEBF
+      B7E5F9B991EFEF31A1B972D7
     }
   end
 end

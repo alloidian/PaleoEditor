@@ -1,6 +1,6 @@
 program Paleo;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ program Paleo;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 uses
   {$IFDEF UNIX}
@@ -25,16 +25,32 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
+  {$IFDEF DEBUG} SysUtils, {$ENDIF}
   Forms, printer4lazarus, lazcontrols, Main, Configs, CustomWorks, Searches,
-  CustomEditors, Utils, SyntaxEditors, Executions, HexEditors, Actions, Abouts,
-  SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks,
-  NewFiles, CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs,
-  DirMonitors, EditorConfigs, Assemblers, ProjectConfigs;
+  CustomEditors, Utils, CustomTextEditors, Executions, HexEditors, Actions, Abouts,
+  SynHighlighterSpin, SynHighlighterZ80, FileMasks, FolderWorks, ProjectWorks, NewFiles,
+  CustomConfigFrames, ConfigUtils, NavigatorConfigs, ColorConfigs, DirMonitors,
+  EditorConfigs, Assemblers, ProjectConfigs, SynHighlighterFlex,
+  {$IFDEF TERMINAL} TerminalFrames, TerminalForms, TerminalConfigs, {$ENDIF}
+  Uploads, PackageEngines, AssemblyEditors, BatchEditors, SpinEditors, BasicEditors,
+  PascalEditors, CustomPreviewEditors, HtmlEditors, MarkdownEditors, SynHighlighterMD,
+  IntelHexEditors, SynHighlighterIntelHex, XmlEditors, JsonEditors, IniEditors,
+  RichTextEditors, PdfEditors, ImageEditors, ZipEditors, AboutCredits;
 
 {$R *.res}
 
+{$IFDEF DEBUG}
+const
+  MEMORY_LOG_FILENAME = 'heap.trc';
+{$ENDIF}
+
 begin
-  RequireDerivedFormResource:=True;
+{$IFDEF DEBUG}
+  if FileExists(MEMORY_LOG_FILENAME) then
+    DeleteFile(MEMORY_LOG_FILENAME);
+  SetHeapTraceOutput(MEMORY_LOG_FILENAME);
+{$ENDIF}
+  RequireDerivedFormResource := True;
   Application.Title:='Paleo Editor';
   Application.Scaled:=True;
   Application.Initialize;

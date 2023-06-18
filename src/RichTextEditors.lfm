@@ -1,0 +1,14 @@
+inherited RichTextEditorFrame: TRichTextEditorFrame
+  object Editor: TRichMemo[1]
+    Left = 0
+    Height = 361
+    Top = 0
+    Width = 512
+    Align = alClient
+    HideSelection = False
+    OnChange = EditorChange
+    ScrollBars = ssAutoBoth
+    TabOrder = 1
+    ZoomFactor = 1
+  end
+end

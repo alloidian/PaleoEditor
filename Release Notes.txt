@@ -1,0 +1,61 @@
+Release Notes
+
+0.1.4 Pre-Release
+
+Defect Resolution
+
+* Addressed memory leaks.
+
+* Corrected file print functionality.
+
+* Removed pop-up menu from Search panel.
+
+* Resolved several hints and warnings.
+
+* Corrected excluded file configuration.
+
+* Corrected the Z80 Assembly and Spin editors.
+
+* Corrected the highlighter color configuration.
+
+Enhancments
+
+* Introduced Navigator filter functionality.
+
+* Introduced Navigator status Icons.
+
+* File copy to floppy drive (A:).
+
+* Introduced sub-node Auxiliary Files functionality.
+
+* Introduced package functionality.
+
+* Introduced serial terminal functionality.
+
+* Introduced new file formats support:
+
+  * Config (.ini)
+  * HTML
+  * Intel Hex
+  * Image (Bitmap, Pixmap, PNG, JPEG, GIF, TIFF, Icon)
+  * JSON
+  * Markdown
+  * PDF
+  * RichText
+  * Text
+  * XML
+  * ZIP files  
+
+* Introduced editor tab dragging functionality.
+
+* Introduced syntax configurations.
+
+* Converted configuration storage to JSON format.
+
+* Introduced Syntax status bar panel.
+
+* Introduced saving search and filter criteria functionality.
+
+* Introduced search caching and shifted controls on Search panel.
+
+* Updated About dialog to include additional credits.

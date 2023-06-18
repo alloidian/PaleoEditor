@@ -1,6 +1,6 @@
 unit Executions;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit Executions;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -141,7 +141,7 @@ uses
 
 function ExecuteFile(Node: TTreeNode; var Parameters: String): Boolean;
 var
-  Command: String;
+  Command: String = '';
   Dialog: TExecutionForm;
 begin
   Result := Assigned(Node);
@@ -254,21 +254,21 @@ var
   ReadPipe: THandle = 0;
   WritePipe: THandle = 0;
   StartupInfo: TStartupInfo;
-  CommandLine: string;
+  CommandLine: string = '';
   ProcessInfo: TProcessInformation;
   Buffer: PAnsiChar;
   Env: Pointer;
-  BytesRead: DWord;
-  AppRunning: DWord;
+  BytesRead: DWord = 0;
+  AppRunning: DWord = 0;
 
   function ToBuffer(List: TStrings): Pointer;
   const
     NULL = #0;
   var
     Temp: TStringList;
-    I: Integer;
-    EnvBlock: UnicodeString;
-    Env: String;
+    I: Integer = 0;
+    EnvBlock: UnicodeString = '';
+    Env: String = '';
 
     function GetParentEnvironment: TStringList;
     var
@@ -313,6 +313,8 @@ begin
   Security.bInheritHandle := True;
   Security.lpSecurityDescriptor := nil;
   if CreatePipe(ReadPipe, WritePipe, @Security, 0) then begin
+    StartupInfo := Default(TStartupInfo);
+    ProcessInfo := Default(TProcessInformation);
     try
       Buffer := AllocMem(MAX_BUFFER + 1);
       try
@@ -396,7 +398,7 @@ end;
 
 function TExecutionEngine.Execute: Integer;
 var
-  LogFileName: String;
+  LogFileName: String = '';
 begin
   LogFileName := ProgramName + '.log';
   if FileExists(LogFileName) then

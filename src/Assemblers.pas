@@ -1,6 +1,6 @@
 unit Assemblers;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit Assemblers;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -54,9 +54,6 @@ type
     property SupportDebugZ: Boolean read GetSupportDebugZ write SetSupportDebugZ;
   end;
 
-var
-  AssemblerForm: TAssemblerForm;
-
 function AssembleFile(Node: TTreeNode; var Parameters: String; var Platform: TAssemblerPlatform;
   var UpdateSymbols: Boolean): Boolean;
 
@@ -74,7 +71,7 @@ const
     ('-t80 -g3 -fFF %s -s %s.asm %s.com %s.lst %s.sym',    // apZ80
      '-t180 -g3 -fFF %s -s %s.asm %s.com %s.lst %s.sym');  // apZ180
 var
-  Command: String;
+  Command: String = '';
   Dialog: TAssemblerForm;
 begin
   Result := Assigned(Node);

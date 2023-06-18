@@ -1,6 +1,6 @@
 unit Utils;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,27 +15,42 @@ unit Utils;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
 uses
-  Classes, SysUtils, ComCtrls, Generics.Collections, SynEditHighlighter, ConfigUtils;
+  Classes, SysUtils, Controls, ComCtrls, StdCtrls, Menus, Generics.Collections,
+  SynEditHighlighter, ConfigUtils;
 
 const
   IMAGE_INDEX: array[Boolean] of Integer = (0, 1);
-  UNIMPLEMENTED_PROMPT = 'This feature has not been implemented.';
-  MRU_MASK = 'Reopen the ''%s'' project.';
-  JUMP_MASK = 'Jump to the ''%s'' project.';
+  UNIMPLEMENTED_PROMPT      = 'This feature has not been implemented.';
+  MRU_MASK                  = 'Reopen the ''%s'' project.';
+  JUMP_MASK                 = 'Jump to the ''%s'' project.';
+  WHITE_CLOSED_FOLDER_INDEX = 0;
+  WHITE_OPENED_FOLDER_INDEX = 1;
+  WHITE_DOCUMENT_INDEX      = 2;
+  WHITE_FILE_INDEX          = 3;
+  BLACK_CLOSED_FOLDER_INDEX = 4;
+  BLACK_OPENED_FOLDER_INDEX = 5;
+  BLACK_DOCUMENT_INDEX      = 6;
+  BLACK_FILE_INDEX          = 7;
+  LEFT_ARROW_INDEX          = 8;
+  RIGHT_ARROW_INDEX         = 9;
+  STATUS_UNATTACHED_INDEX   = -1;
+  STATUS_UNMODIFIED_INDEX   = 10;
+  STATUS_MODIFIED_INDEX     = 11;
 
 type
   TFileAttribute = class(TObject)
   public type
-    TPropertyKind = (pkUnknown, pkFolder, pkFile);
+    TPropertyKind = (pkUnknown, pkFolder, pkDocument, pkFile);
   private
     FKind: TPropertyKind;
     FProjectName: TFileName;
     FShortName: TFileName;
+    FExtension: TFileName;
     FLogicalName: TFileName;
     FFullName: TFileName;
     FIsFileModified: Boolean;
@@ -44,11 +59,13 @@ type
     function GetImageIndex: Integer;
   public
     constructor CreateFolder(const Name: TFileName); virtual;
+    constructor CreateDocument(const Name: TFileName; const ProjectName: TFileName); virtual;
     constructor CreateFile(const Name: TFileName; const ProjectName: TFileName); virtual;
     procedure RenameFolder(const Name: TFileName);
     procedure RenameFile(const Name: TFileName);
     property Kind: TPropertyKind read FKind;
     property ShortName: TFileName read FShortName;
+    property Extension: TFileName read FExtension;
     property LogicalName: TFileName read FLogicalName;
     property FullName: TFileName read FFullName;
     property IsFileModified: Boolean read FIsFileModified write FIsFileModified;
@@ -57,8 +74,10 @@ type
   end;
 
   TTreeNodeCache = class(TObject)
+  private type
+    TTreeNodeList = TObjectList<TTreeNode>;
   private
-    FList: TList;
+    FList: TTreeNodeList;
   protected
     function GetNode(Level: Integer): TTreeNode;
   public
@@ -68,43 +87,41 @@ type
     property Node[Level: Integer]: TTreeNode read GetNode;
   end;
 
-  TIntegerObject = class(TObject)
-  private
-    FValue: Integer;
-  public
-    constructor Create(Value: Integer); virtual;
-    class procedure FreeList(List: TStrings);
-    property Value: Integer read FValue;
-  end;
-
   TStop = class(TObject)
   private
     FNode: TTreeNode;
     FLineNumber: Integer;
+    FIndex: Integer;
   public
     constructor Create(Node: TTreeNode; LineNumber: Integer); virtual;
     property Node: TTreeNode read FNode;
     property LineNumber: Integer read FLineNumber;
+    property Index: Integer read FIndex write FIndex;
   end;
 
   TItinerary = class(TObject)
   private type
-    TStopOvers = TList<TStop>;
+    TStopOvers = TObjectList<TStop>;
   private
     FList: TStopOvers;
     FIndex: Integer;
+    FMenu: TMenuItem;
+    FOnJump: TNotifyEvent;
   protected
     function GetCount: Integer;
     function GetItems(I: Integer): TStop;
     function GetIsFirst: Boolean;
     function GetIsLast: Boolean;
   public
-    constructor Create; virtual;
+    constructor Create(Menu: TMenuItem; OnJump: TNotifyEvent); virtual;
     destructor Destroy; override;
     procedure Clear;
     function Post(Node: TTreeNode; LineNumber: Integer): Boolean;
     function GoBack: TStop;
     function GoForward: TStop;
+    procedure SetIndex(Value: Integer);
+    procedure UpdateMenu;
+    procedure RefreshMenu;
     property Count: Integer read GetCount;
     property Items[I: Integer]: TStop read GetItems;
     property IsFirst: Boolean read GetIsFirst;
@@ -114,9 +131,12 @@ type
 { TTreeNodeHelper }
 
 type
+  TTreeNodeStatus = (tnsUnattached, tnsUnmodified, tnsModified);
   TTreeNodeHelper = class helper for TTreeNode
   private
     function GetKind: TFileAttribute.TPropertyKind;
+    function GetStatus: TTreeNodeStatus;
+    procedure SetStatus(Value: TTreeNodeStatus);
     function GetShortName: TFileName;
     function GetLogicalName: TFileName;
     function GetFullName: TFileName;
@@ -130,7 +150,10 @@ type
   public
     procedure RenameFolder(const Name: TFileName);
     procedure RenameFile(const Name: TFileName);
+    function HasExtension(const Extensions: String): Boolean;
+    function Matches(const Mask: String): Boolean;
     property Kind: TFileAttribute.TPropertyKind read GetKind;
+    property Status: TTreeNodeStatus read GetStatus write SetStatus;
     property ShortName: TFileName read GetShortName;
     property LogicalName: TFileName read GetLogicalName;
     property FullName: TFileName read GetFullName;
@@ -141,12 +164,34 @@ type
     property HasStructure: Boolean read GetHasStructure;
   end;
 
-{ TSynCustomHighlighterHelper}
+{ TStringsHelper }
+
+  TStringsHelper = class helper for TStrings
+  private
+    function GetAsInteger(I: Integer): Integer;
+    procedure SetAsInteger(I: Integer; Value: Integer);
+  public
+    procedure AddInteger(const Text: String; Value: Integer);
+    property AsInteger[I: Integer]: Integer read GetAsInteger write SetAsInteger;
+  end;
+
+  { TMenuItemHelper }
+
+  TMenuItemHelper = class helper for TMenuItem
+  private
+    function GetStop: TStop;
+    procedure SetStop(Value: TStop);
+  public
+    property Stop: TStop read GetStop write SetStop;
+  end;
+
+{ TSynPaleoHighligher}
 
   TSynPaleoHighligher = class(TSynCustomHighlighter)
   protected
     function GenerateHighlighter(const Name: String; Attr: TAttributeType): TSynHighLighterAttributes;
   public
+    class procedure UpdateHighlighter(Attr: TAttributeType; Attribute: TSynHighLighterAttributes);
     property DefaultHandler[Index: Integer]: TSynHighlighterAttributes read GetDefaultAttribute;
   end;
 
@@ -157,23 +202,31 @@ type
 
 function GetFiles(const Path: TFileName): TStringList;
 function GetDirectories(const Path: TFileName): TStringList;
+function GetChildren(const FullFileName: TFileName): TStringList;
+function FileToUploadStr(const FileName: TFileName): String;
+function FileToUploadFile(const FileName: TFileName; Drive: Char = 'A'; User: Byte = 0): TStringList;
+function FilesToUploadFile(FileNames: TStrings; Drive: Char = 'A'; User: Byte = 0): TStringList;
+procedure Flash(Control: TControl);
+function ReadStrFromFile(const FileName: TFileName): String;
+function WriteStrToFile(const FileName: TFileName; const Value: String): Boolean;
+procedure UpdateHistory(Edit: TComboBox);
 
 implementation
 
 uses
-  StrUtils, FileUtil, Configs;
+  Types, Forms, Graphics, StrUtils, FileUtil, Masks, Configs;
 
 function GetFiles(const Path: TFileName): TStringList;
 const
   MASK = '%s\*.*';
 var
   Rec: TSearchRec;
-  Temp: String;
+  Temp: String = '';
 begin
   Result := TStringList.Create;
   if FindFirst(Format(MASK, [Path]), faAnyFile, Rec) = 0 then begin
     repeat
-      if ((Rec.Attr and faDirectory) <> faDirectory) and not Config.IsExcludedFolder(Rec.Name) then begin
+      if ((Rec.Attr and faDirectory) <> faDirectory) and not Config.IsExcludedFile(Rec.Name) then begin
         Temp := Format('%s\%s', [Path, Rec.Name]);
         Result.Add(Temp);
       end;
@@ -187,7 +240,7 @@ const
   MASK = '%s\*.*';
 var
   Rec: TSearchRec;
-  Temp: String;
+  Temp: String = '';
 begin
   Result := TStringList.Create;
   if FindFirst(Format(MASK, [Path]), faDirectory, Rec) = 0 then begin
@@ -199,6 +252,157 @@ begin
     until FindNext(Rec) <> 0;
   end;
   FindClose(Rec);
+end;
+
+function GetChildren(const FullFileName: TFileName): TStringList;
+var
+  Path: TFileName = '';
+  FileName: TFileName = '';
+  Masks: TStringDynArray;
+  Mask: String;
+
+  procedure AppendChildren(const Path, FileName: TFileName; List: TStringList; Mask: String);
+  var
+    Rec: TSearchRec;
+    Temp: String = '';
+  begin
+    Mask := '%s\%s' + Mask;
+    if FindFirst(Format(Mask, [Path, FileName]), faAnyFile, Rec) = 0 then begin
+      repeat
+        if ((Rec.Attr and faDirectory) <> faDirectory) then begin
+          Temp := Format('%s\%s', [Path, Rec.Name]);
+          if Result.IndexOf(Temp) < 0 then
+            Result.Add(Temp);
+        end;
+      until FindNext(Rec) <> 0;
+    end;
+  end;
+
+begin
+  Result := TStringList.Create;
+  Path := ExcludeTrailingPathDelimiter(ExtractFilePath(FullFileName));
+  FileName := ExtractFileName(FullFileName);
+  FileName := ChangeFileExt(FileName, EmptyStr);
+  Masks := SplitString(Config.AuxiliaryFiles, ';');
+  for Mask in Masks do
+    AppendChildren(Path, FileName, Result, Mask);
+end;
+
+function FileToUploadStr(const FileName: TFileName): String;
+var
+  InputStream: TFileStream;
+  CheckSum: Byte = 0;
+  Data: Byte = 0;
+begin
+  Result := ':';
+  if FileExists(FileName) then begin
+    InputStream := TFileStream.Create(FileName, fmOpenRead);
+    try
+      InputStream.Position := 0;
+      while InputStream.Position < InputStream.Size do begin
+        Data := InputStream.ReadByte;
+        Inc(CheckSum, Data);
+        Result := Result + IntToHex(Data, 2)
+      end;
+      Result := Result + '>' + IntToHex(InputStream.Size, 2) + IntToHex(CheckSum, 2);
+    finally
+      InputStream.Free;
+    end;
+  end;
+end;
+
+function FileToUploadFile(const FileName: TFileName; Drive: Char; User: Byte): TStringList;
+begin
+  Result := TStringList.Create;
+  Result.Add(Format('%s:DOWNLOAD %s', [Drive, AnsiUpperCase(ExtractFileName(FileName))]));
+  Result.Add(Format('U%d', [User]));
+  Result.Add(FileToUploadStr(FileName));
+end;
+
+function FilesToUploadFile(FileNames: TStrings; Drive: Char; User: Byte): TStringList;
+var
+  FileName: TFileName = '';
+  Temp: TStringList;
+begin
+  Result := TStringList.Create;
+  for FileName in FileNames do begin
+    Temp := FileToUploadFile(FileName, Drive, User);
+    try
+      Result.AddStrings(Temp);
+    finally
+      Temp.Free;
+    end;
+  end;
+end;
+
+procedure Flash(Control: TControl);
+var
+  OldColor: TColor;
+begin
+  OldColor := Control.Color;
+  Control.Color := clRed;
+  try
+    Beep;
+    Application.ProcessMessages;
+    Sleep(100);
+  finally
+    Control.Color := OldColor;
+    Application.ProcessMessages;
+  end;
+end;
+
+function ReadStrFromFile(const FileName: TFileName): String;
+var
+  Stream: TFileStream;
+begin
+  Result := EmptyStr;
+  if FileExists(FileName) then begin
+    Stream := TFileStream.Create(FileName, fmOpenRead, fmShareDenyWrite);
+    try
+      SetLength(Result, Stream.Size);
+      Stream.Read(Pointer(Result)^, Stream.Size);
+    finally
+      Stream.Free;
+    end;
+  end;
+end;
+
+function WriteStrToFile(const FileName: TFileName; const Value: String): Boolean;
+var
+  Stream: TFileStream;
+begin
+  if FileExists(FileName) then
+    DeleteFile(FileName);
+  Result := not FileExists(FileName);
+  if Result then begin
+    Stream := TFileStream.Create(FileName, fmCreate, fmShareExclusive);
+    try
+      Stream.Write(Pointer(Value)^, Value.Length);
+    finally
+      Stream.Free;
+    end;
+    Result := FileExists(FileName);
+  end;
+end;
+
+procedure UpdateHistory(Edit: TComboBox);
+var
+  Text: String = '';
+  I: Integer = 0;
+begin
+  Text := Trim(Edit.Text);
+  if not Text.IsEmpty then begin
+    I := Edit.Items.IndexOf(Text);
+    if I < 0 then begin
+      Edit.Items.Insert(0, Text);
+      while Edit.Items.Count > Edit.DropDownCount do
+        Edit.Items.Delete(Edit.Items.Count - 1); end
+    else
+      if I > 0 then begin
+        Edit.Items.Move(I, 0);
+        Edit.ItemIndex := 0;
+      end;
+  end;
 end;
 
 { TFileAttribute }
@@ -223,11 +427,12 @@ begin
   FPage := nil;
 end;
 
-constructor TFileAttribute.CreateFile(const Name: TFileName; const ProjectName: TFileName);
+constructor TFileAttribute.CreateDocument(const Name: TFileName; const ProjectName: TFileName);
 begin
-  FKind := pkFile;
+  FKind := pkDocument;
   FProjectName := ProjectName;
   FShortName := ExtractFileName(Name);
+  FExtension := ExtractFileExt(FShortName);
   if ProjectName = EmptyStr then
     FLogicalName := FShortName
   else
@@ -235,6 +440,12 @@ begin
   FFullName := Name;
   FIsFileModified := False;
   FPage := nil;
+end;
+
+constructor TFileAttribute.CreateFile(const Name: TFileName; const ProjectName: TFileName);
+begin
+  CreateDocument(Name, ProjectName);
+  FKind := pkFile;
 end;
 
 procedure TFileAttribute.RenameFolder(const Name: TFileName);
@@ -248,7 +459,7 @@ end;
 
 procedure TFileAttribute.RenameFile(const Name: TFileName);
 begin
-  if FKind = pkFile then begin
+  if FKind in [pkDocument, pkFile] then begin
     FShortName := ExtractFileName(Name);
     if FProjectName = EmptyStr then
       FLogicalName := FShortName
@@ -263,7 +474,7 @@ end;
 constructor TTreeNodeCache.Create;
 begin
   inherited Create;
-  FList := TList.Create;
+  FList := TTreeNodeList.Create(False);
 end;
 
 destructor TTreeNodeCache.Destroy;
@@ -274,33 +485,12 @@ end;
 
 function TTreeNodeCache.GetNode(Level: Integer): TTreeNode;
 begin
-  Result := TTreeNode(FList[Level]);
+  Result := FList[Level];
 end;
 
 procedure TTreeNodeCache.Add(Node: TTreeNode);
 begin
-  FList.Add(Pointer(Node));
-end;
-
-{ TIntegerObject }
-
-constructor TIntegerObject.Create(Value: Integer);
-begin
-  inherited Create;
-  FValue := Value;
-end;
-
-class procedure TIntegerObject.FreeList(List: TStrings);
-var
-  I: Integer;
-  Temp: TObject;
-begin
-  for I := List.Count - 1 downto 0 do begin
-    Temp := List.Objects[I];
-    if Assigned(Temp) then
-      Temp.Free;
-    List.Delete(I);
-  end;
+  FList.Add(Node);
 end;
 
 { TStop }
@@ -310,15 +500,18 @@ begin
   inherited Create;
   FNode := Node;
   FLineNumber := LineNumber;
+  FIndex := -1;
 end;
 
 { TItinerary }
 
-constructor TItinerary.Create;
+constructor TItinerary.Create(Menu: TMenuItem; OnJump: TNotifyEvent);
 begin
   inherited Create;
-  FList := TStopOvers.Create;
+  FList := TStopOvers.Create(True);
   FIndex := -1;
+  FMenu := Menu;
+  FOnJump := OnJump;
 end;
 
 destructor TItinerary.Destroy;
@@ -358,14 +551,18 @@ end;
 
 function TItinerary.Post(Node: TTreeNode; LineNumber: Integer): Boolean;
 var
-  I: Integer;
+  I: Integer = 0;
+  Stop: TStop;
 begin
   Result := FIndex < FList.Count - 2;
   if Result then
     for I := FList.Count - 1 downto FIndex + 1 do
       FList.Delete(I);
-  FList.Add(TStop.Create(Node, LineNumber));
+  Stop := TStop.Create(Node, LineNumber);
+  FList.Add(Stop);
   FIndex := FList.Count - 1;
+  Stop.Index := FIndex;
+  RefreshMenu;
 end;
 
 function TItinerary.GoBack: TStop;
@@ -377,11 +574,12 @@ begin
     FIndex := 0;
     Result := nil;
   end;
+  UpdateMenu;
 end;
 
 function TItinerary.GoForward: TStop;
 var
-  Last: Integer;
+  Last: Integer = 0;
 begin
   Last := FList.Count - 1;
   IF FIndex < Last then begin
@@ -390,6 +588,45 @@ begin
   else begin
     FIndex := Last;
     Result := nil;
+  end;
+  UpdateMenu;
+end;
+
+procedure TItinerary.SetIndex(Value: Integer);
+begin
+  if Value < 0 then
+    FIndex := 0
+  else
+    if Value > FList.Count - 1 then
+      FIndex := FList.Count - 1
+    else
+      FIndex := Value;
+  UpdateMenu;
+end;
+
+procedure TItinerary.UpdateMenu;
+var
+  Menu: TMenuItem;
+begin
+  for Menu in FMenu do
+    Menu.Checked := Menu.Stop.Index = FIndex;
+end;
+
+procedure TItinerary.RefreshMenu;
+const
+  MASK = '%s [%d]';
+var
+  Stop: TStop;
+  Menu: TMenuItem;
+begin
+  FMenu.Clear;
+  for Stop in FList do begin
+    Menu := TMenuItem.Create(FMenu);
+    Menu.Caption := Format(MASK, [Stop.Node.LogicalName, Stop.LineNumber]);
+    Menu.Stop := Stop;
+    Menu.Checked := Stop.Index = FIndex;
+    Menu.OnClick := FOnJump;
+    FMenu.Add(Menu);
   end;
 end;
 
@@ -401,6 +638,36 @@ begin
     Result := TFileAttribute(Data).Kind
   else
     Result := pkUnknown;
+end;
+
+function TTreeNodeHelper.GetStatus: TTreeNodeStatus;
+begin
+  if not Assigned(self.Page) then
+    Result := tnsUnattached
+  else
+    case Self.StateIndex of
+      STATUS_UNMODIFIED_INDEX:
+        Result := tnsUnmodified;
+      STATUS_MODIFIED_INDEX:
+        Result := tnsModified;
+    else
+      Result := tnsUnattached;
+    end;
+end;
+
+procedure TTreeNodeHelper.SetStatus(Value: TTreeNodeStatus);
+begin
+  if not Assigned(Page) then
+    Self.StateIndex := STATUS_UNATTACHED_INDEX
+  else
+    case Value of
+      tnsUnattached:
+        Self.StateIndex := STATUS_UNATTACHED_INDEX;
+      tnsUnmodified:
+        Self.StateIndex := STATUS_UNMODIFIED_INDEX;
+      tnsModified:
+        Self.StateIndex := STATUS_MODIFIED_INDEX;
+    end;
 end;
 
 function TTreeNodeHelper.GetShortName: TFileName;
@@ -451,8 +718,11 @@ end;
 
 procedure TTreeNodeHelper.SetPage(Value: TTabSheet);
 begin
-  if Assigned(Data) then
+  if Assigned(Data) then begin
     TFileAttribute(Data).Page := Value;
+    if not Assigned(Value) then
+      Status := tnsUnattached;
+  end;
 end;
 
 function TTreeNodeHelper.GetIsExecutable: Boolean;
@@ -462,7 +732,7 @@ begin
   Result := Assigned(Data);
   if Result then begin
     Attribute := TFileAttribute(Data);
-    Result := (Attribute.Kind = pkFile) and  Config.IsExecutableFile(Attribute.ShortName);
+    Result := (Attribute.Kind in [pkDocument, pkFile]) and  Config.IsExecutableFile(Attribute.ShortName);
   end;
 end;
 
@@ -473,7 +743,7 @@ begin
   Result := Assigned(Data);
   if Result then begin
     Attribute := TFileAttribute(Data);
-    Result := (Attribute.Kind = pkFile) and  Config.IsAssemblyFile(Attribute.ShortName);
+    Result := (Attribute.Kind in [pkDocument, pkFile]) and  Config.IsAssemblyFile(Attribute.ShortName);
   end;
 end;
 
@@ -484,7 +754,7 @@ begin
   Result := Assigned(Data);
   if Result then begin
     Attribute := TFileAttribute(Data);
-    Result := (Attribute.Kind = pkFile) and  Config.HasStructure(Attribute.ShortName);
+    Result := (Attribute.Kind in [pkDocument, pkFile]) and  Config.HasStructure(Attribute.ShortName);
   end;
 end;
 
@@ -508,21 +778,102 @@ begin
   end;
 end;
 
+function TTreeNodeHelper.HasExtension(const Extensions: String): Boolean;
+var
+  Attribute: TFileAttribute;
+  Temp: TStringList;
+  Ext: String;
+begin
+  Result := False;
+  if Assigned(Data) then begin
+    Attribute := TFileAttribute(Data);
+    Temp := TStringList.Create;
+    try
+      Temp.Delimiter := ';';
+      Temp.DelimitedText := Extensions;
+      for Ext in Temp do
+        if AnsiSameText(Ext, Attribute.Extension) then begin
+          Result := True;
+          Break;
+        end;
+    finally
+      Temp.Free;
+    end;
+  end;
+end;
+
+function TTreeNodeHelper.Matches(const Mask: String): Boolean;
+begin
+  if AnsiContainsStr(Mask, '*') or AnsiContainsStr(Mask, '?') then
+    Result := MatchesMask(Text, Mask)
+  else
+    Result := AnsiContainsText(Text, Mask);
+end;
+
+{ TStringsHelper }
+
+function TStringsHelper.GetAsInteger(I: Integer): Integer;
+begin
+  if (I > -1) and (I < Count) then
+    Result := Integer(Objects[I])
+  else
+    Result := -1;
+end;
+
+procedure TStringsHelper.SetAsInteger(I: Integer; Value: Integer);
+begin
+  if (I > -1) and (I < Count) then
+    Objects[I] := TObject(Value);
+end;
+
+procedure TStringsHelper.AddInteger(const Text: String; Value: Integer);
+begin
+  AddObject(Text, TObject(Value));
+end;
+
+{ TMenuItemHelper }
+
+function TMenuItemHelper.GetStop: TStop;
+begin
+  Result := TStop(Tag);
+end;
+
+procedure TMenuItemHelper.SetStop(Value: TStop);
+begin
+  if Assigned(Value) then
+    Tag := PtrInt(Value)
+  else
+    Tag := NULL;
+end;
+
 { TSynPaleoHighligher }
 
 function TSynPaleoHighligher.GenerateHighlighter(const Name: String; Attr: TAttributeType): TSynHighLighterAttributes;
+var
+  Temp: TAttribute;
 begin
+  Temp := Config.Attributes[Attr];
   Result := TSynHighLighterAttributes.Create(Name);
-  Result.Foreground := Config.Attributes[Attr].Foreground;
-  Result.Background := Config.Attributes[Attr].Background;
-  Result.Style := Config.Attributes[Attr].Style;
+  Result.Foreground := Temp.Foreground;
+  Result.Background := Temp.Background;
+  Result.Style := Temp.Style;
+end;
+
+class procedure TSynPaleoHighligher.UpdateHighlighter(Attr: TAttributeType; Attribute: TSynHighLighterAttributes);
+var
+  Temp: TAttribute;
+begin
+  Temp := Config.Attributes[Attr];
+  Attribute.Foreground := Temp.Foreground;
+  Attribute.Background := Temp.Background;
+  Attribute.Style := Temp.Style;
 end;
 
 { TSynCustomHighlighterHelper }
 
 function TSynCustomHighlighterHelper.RetrieveAttribute(const StorageName: String): TSynHighlighterAttributes;
 var
-  I: Integer;
+  I: Integer = 0;
   Attr: TSynHighlighterAttributes;
 begin
   Result := nil;

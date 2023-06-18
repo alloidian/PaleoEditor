@@ -1,6 +1,6 @@
 unit NewFiles;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit NewFiles;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -151,7 +151,7 @@ end;
 procedure TNewFileForm.PopulateFolders(List: TStrings);
 var
   Rec: TSearchRec;
-  Error: Integer;
+  Error: Integer = 0;
 begin
   List.BeginUpdate;
   try
@@ -174,11 +174,11 @@ procedure TNewFileForm.RefreshFiles(List: TStrings; const Filters: String);
 var
   Rec: TSearchRec;
   Masks: TStringList;
-  Error: Integer;
+  Error: Integer = 0;
 
   function Matches(const FileName: TFileName): Boolean;
   var
-    Mask: String;
+    Mask: String = '';
   begin
     Result := False;
     for Mask in Masks do

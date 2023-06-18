@@ -1,6 +1,6 @@
 unit ProjectWorks;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,12 +15,12 @@ unit ProjectWorks;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, Dialogs, Menus, CustomWorks;
+  Classes, SysUtils, Forms, Controls, ComCtrls, Contnrs, Dialogs, Menus, CustomWorks;
 
 type
 
@@ -60,7 +60,7 @@ type
         property MayInsert: Boolean read FMayInsert write FMayInsert;
       end;
     private
-      FList: TList;
+      FList: TObjectList;
     protected
       function GetCount: Integer;
       function GetItems(I: Integer): TModule;
@@ -126,35 +126,15 @@ begin
 end;
 
 procedure TProjectWorkForm.Open(const FolderName: TFileName; ParentMenu: TMenuItem);
-var
-  OldCursor: TCursor;
-  IsImage: Boolean;
-  WindowMenu: TMenuItem;
 begin
-  OldCursor := Screen.Cursor;
-  Screen.Cursor := crHourglass;
+  Screen.BeginWaitCursor;
   try
     if FileExists(FolderName) then begin
-      IsImage := AnsiSameText(ExtractFileExt(FolderName), '.lst');
-      FFolderName := FolderName;
-      WindowMenu := TMenuItem.Create(Self);
-      WindowMenu.Caption := FolderName;
-      WindowMenu.Hint := Format(JUMP_MASK, [FolderName]);
-      WindowMenu.Tag := IMAGE_INDEX[IsImage];
-      WindowMenu.ImageIndex := WindowMenu.Tag;
-      WindowMenu.GroupIndex := 5;
-      WindowMenu.OnClick := WindowClickHandler;
-      ParentMenu.Add(WindowMenu);
-      Caption := FFolderName;
-      RefreshView;
+      inherited Open(FolderName, ParentMenu);
       FConfigs.ReadConfig(FProjectFolder, FFolderName);
-      if Config.MonitorFolder then begin
-        FDirMonitor.Directory := FProjectFolder;
-        FDirMonitor.Start
-      end;
     end;
   finally
-    Screen.Cursor := OldCursor;
+    Screen.EndWaitCursor;
   end;
 end;
 
@@ -181,8 +161,8 @@ const
   TOKEN = '#INCLUDE';
 var
   List: TStringList;
-  I: Integer;
-  Line: String;
+  I: Integer = 0;
+  Line: String = '';
 begin
   if FileExists(FileName) then begin
     List := TStringList.Create;
@@ -212,7 +192,7 @@ var
   Stack: TTreeNodeCache;
   Child: TTreeNode;
   Attribute: TFileAttribute;
-  I: Integer;
+  I: Integer = 0;
   Module: TModules.TModule;
 
   function ExtractDocFileName(const PathName: String): String;
@@ -220,8 +200,8 @@ var
     ASM_EXTENSION = '.asm';
     DELIMITER = '_';
   var
-    FolderName: TFileName;
-    FileName: TFileName;
+    FolderName: TFileName = '';
+    FileName: TFileName = '';
   begin
     FolderName := ExtractFilePath(PathName);
     FileName := ExtractFileName(PathName);
@@ -263,24 +243,24 @@ begin
     end;
     Stack := TTreeNodeCache.Create;
     try
-      Attribute := TFileAttribute.CreateFile(FFileName, FProjectFolder);
+      Attribute := TFileAttribute.CreateDocument(FFileName, FProjectFolder);
       Child := View.Items.AddChild(nil, Attribute.ShortName);
-      Child.ImageIndex := 2;
-      Child.SelectedIndex := 5;
+      Child.ImageIndex := WHITE_DOCUMENT_INDEX;
+      Child.SelectedIndex := BLACK_DOCUMENT_INDEX ;
       Child.Data := Attribute;
       Stack.Add(Child);
-      Attribute := TFileAttribute.CreateFile(ExtractDocFileName(FFileName), FProjectFolder);
+      Attribute := TFileAttribute.CreateDocument(ExtractDocFileName(FFileName), FProjectFolder);
       Child := View.Items.AddChild(nil, Attribute.ShortName);
-      Child.ImageIndex := 2;
-      Child.SelectedIndex := 5;
+      Child.ImageIndex := WHITE_DOCUMENT_INDEX;
+      Child.SelectedIndex := BLACK_DOCUMENT_INDEX;
       Child.Data := Attribute;
       Stack.Add(Child);
       for I := 0 to FList.Count - 1 do begin
         Module := FList[I];
-        Attribute := TFileAttribute.CreateFile(FullPath(FHomeFolder, Module.ModuleName), FProjectFolder);
+        Attribute := TFileAttribute.CreateDocument(FullPath(FHomeFolder, Module.ModuleName), FProjectFolder);
         Child := View.Items.AddChild(Stack.Node[Module.Level + 1], Attribute.ShortName);
-        Child.ImageIndex := 2;
-        Child.SelectedIndex := 5;
+        Child.ImageIndex := WHITE_DOCUMENT_INDEX;
+        Child.SelectedIndex := BLACK_DOCUMENT_INDEX ;
         Child.Data := Attribute;
         if Module.MayInsert then
           Stack.Add(Child);
@@ -296,7 +276,7 @@ end;
 constructor TListParser.TModules.Create;
 begin
   inherited Create;
-  FList := TList.Create;
+  FList := TObjectList.Create;
 end;
 
 destructor TListParser.TModules.Destroy;
@@ -320,12 +300,12 @@ end;
 
 procedure TListParser.TModules.Add(const Text: String);
 begin
-  FList.Add(Pointer(TModule.Create(Text)));
+  FList.Add(TModule.Create(Text));
 end;
 
 procedure TListParser.TModules.Resolve;
 var
-  I: Integer;
+  I: Integer = 0;
   Mod1: TModule;
   Mod2: TModule;
 begin
@@ -341,13 +321,13 @@ const
   MASK = '%s'#9'%d'#9'%s';
 var
   Temp: TStringList;
-  I: Integer;
+  I: Integer = 0;
   Module: TModule;
 begin
   Temp := TStringList.Create;
   try
     for I := 0 to FList.Count - 1 do begin
-      Module := FList[I];
+      Module := TModule(FList[I]);
       Temp.Add(Format(MASK, [Module.ModuleName, Module.Level, BoolToStr(Module.MayInsert, True)]));
     end;
     Temp.SaveToFile(FileName);
@@ -378,9 +358,9 @@ procedure TListParser.TModules.TModule.TExtract.Populate(const Text: String);
 const
   QUOTE = '"';
 var
-  Temp: String;
-  P1: Integer;
-  P2: Integer;
+  Temp: String = '';
+  P1: Integer = 0;
+  P2: Integer = 0;
 begin
   Temp := Trim(Copy(Text, 5, 3));
   Level := Temp.Length;

@@ -1,6 +1,6 @@
 unit CustomEditors;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,12 +15,12 @@ unit CustomEditors;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, ComCtrls, Searches;
+  Classes, SysUtils, Forms, Controls, ComCtrls, PrintersDlgs, Utils, Searches;
 
 type
   TGlobalSearchEvent = procedure(Sender: TObject; const Criteria, Filter: String;
@@ -33,6 +33,7 @@ type
   TCustomEditorFrame = class(TFrame)
     StatusBar: TStatusBar;
   private
+    FSearchCache: TSearchCache;
     FOnLog: TLogMessageEvent;
     FOnFindIdentifier: TGlobalSearchEvent;
     function GetRow: Integer;
@@ -40,10 +41,10 @@ type
     function GetColumn: Integer;
     procedure SetColumn(Value: Integer);
   protected
-    FValidActions: TValidActions;
     FFileName: TFileName;
     FPage: TTabSheet;
     FNode: TTreeNode;
+    FSyntax: String;
     procedure Log(const Text: String);
     procedure FindIdentifier(const Token: String);
     function GetIsModified: Boolean; virtual; abstract;
@@ -59,10 +60,12 @@ type
     property Column: Integer read GetColumn write SetColumn;
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure Open(Page: TTabSheet; Node: TTreeNode); virtual;
     procedure Save; virtual; abstract;
     procedure SaveAs(const FileName: TFileName); virtual; abstract;
     procedure ExportFile(const FileName: TFileName); virtual; abstract;
+    procedure PrintFile(Dialog: TPrintDialog); virtual; abstract;
     procedure Revert; virtual; abstract;
     function Search(const Criteria: String; First, Backwards, MatchCase,
       MatchWholeWordOnly: Boolean): Boolean; virtual; abstract;
@@ -73,48 +76,90 @@ type
     procedure RetrieveLabels(List: TStrings); virtual;
     procedure Idle; virtual; abstract;
     procedure RefreshConfig; virtual; abstract;
+    procedure Post(Itinerary: TItinerary);
+    property SearchCache: TSearchCache read FSearchCache;
     property IsModified: Boolean read GetIsModified write SetIsModified;
     property Node: TTreeNode read FNode write FNode;
     property LogicalName: TFileName read GetLogicalName write SetLogicalName;
     property InsertMode: Boolean read GetInsertMode write SetInsertMode;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
-    property ValidActions: TValidActions read FValidActions;
     property SelectedText: String read GetSelectedText;
     property OnLog: TLogMessageEvent read FOnLog write FOnLog;
     property OnFindIdentifier: TGlobalSearchEvent read FOnFindIdentifier write FOnFindIdentifier;
   end;
+  TCustomEditorFrames = class of TCustomEditorFrame;
 
   TTabSheetHelper = class helper for TTabSheet
   private
     function GetEditor: TCustomEditorFrame;
+    function GetStatus: TTreeNodeStatus;
   public
     property Editor: TCustomEditorFrame read GetEditor;
+    property Status: TTreeNodeStatus read GetStatus;
   end;
+
+  function EditorFactory(const FileName: TFileName): TCustomEditorFrames;
 
 implementation
 
 {$R *.lfm}
 
 uses
-  StrUtils, Utils, Configs;
+  StrUtils, ConfigUtils, Configs, HexEditors, CustomTextEditors, AssemblyEditors,
+  BasicEditors, BatchEditors, HtmlEditors, ImageEditors, IniEditors, IntelHexEditors,
+  JsonEditors, MarkdownEditors, PascalEditors, PdfEditors, RichTextEditors, SpinEditors,
+  XmlEditors, ZipEditors;
 
 const
-  OVERWRITE_PANEL = 0;
-  READ_ONLY_PANEL = 1;
-  MODIFIED_PANEL  = 2;
-  ROW_PANEL       = 3;
-  COL_PANEL       = 4;
-  FILE_NAME_PANEL = 5;
+  SYNTAX_PANEL    = 0;
+  OVERWRITE_PANEL = 1;
+  READ_ONLY_PANEL = 2;
+  MODIFIED_PANEL  = 3;
+  ROW_PANEL       = 4;
+  COL_PANEL       = 5;
+  FILE_NAME_PANEL = 6;
+
+function EditorFactory(const FileName: TFileName): TCustomEditorFrames;
+const
+  FACTORIES: array[TConfig.TSyntax] of TCustomEditorFrames =
+   (TAssemblyEditorFrame,   // synAssembly
+    TBasicEditorFrame,      // synBasic
+    TBatchEditorFrame,      // synBatch
+    TIniEditorFrame,        // synConfig
+    THexEditorFrame,        // synHex
+    THtmlEditorFrame,       // synHtml
+    TImageEditorFrame,      // synImage
+    TIntelHexEditorFrame,   // synIntelHex
+    TJsonEditorFrame,       // synJson
+    TMarkdownEditorFrame,   // synMarkdown
+    TPascalEditorFrame,     // synPascal
+    TPdfEditorFrame,        // synPdf
+    TRichTextEditorFrame,   // synRtf
+    TSpinEditorFrame,       // synSpin
+    TCustomTextEditorFrame, // synText
+    TXmlEditorFrame,        // synXml
+    TZipEditorFrame);       // synZip
+begin
+  Result := FACTORIES[Config.GetSyntax(FileName)];
+end;
 
 { TCustomEditorFrame }
 
 constructor TCustomEditorFrame.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FValidActions := [vaCase, vaWord, vaLabel, vaPrevious];
+  FSearchCache := TSearchCache.Create;
+  StatusBar.Panels[SYNTAX_PANEL].Text := AnsiReplaceText(FSyntax, ' Syntax', EmptyStr);
+  SearchCache.SearchModes := [];
+  SearchCache.ValidActions := [];
   InsertMode := True;
   ReadOnly := False;
-  RefreshConfig;
+end;
+
+destructor TCustomEditorFrame.Destroy;
+begin
+  FSearchCache.Free;
+  inherited;
 end;
 
 function TCustomEditorFrame.GetRow: Integer;
@@ -152,15 +197,16 @@ end;
 procedure TCustomEditorFrame.SetIsModified(Value: Boolean);
 const
   CAPTIONS: array[Boolean] of String = ('', 'Modified');
-  TOKEN = '•';
 begin
   StatusBar.Panels[MODIFIED_PANEL].Text := CAPTIONS[Value];
   if Assigned(FPage) then
-    if not Value then
-      FPage.Caption := AnsiReplaceText(FPage.Caption, TOKEN, EmptyStr)
-    else
-      if not AnsiStartsText(TOKEN, FPage.Caption) then
-        FPage.Caption := TOKEN + FPage.Caption;
+    if Value then begin
+      FPage.ImageIndex := STATUS_MODIFIED_INDEX;
+      FPage.Editor.Node.Status := tnsModified; end
+    else begin
+      FPage.ImageIndex := FPage.Editor.Node.ImageIndex;
+      FPage.Editor.Node.Status := tnsUnmodified;
+    end;
 end;
 
 function TCustomEditorFrame.GetLogicalName: TFileName;
@@ -205,11 +251,16 @@ begin
   List.Clear;
 end;
 
+procedure TCustomEditorFrame.Post(Itinerary: TItinerary);
+begin
+  Itinerary.Post(Node, LineNumber);
+end;
+
 { TTreeNodeHelper }
 
 function TTabSheetHelper.GetEditor: TCustomEditorFrame;
 var
-  I: Integer;
+  I: Integer = 0;
   Control: TControl;
 begin
   Result := nil;
@@ -220,6 +271,20 @@ begin
       Break;
     end;
   end;
+end;
+
+function TTabSheetHelper.GetStatus: TTreeNodeStatus;
+var
+  Temp: TCustomEditorFrame;
+begin
+  Temp := Self.Editor;
+  if not Assigned(Temp) then
+    Result := tnsUnattached
+  else
+    if Temp.IsModified then
+      Result := tnsModified
+    else
+      Result := tnsUnmodified;
 end;
 
 end.

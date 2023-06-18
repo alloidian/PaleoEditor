@@ -1,6 +1,6 @@
 unit FileMasks;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,7 +15,7 @@ unit FileMasks;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
@@ -39,8 +39,8 @@ type
     DefaultAction: TAction;
     DirectoryLabel: TLabel;
     DirectoryEdit: TListBox;
-    MoveUpButton: TSpeedButton;
-    MoveDownButton: TSpeedButton;
+    MoveUpButton: TBitBtn;
+    MoveDownButton: TBitBtn;
     FolderEdit: TEdit;
     ReplaceButton: TButton;
     AddButton: TButton;
@@ -49,6 +49,12 @@ type
     OKButton: TButton;
     CancelButton: TButton;
     procedure FormCreate(Sender: TObject);
+    procedure DirectoryEditMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure DirectoryEditDragOver(Sender, Source: TObject; X, Y: Integer;
+      State: TDragState; var Accept: Boolean);
+    procedure DirectoryEditDragDrop(Sender, Source: TObject; X, Y: Integer);
+    procedure DirectoryEditEndDrag(Sender, Target: TObject; X, Y: Integer);
     procedure MoveUpActionExecute(Sender: TObject);
     procedure MoveUpActionUpdate(Sender: TObject);
     procedure MoveDownActionExecute(Sender: TObject);
@@ -66,6 +72,7 @@ type
     procedure DirectoryEditClick(Sender: TObject);
   private
     FDefault: String;
+    FItemIndex: Integer;
     function GetFolder: String;
     procedure SetFolder(const Value: String);
     function GetSelected: String;
@@ -114,9 +121,54 @@ begin
   DirectoryEdit.Items.Delimiter := DELIMITER;
 end;
 
+procedure TEditFileMaskForm.DirectoryEditMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  Edit: TListBox;
+begin
+  Edit := Sender as TListBox;
+  FItemIndex := Edit.ItemAtPos(Point(X, Y), True);
+end;
+
+procedure TEditFileMaskForm.DirectoryEditDragOver(Sender, Source: TObject; X, Y: Integer;
+  State: TDragState; var Accept: Boolean);
+var
+  Edit: TListBox;
+  ItemIndex: Integer;
+begin
+  Accept := Sender = Source;
+  if Accept then begin
+    Edit := Sender as TListBox;
+    ItemIndex := Edit.ItemAtPos(Point(X, Y), True);
+    Accept := (ItemIndex > -1) and (ItemIndex < Edit.Count);
+  end;
+end;
+
+procedure TEditFileMaskForm.DirectoryEditDragDrop(Sender, Source: TObject; X, Y: Integer);
+var
+  Edit: TListBox;
+  ItemIndex: Integer;
+begin
+  Edit := Sender as TListBox;
+  ItemIndex := Edit.ItemAtPos(Point(X, Y), True);
+  if (ItemIndex > -1) and (ItemIndex < Edit.Count) and (FItemIndex > -1) then
+    Edit.Items.Move(FItemIndex, ItemIndex);
+end;
+
+procedure TEditFileMaskForm.DirectoryEditEndDrag(Sender, Target: TObject; X, Y: Integer);
+var
+  Edit: TListBox;
+  ItemIndex: Integer;
+begin
+  Edit := Sender as TListBox;
+  ItemIndex := Edit.ItemAtPos(Point(X, Y), True);
+  if (ItemIndex > -1) and (ItemIndex < Edit.Count) and (FItemIndex > -1) then
+    Edit.ItemIndex := ItemIndex;
+end;
+
 procedure TEditFileMaskForm.MoveUpActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if I > 0 then begin
@@ -132,7 +184,7 @@ end;
 
 procedure TEditFileMaskForm.MoveDownActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if (I > -1) and (I + 1 < DirectoryEdit.Items.Count) then begin
@@ -143,7 +195,7 @@ end;
 
 procedure TEditFileMaskForm.MoveDownActionUpdate(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   (Sender as TAction).Enabled := (I > -1) and (I + 1 < DirectoryEdit.Items.Count);
@@ -173,7 +225,7 @@ end;
 
 procedure TEditFileMaskForm.DeleteActionExecute(Sender: TObject);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if I > -1 then begin
@@ -199,7 +251,8 @@ const
   PROMPT  = 'Are you sure you want to revert to default value?';
 begin
   if not FDefault.IsEmpty then
-    if MessageDlg(CAPTION, PROMPT, mtConfirmation, [mbYes, mbNo], 0, mbNo) = mrYes then
+    if (DirectoryEdit.Items.Count = 0) or
+        (MessageDlg(CAPTION, PROMPT, mtConfirmation, [mbYes, mbNo], 0, mbNo) = mrYes) then
       DirectoryEdit.Items.DelimitedText := FDefault;
 end;
 
@@ -239,7 +292,7 @@ end;
 
 function TEditFileMaskForm.GetSelected: String;
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if I > -1 then
@@ -250,7 +303,7 @@ end;
 
 procedure TEditFileMaskForm.SetSelected(const Value: String);
 var
-  I: Integer;
+  I: Integer = 0;
 begin
   I := DirectoryEdit.ItemIndex;
   if I > -1 then

@@ -1,6 +1,6 @@
 unit HexEditors;
 
-{ Copyright ©2022 by Steve Garcia. All rights reserved.
+{ Copyright ©2022-2023 by Steve Garcia. All rights reserved.
 
   This file is part of the Paleo Editor project.
 
@@ -15,12 +15,13 @@ unit HexEditors;
   You should have received a copy of the GNU General Public License along with the Paleo
   Editor project. If not, see <https://www.gnu.org/licenses/>. }
 
-{$MODE DELPHI}{$H+}
+{$MODE DELPHI}
 
 interface
 
 uses
-  Classes, SysUtils, Controls, Dialogs, CustomEditors, MPHexEditorEx, ComCtrls;
+  Classes, SysUtils, Controls, Dialogs, PrintersDlgs, CustomEditors, MPHexEditorEx,
+  ComCtrls;
 
 type
 
@@ -43,6 +44,7 @@ type
     procedure Save; override;
     procedure SaveAs(const FileName: TFileName); override;
     procedure ExportFile(const FileName: TFileName); override;
+    procedure PrintFile(Dialog: TPrintDialog); override;
     procedure Revert; override;
     function Search(const Criteria: String; First, Backwards, MatchCase,
       MatchWholeWordOnly: Boolean): Boolean; override;
@@ -54,22 +56,23 @@ type
     procedure RefreshConfig; override;
   end;
 
-var
-  HexEditorFrame: THexEditorFrame;
-
 implementation
 
 {$R *.lfm}
 
 uses
-  MPHexEditor, Utils, Searches, Configs;
+  MPHexEditor, Utils, Searches, ConfigUtils, Configs;
 
 { THexEditorFrame }
 
 constructor THexEditorFrame.Create(AOwner: TComponent);
 begin
+  FSyntax := ITEM_BINARY_SYNTAX;
   inherited Create(AOwner);
-  FValidActions := [vaCase, vaWord];
+  SearchCache.SearchModes := [smSearch, smReplace];
+  SearchCache.ValidActions  := [vaCase, vaWord, vaPrevious];
+  SearchCache.Filter := EmptyStr;
+  SearchCache.Filters := SearchCache.Filter;
 end;
 
 procedure THexEditorFrame.EditorChange(Sender: TObject);
@@ -144,6 +147,11 @@ begin
   ShowMessage(UNIMPLEMENTED_PROMPT);
 end;
 
+procedure THexEditorFrame.PrintFile(Dialog: TPrintDialog);
+begin
+  ShowMessage(UNIMPLEMENTED_PROMPT);
+end;
+
 procedure THexEditorFrame.Revert;
 begin
   Editor.LoadFromFile(FFileName);
@@ -153,9 +161,9 @@ end;
 function THexEditorFrame.Search(const Criteria: String; First, Backwards, MatchCase,
   MatchWholeWordOnly: Boolean): Boolean;
 var
-  Position: Integer;
-  Found: Integer;
-  Text: String;
+  Position: Integer = 0;
+  Found: Integer = 0;
+  Text: String = '';
 begin
   Result := False;
   if First then begin
@@ -188,16 +196,13 @@ end;
 procedure THexEditorFrame.Replace(Criteria, Replacement: String; All, MatchCase,
   MatchWholeWordOnly: Boolean);
 var
-  Position: Integer;
-  Count: Integer;
+  Position: Integer = 0;
+  Count: Integer = 0;
 begin
   Criteria := Editor.PrepareFindReplaceData(Criteria, not MatchCase, True);
   Replacement := Editor.PrepareFindReplaceData(Replacement, False, True);
-  if All then
-    Position := 0
-  else
+  if not All then
     Position := Max(0, Editor.GetCursorPos);
-  Count := 0;
   if (Length(Criteria) mod Editor.BytesPerUnit) <> 0 then begin
     Log('Size of data to search for must be a multiple of Bytes per unit');
     Exit;
@@ -229,6 +234,8 @@ end;
 procedure THexEditorFrame.GotoLine(LineNumber: Integer);
 begin
   Editor.Row := LineNumber + 1;
+  if Editor.CanFocus then
+    Editor.SetFocus;
 end;
 
 function THexEditorFrame.LineNumber: Integer;
@@ -238,7 +245,7 @@ end;
 
 procedure THexEditorFrame.Idle;
 var
-  Pos: Integer;
+  Pos: Integer = 0;
 begin
   InsertMode := Editor.InsertMode;
   Pos := Editor.GetCursorPos;
